@@ -1,0 +1,25 @@
+name: sql-mastery
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sql-mastery-postgres
+    environment:
+      POSTGRES_DB: sql_mastery_lab
+      POSTGRES_USER: learner
+      POSTGRES_PASSWORD: learner_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - sql_mastery_pgdata:/var/lib/postgresql/data
+      - ./00_Setup/01_create_schema.sql:/docker-entrypoint-initdb.d/01_create_schema.sql:ro
+      - ./00_Setup/02_seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U learner -d sql_mastery_lab"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  sql_mastery_pgdata:
