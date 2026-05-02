@@ -1,66 +1,61 @@
 """
-================================================================
-   TASK 22: Closures & Higher-Order Functions     ****    
-================================================================
+==============================================================================
+  TASK 22: Closures & Function Composition
+==============================================================================
 
-INSTRUCTIONS:
-Closures capture state. Flask's route handlers and Django signals use this pattern.
-
-CONCEPTS: closures, nonlocal, higher-order functions, partial application
+REAL-WORLD CONTEXT:
+Closures are functions that "remember" their creation environment. Used for:
+  - Counters and accumulators (stateful functions without classes)
+  - Function composition (combine small functions into complex pipelines)
+  - Event systems (subscribe/emit pattern for decoupled communication)
+  - Pipe/compose (functional programming staple for data transformation)
 """
 
 from functools import partial, reduce
 
 
-# ----- Challenge 22.1 -----
-# Create a counter factory using closures.
-# counter = make_counter(start=0)
-# counter() -> 0, counter() -> 1, counter() -> 2, counter.reset() won't work (just increment)
+# SCENARIO: A rate limiter needs a counter that remembers how many calls happened.
+# No class needed — just a function that "remembers" its count between calls.
+# YOUR FIX: Return a function that increments and returns a counter each call.
+# EXPECTED: counter = make_counter(10); counter() → 10; counter() → 11; counter() → 12
 def make_counter(start=0):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 22.2 -----
-# Create a function compose that takes multiple functions and returns their composition.
-# compose(f, g, h)(x) = f(g(h(x)))
-# Example: compose(str, lambda x: x*2, int)("5") -> "10"
+# SCENARIO: Data transformation pipeline: parse string to int → double it → back to string.
+# compose(f, g, h)(x) = f(g(h(x))) — applies functions right to left.
+# YOUR FIX: compose(str, lambda x: x*2, int)("5") → str(int("5") * 2) → "10"
+# EXPECTED: compose(str, lambda x: x*2, int)("5") → "10"
 def compose(*functions):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 22.3 -----
-# Implement a simple event system using closures:
-# emitter = create_event_emitter()
-# emitter.on("click", handler_func)  -> register handler
-# emitter.emit("click", data)        -> call all handlers with data
-# emitter.off("click", handler_func) -> remove handler
+# SCENARIO: A UI framework needs an event system: components emit events,
+# other components listen. Click "Save" button → form submits + toast shows.
+# YOUR FIX: Event emitter with .on(event, handler), .emit(event, data), .off(event, handler).
+# EXPECTED: emitter.on("click", handler); emitter.emit("click", "btn") → handler called with "btn"
 def create_event_emitter():
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 22.4 -----
-# Implement pipe() that works left-to-right (opposite of compose).
-# pipe(h, g, f)(x) = f(g(h(x)))
-# Example: pipe(int, lambda x: x*2, str)("5") -> "10"
+# SCENARIO: Same as compose but LEFT to RIGHT (more readable for data pipelines).
+# pipe(int, double, str)("5") = str(double(int("5"))) — reads like a pipeline.
+# YOUR FIX: Apply functions left to right.
+# EXPECTED: pipe(int, lambda x: x*2, str)("5") → "10"
 def pipe(*functions):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
-    # Test 22.1
     counter = make_counter(10)
     assert counter() == 10
     assert counter() == 11
     assert counter() == 12
     print("[PASS] Test 22.1 Passed: make_counter")
 
-    # Test 22.2
     double_then_str = compose(str, lambda x: x * 2, int)
     assert double_then_str("5") == "10"
     print("[PASS] Test 22.2 Passed: compose")
 
-    # Test 22.3
     emitter = create_event_emitter()
     results = []
     handler = lambda data: results.append(data)
@@ -73,7 +68,6 @@ if __name__ == "__main__":
     assert len(results) == 2  # handler was removed
     print("[PASS] Test 22.3 Passed: event_emitter")
 
-    # Test 22.4
     pipeline = pipe(int, lambda x: x * 2, str)
     assert pipeline("5") == "10"
     print("[PASS] Test 22.4 Passed: pipe")

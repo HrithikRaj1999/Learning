@@ -1,80 +1,38 @@
 """
-================================================================
-   TASK 29: Templates & Static Files (Jinja2)     ***      
-================================================================
+==============================================================================
+  TASK 29: Flask Templates (Jinja2)
+==============================================================================
 
-SETUP: pip install flask
-RUN:   python task_29_templates.py
+REAL-WORLD CONTEXT:
+APIs return JSON. But WEBSITES return HTML pages. Flask uses Jinja2 templates:
+  - Separate HTML structure from Python logic
+  - Dynamic content: show user's name, loop over products, conditionally show buttons
+  - Template inheritance: all pages share a header/footer (base.html)
 
-INSTRUCTIONS:
-Fullstack means serving HTML too! Learn Jinja2 templating.
-Create the template files in a "templates/" folder next to this file.
+SCENARIO: Build a simple website:
+  1. Base template with header/footer (all pages inherit from it)
+  2. Home page with a welcome message
+  3. Products page listing items from a Python list
+  4. User profile page showing dynamic user data
 
-CONCEPTS: render_template, Jinja2 syntax, template inheritance, loops, conditions
+WHAT TO BUILD:
+  templates/
+    base.html       → {% block content %}{% endblock %}
+    home.html       → {% extends 'base.html' %} + welcome text
+    products.html   → {% for product in products %} loop
+    profile.html    → {{ user.name }} dynamic data
+
+EXPECTED BEHAVIOR:
+  GET / → renders home.html with "Welcome to our store!"
+  GET /products → renders list of products from Python data
+  GET /profile/alice → renders alice's profile page
 """
 
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-
-# ----- Challenge 29.1 -----
-# Create a template "templates/base.html" with:
-# - HTML boilerplate
-# - A {% block title %} and {% block content %}
-# - A simple navigation bar
-
-# Create a template "templates/index.html" that extends base.html
-# and shows a welcome message
-
-# Create a route "/" that renders index.html
-# YOUR CODE HERE
-
-
-# ----- Challenge 29.2 -----
-# Create a template "templates/users.html" that:
-# - Extends base.html
-# - Displays a list of users in a table
-# - Uses {% for %} loop and {% if %} conditions
-# - Highlights users with age > 30 in a different color
-
-# Create a route "/users" that passes a list of user dicts to the template
-# YOUR CODE HERE
-
-
-# ----- Challenge 29.3 -----
-# Create a template "templates/profile.html" with:
-# - Uses Jinja2 filters: |capitalize, |length, |default
-# - Shows a user profile card
-
-# Create a route "/profile/<username>" that renders profile.html
-# YOUR CODE HERE
-
-
-# =========== TEMPLATE EXAMPLES ===========
-"""
-Create these files manually:
-
---- templates/base.html ---
-<!DOCTYPE html>
-<html>
-<head><title>{% block title %}My App{% endblock %}</title></head>
-<body>
-  <nav><a href="/">Home</a> | <a href="/users">Users</a></nav>
-  <hr>
-  {% block content %}{% endblock %}
-</body>
-</html>
-
---- templates/index.html ---
-{% extends "base.html" %}
-{% block title %}Home{% endblock %}
-{% block content %}
-  <h1>Welcome to my Flask App!</h1>
-{% endblock %}
-
-Now create users.html and profile.html yourself!
-"""
+# BUILD: Add routes that render templates with dynamic data
 
 if __name__ == "__main__":
     print(">> Create the templates/ folder and HTML files first!")

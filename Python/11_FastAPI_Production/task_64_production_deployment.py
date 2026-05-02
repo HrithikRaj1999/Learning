@@ -1,41 +1,31 @@
 """
-================================================================
-   TASK 64: Production Deployment Checklist          ****
-================================================================
+==============================================================================
+  TASK 64: Production Deployment
+==============================================================================
 
-Create deployment files for a FastAPI service.
+REAL-WORLD CONTEXT:
+Your FastAPI app works locally. Now deploy it so the world can use it.
+Production deployment requires:
+  - Dockerfile (containerized, consistent environment)
+  - docker-compose.yml (app + database + redis in one command)
+  - Gunicorn/Uvicorn config (multiple workers for handling load)
+  - Health check endpoint (load balancer needs to know you're alive)
+  - Environment variables (secrets NOT in code)
+  - CORS configuration (frontend on different domain)
 
-Deliverables:
-- Dockerfile
-- docker-compose.yml with app + Postgres + Redis
-- .env.example
-- health endpoint
-- GitHub Actions workflow
-- README with local and production commands
+SCENARIO: Deploy your FastAPI capstone project:
+  1. Create Dockerfile (multi-stage build for smaller image)
+  2. Create docker-compose.yml (FastAPI + PostgreSQL + Redis)
+  3. Configure Uvicorn workers (1 worker per CPU core)
+  4. Add /health endpoint (checks DB and Redis connectivity)
+  5. Set up CORS for your frontend domain
+  6. Configure logging for production (JSON format, no debug)
 
-Dockerfile checklist:
-- Use python slim image.
-- Set PYTHONDONTWRITEBYTECODE=1 and PYTHONUNBUFFERED=1.
-- Install dependencies before copying app code.
-- Run as a non-root user.
-- Use `fastapi run` or `uvicorn app.main:app`.
-
-Runtime checklist:
-- Secrets come from environment variables.
-- CORS is explicit.
-- Logs are structured.
-- Migrations run as a release step.
-- Health checks verify app and database.
-- Timeouts and worker counts are documented.
-
-Interview prompts:
-- How many Uvicorn workers would you use and why?
-- What is the difference between readiness and liveness?
-- How do you roll back a bad migration?
-- How do you handle graceful shutdown?
+EXPECTED BEHAVIOR:
+  docker-compose up → app running on port 8000
+  curl localhost:8000/health → {"status": "ok", "db": "connected", "redis": "connected"}
+  curl localhost:8000/docs → Swagger UI (API documentation)
 """
 
-
-if __name__ == "__main__":
-    print("This task is file-based. Create deployment files next to your FastAPI capstone.")
-
+# This task is file-based. Create deployment files next to your FastAPI capstone.
+# Files to create: Dockerfile, docker-compose.yml, gunicorn.conf.py, .env.example

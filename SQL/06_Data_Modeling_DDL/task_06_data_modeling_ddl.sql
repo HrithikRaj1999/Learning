@@ -1,167 +1,354 @@
-/*
-==============================================================================
-  TASK 06: Data Modeling and DDL
-==============================================================================
-
-LEVEL: Advanced
-CONCEPTS: schemas, CREATE TABLE, ALTER TABLE, constraints, foreign keys, normalization, generated columns, domains, enums, partitioning
-
-HOW TO PRACTICE:
-1. Run ../00_Setup/01_create_schema.sql
-2. Run ../00_Setup/02_seed_data.sql
-3. Write each answer under its prompt.
-4. Keep every solution as one independent SQL statement unless a task asks for DDL or a transaction.
-
-Target: 25 non-repeated exercises for this topic.
-*/
-
 SET search_path TO sql_mastery;
 
-------------------------------------------------------------------------------
--- Challenge 06.01
--- Design a normalized returns table linked to orders, order_items, customers, and products.
--- Write your solution below.
+-- ============================================================================
+-- TASK 06: DATA MODELING AND DDL
+-- ============================================================================
+-- You're the database architect. These challenges require you to CREATE,
+-- ALTER, and design tables with proper constraints. Think about real-world
+-- data integrity — what should the database enforce so bad data can't sneak in?
+-- ============================================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.02
--- Create a product_reviews table with rating constrained from 1 to 5 and one review per customer per product.
--- Write your solution below.
+-- ==================================================
+-- 06.01 - Returns Table Design
+-- ==================================================
+-- SCENARIO: Customers can return items. Design a normalized returns table
+-- that links to orders, order_items, customers, and products with proper
+-- foreign keys.
+--
+-- YOUR TASK: CREATE TABLE returns with return_id, order_id, order_item_id,
+-- customer_id, product_id, reason, returned_at, refund_amount. Add FKs.
+--
+-- EXPECTED OUTPUT: DDL statement creating the returns table with constraints.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.03
--- Add a generated column to order_items that stores net_line_amount.
--- Write your solution below.
+
+-- ==================================================
+-- 06.02 - Product Reviews Table
+-- ==================================================
+-- SCENARIO: The company launches product reviews. Rating must be 1-5,
+-- and a customer can only review a product once.
+--
+-- YOUR TASK: CREATE TABLE product_reviews with CHECK(rating BETWEEN 1 AND 5)
+-- and UNIQUE(customer_id, product_id).
+--
+-- EXPECTED OUTPUT: DDL with rating constraint and uniqueness guarantee.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.04
--- Create a domain for positive_money and use it on a new vendor_contracts table.
--- Write your solution below.
+
+-- ==================================================
+-- 06.03 - Generated Column for Net Line Amount
+-- ==================================================
+-- SCENARIO: Instead of calculating net_line_amount every query, store it
+-- as a generated column: quantity * unit_price * (1 - discount_pct).
+--
+-- YOUR TASK: ALTER TABLE order_items ADD COLUMN net_line_amount GENERATED ALWAYS AS (...).
+--
+-- EXPECTED OUTPUT: ALTER TABLE statement adding the generated column.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.05
--- Create an enum for ticket_event_type and migrate ticket_events.event_type to use it.
--- Write your solution below.
+
+-- ==================================================
+-- 06.04 - Custom Domain for Positive Money
+-- ==================================================
+-- SCENARIO: Many columns need "positive money" validation. Create a
+-- reusable domain type and use it on a new vendor_contracts table.
+--
+-- YOUR TASK: CREATE DOMAIN positive_money. Then CREATE TABLE vendor_contracts
+-- using that domain for amount columns.
+--
+-- EXPECTED OUTPUT: Domain definition + table using it.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.06
--- Add a CHECK constraint that prevents shipments.delivered_at before shipments.shipped_at.
--- Write your solution below.
+
+-- ==================================================
+-- 06.05 - Enum for Ticket Event Types
+-- ==================================================
+-- SCENARIO: ticket_events.event_type currently allows any string. Restrict
+-- it to a defined set using a PostgreSQL enum.
+--
+-- YOUR TASK: CREATE TYPE ticket_event_type AS ENUM(...). Migrate the column.
+--
+-- EXPECTED OUTPUT: Enum creation + ALTER TABLE to use it.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.07
--- Add a foreign key from orders.sales_rep_id to employees.employee_id with an explicit delete behavior.
--- Write your solution below.
+
+-- ==================================================
+-- 06.06 - Shipment Date CHECK Constraint
+-- ==================================================
+-- SCENARIO: A shipment can't be delivered before it's shipped. Add a
+-- CHECK constraint to prevent this impossible state.
+--
+-- YOUR TASK: ALTER TABLE shipments ADD CONSTRAINT check_delivery_after_ship
+-- CHECK (delivered_at IS NULL OR delivered_at >= shipped_at).
+--
+-- EXPECTED OUTPUT: ALTER TABLE with the CHECK constraint.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.08
--- Create a staging schema and a raw_orders table that accepts loose text fields.
--- Write your solution below.
+
+-- ==================================================
+-- 06.07 - Foreign Key with Delete Behavior
+-- ==================================================
+-- SCENARIO: orders.sales_rep_id references employees. If a rep leaves,
+-- what happens to their orders? Add the FK with explicit ON DELETE behavior.
+--
+-- YOUR TASK: ALTER TABLE orders ADD CONSTRAINT fk_sales_rep
+-- FOREIGN KEY (sales_rep_id) REFERENCES employees(employee_id) ON DELETE SET NULL.
+--
+-- EXPECTED OUTPUT: FK constraint with chosen delete behavior + comment explaining why.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.09
--- Design a slowly changing dimension table for customer addresses.
--- Write your solution below.
+
+-- ==================================================
+-- 06.08 - Staging Schema and Raw Orders Table
+-- ==================================================
+-- SCENARIO: ETL pipelines land raw data before cleaning. Create a staging
+-- schema with a loose table accepting text fields.
+--
+-- YOUR TASK: CREATE SCHEMA staging; CREATE TABLE staging.raw_orders
+-- with all text columns (no type constraints).
+--
+-- EXPECTED OUTPUT: Schema creation + loose staging table.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.10
--- Split product category into a separate categories table and update products to reference it.
--- Write your solution below.
+
+-- ==================================================
+-- 06.09 - Slowly Changing Dimension for Addresses
+-- ==================================================
+-- SCENARIO: Customers move. Design an SCD Type 2 table that keeps address
+-- history with valid_from, valid_to, and is_current flags.
+--
+-- YOUR TASK: CREATE TABLE customer_addresses with address fields + SCD columns.
+--
+-- EXPECTED OUTPUT: SCD2 table design with temporal tracking columns.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.11
--- Create a bridge table for campaigns and products with a composite primary key.
--- Write your solution below.
+
+-- ==================================================
+-- 06.10 - Normalize Category into Separate Table
+-- ==================================================
+-- SCENARIO: Products store category as a text string. Normalize it into
+-- a categories table and update products to use a foreign key.
+--
+-- YOUR TASK: CREATE TABLE categories. ALTER TABLE products to add
+-- category_id FK. Write migration INSERT + UPDATE.
+--
+-- EXPECTED OUTPUT: New table + FK + data migration statements.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.12
--- Add a unique constraint that prevents duplicate active subscriptions for the same customer and plan.
--- Write your solution below.
+
+-- ==================================================
+-- 06.11 - Campaign-Product Bridge Table
+-- ==================================================
+-- SCENARIO: Campaigns promote multiple products, and products appear in
+-- multiple campaigns. Design the many-to-many bridge table.
+--
+-- YOUR TASK: CREATE TABLE campaign_products with composite PK
+-- (campaign_id, product_id) and foreign keys to both tables.
+--
+-- EXPECTED OUTPUT: Bridge table with composite primary key.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.13
--- Create an audit table for order status transitions with old_status, new_status, and changed_at.
--- Write your solution below.
+
+-- ==================================================
+-- 06.12 - Unique Active Subscription Constraint
+-- ==================================================
+-- SCENARIO: A customer shouldn't have two active subscriptions for the
+-- same plan simultaneously. Add a constraint to prevent this.
+--
+-- YOUR TASK: CREATE UNIQUE INDEX on (customer_id, plan_name)
+-- WHERE status = 'active'.
+--
+-- EXPECTED OUTPUT: Partial unique index preventing duplicate active subs.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.14
--- Create a monthly partitioned table for web_events_archive.
--- Write your solution below.
+
+-- ==================================================
+-- 06.13 - Order Status Audit Table
+-- ==================================================
+-- SCENARIO: Every time an order's status changes, record the old status,
+-- new status, and when it changed — for compliance tracking.
+--
+-- YOUR TASK: CREATE TABLE order_status_audit with order_id, old_status,
+-- new_status, changed_at, changed_by.
+--
+-- EXPECTED OUTPUT: Audit table DDL.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.15
--- Create a temporary table that stores one month's high-value customers for analysis.
--- Write your solution below.
+
+-- ==================================================
+-- 06.14 - Partitioned Web Events Archive
+-- ==================================================
+-- SCENARIO: web_events grows fast. Partition the archive table by month
+-- so old months can be dropped efficiently.
+--
+-- YOUR TASK: CREATE TABLE web_events_archive (...) PARTITION BY RANGE (occurred_at).
+-- Create partitions for specific months.
+--
+-- EXPECTED OUTPUT: Partitioned parent table + child partition definitions.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.16
--- Create a view-friendly star schema outline with fact_orders and dimensions for customer, product, and date.
--- Write your solution below.
+
+-- ==================================================
+-- 06.15 - Temporary Table for Analysis
+-- ==================================================
+-- SCENARIO: An analyst needs a temporary workspace to store high-value
+-- customers for a one-time deep dive.
+--
+-- YOUR TASK: CREATE TEMP TABLE high_value_customers AS SELECT ...
+-- (customers with total spend > threshold in one month).
+--
+-- EXPECTED OUTPUT: CTAS statement creating a temporary analysis table.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.17
--- Use ALTER TABLE to add a NOT NULL constraint safely for customers.country.
--- Write your solution below.
+
+-- ==================================================
+-- 06.16 - Star Schema Outline
+-- ==================================================
+-- SCENARIO: The BI team needs a star schema: fact_orders in the center,
+-- with dim_customer, dim_product, dim_date dimensions around it.
+--
+-- YOUR TASK: CREATE TABLE for fact_orders and each dimension table
+-- with appropriate keys and grain.
+--
+-- EXPECTED OUTPUT: Star schema DDL (fact + 3 dimensions).
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.18
--- Create a table with a JSONB column and a CHECK constraint that validates required metadata keys.
--- Write your solution below.
+
+-- ==================================================
+-- 06.17 - Safe NOT NULL Migration
+-- ==================================================
+-- SCENARIO: customers.country should be NOT NULL, but some rows have NULL.
+-- Add the constraint safely: fill NULLs first, then add constraint.
+--
+-- YOUR TASK: UPDATE nulls to a default → ALTER TABLE ADD NOT NULL.
+--
+-- EXPECTED OUTPUT: Migration script with safe ordering.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.19
--- Design a many-to-many relationship between employees and departments with assignment dates.
--- Write your solution below.
+
+-- ==================================================
+-- 06.18 - JSONB Column with Required Keys
+-- ==================================================
+-- SCENARIO: A new events table stores metadata as JSONB, but certain keys
+-- (event_type, source) are required. Enforce with CHECK.
+--
+-- YOUR TASK: CREATE TABLE with JSONB column + CHECK that validates
+-- required keys exist.
+--
+-- EXPECTED OUTPUT: Table with JSONB validation constraint.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.20
--- Create an exclusion constraint to prevent overlapping active subscription periods per customer and plan.
--- Write your solution below.
+
+-- ==================================================
+-- 06.19 - Employee-Department Many-to-Many
+-- ==================================================
+-- SCENARIO: Employees can belong to multiple departments over time.
+-- Design the junction table with assignment dates.
+--
+-- YOUR TASK: CREATE TABLE employee_departments with employee_id,
+-- department_id, assigned_from, assigned_to.
+--
+-- EXPECTED OUTPUT: M:M junction table with temporal fields.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.21
--- Add comments on tables and columns for support_tickets and ticket_events.
--- Write your solution below.
+
+-- ==================================================
+-- 06.20 - Exclusion Constraint for Overlapping Subscriptions
+-- ==================================================
+-- SCENARIO: Prevent a customer from having overlapping subscription periods
+-- for the same plan. Use a range exclusion constraint.
+--
+-- YOUR TASK: CREATE exclusion constraint using daterange and &&.
+--
+-- EXPECTED OUTPUT: Table alteration with EXCLUDE USING gist.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.22
--- Create a materialized view definition for daily revenue summary.
--- Write your solution below.
+
+-- ==================================================
+-- 06.21 - Table and Column Comments
+-- ==================================================
+-- SCENARIO: New team members struggle to understand what support_tickets
+-- columns mean. Add documentation directly in the database.
+--
+-- YOUR TASK: COMMENT ON TABLE and COMMENT ON COLUMN for support_tickets
+-- and ticket_events.
+--
+-- EXPECTED OUTPUT: COMMENT statements documenting purpose of each object.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.23
--- Design a data retention table policy using partition naming and drop strategy comments.
--- Write your solution below.
+
+-- ==================================================
+-- 06.22 - Materialized View for Daily Revenue
+-- ==================================================
+-- SCENARIO: The dashboard queries daily revenue constantly. Pre-compute
+-- it as a materialized view for fast reads.
+--
+-- YOUR TASK: CREATE MATERIALIZED VIEW daily_revenue_summary AS SELECT...
+--
+-- EXPECTED OUTPUT: Materialized view definition.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.24
--- Create a migration script that renames coupon_code to promotion_code without losing data.
--- Write your solution below.
+
+-- ==================================================
+-- 06.23 - Partition Retention Policy
+-- ==================================================
+-- SCENARIO: web_events partitions older than 6 months should be dropped.
+-- Design the naming convention and document the drop strategy.
+--
+-- YOUR TASK: Comment-documented retention plan with partition naming
+-- and DROP PARTITION examples.
+--
+-- EXPECTED OUTPUT: Documented retention strategy in SQL comments.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 06.25
--- Write a rollback script for one DDL change from this module.
--- Write your solution below.
+
+-- ==================================================
+-- 06.24 - Rename Column Migration
+-- ==================================================
+-- SCENARIO: The team decided coupon_code should be called promotion_code.
+-- Rename it without losing data.
+--
+-- YOUR TASK: ALTER TABLE orders RENAME COLUMN coupon_code TO promotion_code.
+--
+-- EXPECTED OUTPUT: Safe migration script with before/after comments.
+-- ==================================================
+
+
+
+-- ==================================================
+-- 06.25 - Rollback Script
+-- ==================================================
+-- SCENARIO: Something went wrong with a DDL change. Write the reverse
+-- script that undoes one of the above changes.
+--
+-- YOUR TASK: Write the rollback for one DDL change (e.g., undo rename,
+-- drop constraint, etc.).
+--
+-- EXPECTED OUTPUT: Reverse migration script.
+-- ==================================================
+
+

@@ -1,15 +1,31 @@
 """
-================================================================
-   TASK 31: Authentication & Sessions             ****    
-================================================================
+==============================================================================
+  TASK 31: Authentication (Register, Login, Sessions)
+==============================================================================
 
-SETUP: pip install flask flask-login
-RUN:   python task_31_auth.py
+REAL-WORLD CONTEXT:
+Almost every app needs authentication. The flow:
+  1. User registers (password hashed and stored)
+  2. User logs in (password verified, session created)
+  3. Protected routes check session (redirect to login if not authenticated)
+  4. User logs out (session destroyed)
 
-INSTRUCTIONS:
-Every app needs authentication. Build a login system with Flask.
+SCENARIO: Build a complete auth system:
+  - POST /register → create user with hashed password
+  - POST /login    → verify credentials, create session
+  - GET  /profile  → protected route (login_required decorator)
+  - POST /logout   → destroy session
 
-CONCEPTS: sessions, cookies, password hashing, login/logout, protected routes
+SECURITY RULES:
+  - NEVER store plain text passwords (use hashlib or bcrypt)
+  - Sessions use secret_key for signing (tamper-proof cookies)
+  - login_required decorator rejects unauthenticated requests
+
+EXPECTED BEHAVIOR:
+  POST /register {"username":"alice","password":"secret"} → 201 "Registered"
+  POST /login {"username":"alice","password":"secret"} → 200 + session cookie
+  GET /profile (with cookie) → 200 {"username": "alice"}
+  GET /profile (no cookie) → 401 "Login required"
 """
 
 from flask import Flask, request, jsonify, session, redirect, url_for
@@ -20,49 +36,17 @@ import secrets
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-# Simulated user database
 users_db = {}
 
 
-# ----- Challenge 31.1 -----
-# Implement user registration:
-# POST /register {"username": "alice", "password": "secret123"}
-# - Hash the password (use hashlib.sha256 for learning; use bcrypt in production!)
-# - Store user in users_db
-# - Return 201 on success, 400 if user exists
-
-# YOUR CODE HERE
-
-
-# ----- Challenge 31.2 -----
-# Implement login:
-# POST /login {"username": "alice", "password": "secret123"}
-# - Verify credentials
-# - Set session["user"] = username
-# - Return 200 on success, 401 on failure
-
-# YOUR CODE HERE
-
-
-# ----- Challenge 31.3 -----
-# Create a @login_required decorator:
-# - Check if session["user"] exists
-# - If not, return 401 {"error": "Login required"}
-# - If yes, proceed to the route
-
+# SCENARIO: Protect routes that require authentication.
+# If user is not logged in (no session), return 401.
+# YOUR FIX: Decorator that checks session before executing route handler.
 def login_required(f):
-    pass  # YOUR CODE HERE
+    pass
 
+# BUILD: Add /register, /login, /profile, /logout routes
 
-# ----- Challenge 31.4 -----
-# Create protected routes:
-# GET /profile -> returns current user's info (protected)
-# POST /logout -> clears session (protected)
-
-# YOUR CODE HERE
-
-
-# =========== RUN & TEST ===========
 if __name__ == "__main__":
     print(">> Auth system running at http://localhost:5000")
     print()

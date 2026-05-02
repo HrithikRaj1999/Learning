@@ -1,32 +1,40 @@
 """
-================================================================
-   TASK 33: Django Project Setup & Models         ***      
-================================================================
+==============================================================================
+  TASK 33: Django Project Setup & Models
+==============================================================================
 
-SETUP:
-  pip install django
-  django-admin startproject myproject
-  cd myproject
-  python manage.py startapp blog
+REAL-WORLD CONTEXT:
+Django is Python's most popular full-stack web framework. Used by:
+Instagram, Pinterest, Mozilla, NASA. It gives you:
+  - ORM (models = database tables as Python classes)
+  - Admin panel (free CRUD UI for your data)
+  - Auth system (login, registration, permissions built-in)
+  - URL routing, templates, forms, middleware — EVERYTHING
 
-INSTRUCTIONS:
-Set up a Django project and create models for a Blog application.
-This is a guided task -- follow the steps below.
+SCENARIO: Build a blog platform. Starting from zero:
+  1. Create Django project structure
+  2. Define data models (Category, Post with status/author)
+  3. Run migrations (create database tables)
+  4. Use admin panel to manage content
 
-CONCEPTS: Django project structure, models, migrations, admin
+WHY DJANGO OVER FLASK:
+  Flask = build everything yourself (good for learning, APIs)
+  Django = batteries included (good for full websites, rapid development)
+
+EXPECTED RESULT:
+  - Blog app with Category and Post models
+  - Admin panel at /admin where you can create/edit posts
+  - Models use proper field types, constraints, and relationships
 """
 
-# =========== STEP-BY-STEP GUIDE ===========
+# STEP 1: Create the Django project
+#   django-admin startproject myproject
+#   cd myproject
+#   python manage.py startapp blog
 
-"""
-STEP 1: Create the Django project
-  django-admin startproject myproject
-  cd myproject
-  python manage.py startapp blog
+# STEP 2: Add 'blog' to INSTALLED_APPS in myproject/settings.py
 
-STEP 2: Add 'blog' to INSTALLED_APPS in myproject/settings.py
-
-STEP 3: Create these models in blog/models.py:
+# STEP 3: Create these models in blog/models.py:
 
   class Category(models.Model):
       name = models.CharField(max_length=100, unique=True)
@@ -38,7 +46,6 @@ STEP 3: Create these models in blog/models.py:
 
       def __str__(self):
           return self.name
-
 
   class Post(models.Model):
       STATUS_CHOICES = [
@@ -59,7 +66,6 @@ STEP 3: Create these models in blog/models.py:
 
       def __str__(self):
           return self.title
-
 
   class Tag(models.Model):
       name = models.CharField(max_length=50, unique=True)
@@ -92,7 +98,6 @@ STEP 7: Use Django shell to practice queries:
   >>> Post.objects.filter(category__name="Python")
 """
 
-# =========== VERIFICATION CHECKLIST ===========
 """
 [ ] Project created with django-admin startproject
 [ ] App created with python manage.py startapp blog

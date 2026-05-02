@@ -1,52 +1,59 @@
 """
-================================================================
-   TASK 17: Custom Exceptions                     ***      
-================================================================
+==============================================================================
+  TASK 17: Custom Exceptions (Exception Hierarchy)
+==============================================================================
 
-INSTRUCTIONS:
-Django raises Http404, PermissionDenied, ValidationError -- all custom exceptions.
-Learn to create your own for clean error handling.
+REAL-WORLD CONTEXT:
+Generic exceptions like ValueError tell you NOTHING about what went wrong.
+Custom exceptions let you:
+  - Catch SPECIFIC failures (missing field vs invalid format vs out of range)
+  - Give users SPECIFIC error messages ("Email format invalid" not "ValueError")
+  - Handle different errors differently in calling code
 
-CONCEPTS: custom exception classes, exception hierarchy, error messages
+SCENARIO: User registration form validates: name (required), email (must be valid
+format), age (must be 1-150). Each type of failure needs a DIFFERENT error type
+so the frontend can show the error next to the right field.
+
+WHAT'S WRONG (without custom exceptions):
+  raise ValueError("name is required")  → caller can't distinguish from
+  raise ValueError("invalid email")     → any other ValueError in the system
+
+YOUR FIX: Exception hierarchy:
+  ValidationError (base)
+    ├── RequiredFieldError (field is missing)
+    └── InvalidFormatError (field has wrong format)
 """
 
 
-# ----- Challenge 17.1 -----
-# Create a validation system with custom exceptions:
-# - ValidationError(message, field=None)
-# - RequiredFieldError(field) -> inherits from ValidationError
-# - InvalidFormatError(field, expected_format) -> inherits from ValidationError
-
+# Exception hierarchy: all validation errors share a base class.
+# Callers can catch ValidationError for ALL, or specific subclasses for targeted handling.
 class ValidationError(Exception):
-    pass  # YOUR CODE HERE
+    pass
 
 class RequiredFieldError(ValidationError):
-    pass  # YOUR CODE HERE
+    pass
 
 class InvalidFormatError(ValidationError):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 17.2 -----
-# Write a validate_user_data function that validates a user dict:
-# Required fields: "name", "email", "age"
-# Email must contain "@" and "."
-# Age must be between 0 and 150
-# Raise appropriate custom exceptions for each violation.
+# SCENARIO: Validate user registration data:
+#   - "name" must be present → RequiredFieldError if missing
+#   - "email" must contain @ → InvalidFormatError if invalid
+#   - "age" must be 1-150 → ValidationError if out of range
+#   - All valid → return None (no error)
+# YOUR FIX: Check each field, raise the SPECIFIC exception type for each failure.
+# EXPECTED: validate_user_data({"email": "a@b.com", "age": 25}) → RequiredFieldError (no name)
 def validate_user_data(data):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
-    # Test 17.1
     try:
         raise RequiredFieldError("name")
     except ValidationError as e:
         assert "name" in str(e).lower()
     print("[PASS] Test 17.1 Passed: Custom Exception Hierarchy")
 
-    # Test 17.2
     try:
         validate_user_data({"email": "test@test.com", "age": 25})
         assert False, "Should raise RequiredFieldError"
@@ -65,7 +72,6 @@ if __name__ == "__main__":
     except ValidationError:
         pass
 
-    # Valid data should not raise
     validate_user_data({"name": "Alice", "email": "alice@test.com", "age": 25})
     print("[PASS] Test 17.2 Passed: validate_user_data")
 

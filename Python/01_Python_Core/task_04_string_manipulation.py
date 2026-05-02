@@ -1,53 +1,57 @@
 """
-================================================================
-   TASK 4: String Manipulation Pro                **        
-================================================================
+==============================================================================
+  TASK 04: String Manipulation
+==============================================================================
 
-INSTRUCTIONS:
-Strings are everywhere in web dev -- URLs, HTML, JSON, user input.
-
-CONCEPTS: string methods, slicing, formatting, f-strings
+REAL-WORLD CONTEXT:
+String manipulation is EVERYWHERE in real code:
+  - Formatting user input for display (title case for names)
+  - Validating input (palindrome checks, email extraction)
+  - Data compression (run-length encoding for simple cases)
+  - Converting between naming conventions (APIs use snake_case, JS uses camelCase)
 """
 
 
-# ----- Challenge 4.1 -----
-# Convert a string to title case WITHOUT using .title()
-# Handle edge cases: multiple spaces, tabs, etc.
-# Example: "hello world  python" -> "Hello World  Python"
+# SCENARIO: User enters their name as "jOHN sMITH" (caps lock issues).
+# Display needs "John Smith" — first letter uppercase, rest lowercase per word.
+# YOUR FIX: Convert string to title case (each word capitalized).
+# EXPECTED: custom_title_case("hello world") → "Hello World"
 def custom_title_case(s):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 4.2 -----
-# Check if a string is a valid palindrome (ignore spaces, punctuation, case).
-# Example: "A man, a plan, a canal: Panama" -> True
+# SCENARIO: A content validation system checks if a phrase reads the same backward
+# (for detecting patterns in codes, IDs, or fun user-submitted palindromes).
+# Ignore spaces, punctuation, and case.
+# YOUR FIX: Check if a string is a palindrome (ignoring non-alphanumeric, case-insensitive).
+# EXPECTED: is_palindrome("A man, a plan, a canal: Panama") → True
 def is_palindrome(s):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 4.3 -----
-# Compress a string using run-length encoding.
-# Example: "aaabbbccddddee" -> "a3b3c2d4e2"
+# SCENARIO: A simple compression algorithm for transmitting text over a slow connection.
+# "aaabbbcc" → "a3b3c2" is smaller. Used in image formats (BMP) and old modems.
+# YOUR FIX: Compress consecutive repeated characters into char+count format.
+# EXPECTED: run_length_encode("aaabbbccddddee") → "a3b3c2d4e2"
 def run_length_encode(s):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 4.4 -----
-# Extract all email-like patterns from a text (simple version).
-# An email: word@word.word (use string methods, no regex yet).
-# Example: "Contact us at info@test.com or help@dev.org" -> ["info@test.com", "help@dev.org"]
+# SCENARIO: A support ticket system needs to extract all email addresses from
+# free-text customer messages so agents can follow up. Simple pattern matching.
+# YOUR FIX: Find all email-like patterns in a text string.
+# EXPECTED: extract_emails_simple("Contact info@test.com or help@dev.org") → ["info@test.com", "help@dev.org"]
 def extract_emails_simple(text):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 4.5 -----
-# Convert snake_case to camelCase.
-# Example: "hello_world_python" -> "helloWorldPython"
+# SCENARIO: Python backend uses snake_case ("user_name"). JavaScript frontend uses
+# camelCase ("userName"). Converting between them when building API responses.
+# YOUR FIX: Convert snake_case string to camelCase.
+# EXPECTED: snake_to_camel("hello_world_python") → "helloWorldPython"
 def snake_to_camel(s):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
     assert custom_title_case("hello world") == "Hello World"
     print("[PASS] Test 4.1 Passed: custom_title_case")

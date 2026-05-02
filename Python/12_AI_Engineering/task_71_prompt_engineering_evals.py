@@ -1,23 +1,38 @@
 """
-================================================================
-   TASK 71: Prompt Engineering and Evals             ****
-================================================================
+==============================================================================
+  TASK 71: Prompt Engineering & Evaluations
+==============================================================================
 
-Goal:
-- Treat prompts like code: versioned, tested, measured.
-- Build a small eval harness.
-- Track accuracy and failure cases.
+REAL-WORLD CONTEXT:
+How do you know if your AI system is WORKING CORRECTLY? You evaluate it:
+  - Define test cases (input + expected output)
+  - Run your system on all test cases
+  - Measure accuracy (how many did it get right?)
+  - Track regressions (new prompt broke old cases?)
+
+SCENARIO: You built a ticket classifier (Task 67). Is it accurate?
+  - Create eval cases: [("Need refund", "billing"), ("Can't login", "account"), ...]
+  - Run classifier on all cases
+  - Report: 8/10 passed, 2 failures with details
+
+WHY EVALS MATTER:
+  Without evals: "I think the prompt works" (vibes-based engineering)
+  With evals: "Accuracy is 94%, improved from 87% after prompt change" (data-driven)
+
+EXPECTED BEHAVIOR:
+  eval_result = exact_match_eval(cases, keyword_classifier)
+  eval_result.total → 10
+  eval_result.passed → 8
+  eval_result.failures → [(case, actual_output)] for debugging
 """
 
 from dataclasses import dataclass
 from typing import Callable
 
-
 @dataclass(frozen=True)
 class EvalCase:
     input: str
     expected: str
-
 
 @dataclass(frozen=True)
 class EvalResult:
@@ -25,10 +40,8 @@ class EvalResult:
     passed: int
     failures: list[tuple[EvalCase, str]]
 
-
 def exact_match_eval(cases: list[EvalCase], predictor: Callable[[str], str]) -> EvalResult:
-    pass  # YOUR CODE HERE
-
+    pass
 
 def keyword_classifier(text: str) -> str:
     lowered = text.lower()
@@ -38,7 +51,6 @@ def keyword_classifier(text: str) -> str:
         return "account"
     return "other"
 
-
 if __name__ == "__main__":
     cases = [
         EvalCase("Need refund for invoice", "billing"),
@@ -46,4 +58,3 @@ if __name__ == "__main__":
         EvalCase("Where is your office?", "other"),
     ]
     print(exact_match_eval(cases, keyword_classifier))
-

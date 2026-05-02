@@ -1,18 +1,29 @@
 """
-========================================================================
-   TASK 55: Portfolio & Interview Prep             ***            
-========================================================================
+==============================================================================
+  TASK 55: Portfolio & Interview Preparation
+==============================================================================
 
-[Grad] FINAL TASK -- Prepare for the job market!
+REAL-WORLD CONTEXT:
+Coding skills alone won't get you hired. You need:
+  - A portfolio that SHOWS what you can build (not just tells)
+  - A GitHub profile that demonstrates consistency and quality
+  - Interview prep covering both coding AND system design
+  - The ability to EXPLAIN your architectural decisions
 
-INSTRUCTIONS:
-You've built the skills. Now package them for employers.
+SCENARIO: Prepare everything needed to land a Python developer job:
+  1. GitHub profile with professional README and pinned projects
+  2. Portfolio website (built with your own skills!)
+  3. Resume highlighting projects with impact descriptions
+  4. Technical interview prep (common questions + coding challenges)
+
+EACH CAPSTONE PROJECT SHOULD HAVE:
+  - Professional README (description, screenshots, tech stack, setup)
+  - Live demo URL (deployed somewhere)
+  - Clean commit history (meaningful messages, not "fix", "update")
+  - Tests (proves you write professional code)
 """
 
-# =========== PORTFOLIO CHECKLIST ===========
-
-"""
-1. GITHUB PROFILE
+# 1. GITHUB PROFILE
    [ ] Professional README with photo/intro
    [ ] Pinned repos: your best 3-4 projects
    [ ] All capstone projects pushed with good READMEs
@@ -33,8 +44,6 @@ You've built the skills. Now package them for employers.
    [ ] List capstone projects with impact descriptions
    [ ] Include GitHub link and portfolio URL
 """
-
-# =========== INTERVIEW PREP ===========
 
 """
 TECHNICAL TOPICS TO REVIEW:
@@ -81,8 +90,6 @@ COMMON CODING CHALLENGES:
   [ ] Write a REST API endpoint
   [ ] Write unit tests for given code
 """
-
-# =========== NEXT STEPS ===========
 
 """
 CONGRATULATIONS!

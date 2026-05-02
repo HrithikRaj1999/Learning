@@ -30,7 +30,7 @@ describe("Task 01: Type System and Narrowing", () => {
 // Sample behavior tests are skipped by default.
 // Remove .skip from one challenge at a time after implementing the matching function.
 
-describe.skip("Challenge 01.01: Model payment events as a discriminated union and render a human-readable audit message for each variant.", () => {
+describe("Challenge 01.01: Model payment events as a discriminated union and render a human-readable audit message for each variant.", () => {
   it("sample case", () => {
     const input: ChallengeInput = {
   "challengeId": "01.01",
@@ -64,7 +64,10 @@ describe.skip("Challenge 01.01: Model payment events as a discriminated union an
 } as const;
     const expected = {
       challenge: "01.01",
-      note: "replace this placeholder with the exact expected output for your implementation",
+      messages: [
+        "Payment rec_1 completed for customer cus_1: $120",
+        "Payment rec_2 created for customer cus_2: $80",
+      ],
     } as const;
 
     expect(task.challenge01_01(input)).toEqual(expected);

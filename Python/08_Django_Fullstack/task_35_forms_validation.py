@@ -1,19 +1,30 @@
 """
-================================================================
-   TASK 35: Django Forms & Validation             ****    
-================================================================
+==============================================================================
+  TASK 35: Django Forms & Validation
+==============================================================================
 
-INSTRUCTIONS:
-Forms handle user input -- the most critical part of any web app.
+REAL-WORLD CONTEXT:
+Forms are how users INPUT data: create posts, submit comments, edit profiles.
+Without validation: users submit empty fields, XSS attacks, garbage data.
+Django Forms handle: rendering HTML inputs, validating data, showing errors.
 
-CONCEPTS: ModelForm, form validation, clean methods, CSRF protection
+SCENARIO: Add forms to the blog:
+  1. PostForm — create/edit posts (ModelForm auto-generates from model)
+  2. CommentForm — submit comments (custom validation: min 10 chars)
+  3. Views that handle both GET (show form) and POST (process submission)
+
+SECURITY: Django forms include CSRF protection automatically.
+Without it: attackers can forge form submissions from other websites.
+
+EXPECTED BEHAVIOR:
+  GET /post/new/     → empty form
+  POST /post/new/ with valid data → creates post, redirects to detail
+  POST /post/new/ with title="Hi" → shows error "Title must be at least 5 chars"
+  POST /post/1/comment/ with body="ok" → shows error "Comment too short"
 """
 
-# =========== CHALLENGES ===========
-
-"""
-CHALLENGE 35.1 -- Create Forms
-In blog/forms.py:
+# CHALLENGE 35.1 -- Create Forms
+# In blog/forms.py:
 
   class PostForm(forms.ModelForm):
       class Meta:
@@ -29,7 +40,6 @@ In blog/forms.py:
               raise forms.ValidationError("Title must be at least 5 characters")
           return title
 
-
   class CommentForm(forms.Form):
       name = forms.CharField(max_length=100)
       email = forms.EmailField()
@@ -40,7 +50,6 @@ In blog/forms.py:
           if len(body) < 10:
               raise forms.ValidationError("Comment too short")
           return body
-
 
 CHALLENGE 35.2 -- Create/Edit Views
   def post_create(request):
@@ -55,7 +64,6 @@ CHALLENGE 35.2 -- Create/Edit Views
           form = PostForm()
       return render(request, 'blog/post_form.html', {'form': form})
 
-
 CHALLENGE 35.3 -- Contact Form with Email Validation
 Create a contact form that validates:
 - Name (required, 2-100 chars)
@@ -66,7 +74,6 @@ Create a contact form that validates:
 Display success/error messages using Django's messages framework.
 """
 
-# =========== VERIFICATION CHECKLIST ===========
 """
 [ ] PostForm validates and saves correctly
 [ ] CommentForm validates input

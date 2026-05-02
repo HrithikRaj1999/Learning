@@ -1,47 +1,28 @@
 """
-========================================================================
-   TASK 52: CAPSTONE -- Real-Time Chat App          *****       
-========================================================================
+==============================================================================
+  TASK 52: Capstone Project — Real-Time Chat Application
+==============================================================================
 
-[Trophy] CAPSTONE PROJECT 3
+REAL-WORLD CONTEXT:
+Chat is the ultimate test of REAL-TIME skills:
+  - WebSockets (persistent connections, instant message delivery)
+  - State management (online/offline, typing indicators)
+  - Data modeling (messages, rooms, read receipts)
+  - Scalability (what happens with 10,000 concurrent users?)
 
-Build a real-time chat application.
-Focus: WebSockets, real-time data, frontend/backend integration.
+SCENARIO: Build a Slack/Discord-like chat:
+  - Public rooms and private DMs
+  - Real-time messaging with typing indicators
+  - File sharing, message editing/deletion
+  - Online status and notifications
 
-TECH STACK: Django Channels + Redis + WebSockets + HTML/CSS/JS
-"""
+THIS PROVES YOU CAN:
+  - Handle WebSocket connections (Flask-SocketIO or Django Channels)
+  - Build real-time features (most apps are adding these)
+  - Manage complex state across multiple users
+  - Handle edge cases (reconnection, message ordering)
 
-# =========== REQUIREMENTS ===========
-
-"""
 FEATURES TO BUILD:
-
-1. AUTHENTICATION
-   - User registration & login
-   - Online/offline status indicator
-   - User avatars
-
-2. CHAT ROOMS
-   - Create/join public rooms
-   - Private direct messages
-   - Room admin (kick, mute, delete)
-
-3. REAL-TIME MESSAGING
-   - WebSocket-based message delivery
-   - Typing indicators ("Alice is typing...")
-   - Read receipts
-   - Message timestamps
-
-4. MESSAGE FEATURES
-   - Text messages
-   - File/image sharing
-   - Message editing and deletion
-   - Message search
-
-5. NOTIFICATIONS
-   - Unread message count
-   - Desktop notifications (browser API)
-   - Sound alerts
 
 6. FRONTEND
    - Responsive chat UI

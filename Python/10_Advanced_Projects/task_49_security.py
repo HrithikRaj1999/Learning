@@ -1,19 +1,34 @@
 """
-================================================================
-   TASK 49: Security Best Practices               *****  
-================================================================
+==============================================================================
+  TASK 49: Web Security (OWASP Top 10)
+==============================================================================
 
-INSTRUCTIONS:
-Security is not optional. Learn the OWASP Top 10 and how to prevent each.
-This knowledge is MANDATORY for any fullstack developer.
+REAL-WORLD CONTEXT:
+Every web app is attacked. The top vulnerabilities (OWASP Top 10):
+  - SQL Injection: attacker runs arbitrary SQL on your database
+  - XSS: attacker injects JavaScript that runs in other users' browsers
+  - Weak passwords: plain text storage, no hashing
+  - CSRF: attacker forges requests from another site
 
-CONCEPTS: SQL injection, XSS, CSRF, authentication, encryption, HTTPS
+SCENARIO:
+  49.1 — SQL Injection: Find and fix 5 vulnerable queries.
+    BAD:  f"SELECT * FROM users WHERE name = '{name}'"  (injectable!)
+    GOOD: "SELECT * FROM users WHERE name = ?", (name,)  (safe)
+
+  49.2 — XSS Prevention: Demonstrate and fix cross-site scripting.
+    BAD:  f"<h1>Hello {user_input}</h1>"  (renders <script> tags!)
+    GOOD: Use Jinja2 auto-escaping (escapes < > & etc.)
+
+  49.3 — Password Security: Hash with bcrypt, never store plain text.
+    BAD:  store password as-is in database
+    GOOD: bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+WHY THIS MATTERS:
+  One SQL injection = entire database leaked (user emails, passwords, credit cards).
+  These are the #1 reason companies get hacked.
 """
 
-# =========== CHALLENGES ===========
-
-"""
-CHALLENGE 49.1 -- SQL Injection Prevention
+# CHALLENGE 49.1 -- SQL Injection Prevention
 BAD (vulnerable):
   cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
 
@@ -22,13 +37,11 @@ GOOD (parameterized):
 
 Exercise: Find and fix 5 SQL injection vulnerabilities in the code below.
 
-
 CHALLENGE 49.2 -- XSS Prevention
 BAD: return f"<h1>Hello {user_input}</h1>"
 GOOD: Use template engine auto-escaping (Jinja2, Django templates)
 
 Exercise: Create a Flask route that's vulnerable to XSS, then fix it.
-
 
 CHALLENGE 49.3 -- Password Security
 BAD: store passwords in plain text
@@ -40,14 +53,11 @@ GOOD: hash with bcrypt
 
 Exercise: Build a secure registration/login system.
 
-
 CHALLENGE 49.4 -- CSRF Protection
 Django has it built-in. For Flask:
   pip install flask-wtf
-  # Forms automatically include CSRF tokens
 
 Exercise: Create a form vulnerable to CSRF, then protect it.
-
 
 CHALLENGE 49.5 -- Environment Variables & Secrets
 NEVER hardcode secrets!
@@ -63,7 +73,6 @@ NEVER hardcode secrets!
     load_dotenv()
 
 Exercise: Move all secrets to environment variables.
-
 
 CHALLENGE 49.6 -- Security Audit Checklist
 For your projects, verify:

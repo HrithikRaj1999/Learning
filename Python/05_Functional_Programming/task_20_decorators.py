@@ -1,59 +1,63 @@
 """
-================================================================
-   TASK 20: Decorators Deep Dive                  ***      
-================================================================
+==============================================================================
+  TASK 20: Decorators
+==============================================================================
 
-INSTRUCTIONS:
-Decorators are EVERYWHERE -- @app.route (Flask), @login_required (Django),
-@property, @staticmethod. Master them!
+REAL-WORLD CONTEXT:
+Decorators add behavior to functions WITHOUT modifying them. Used everywhere:
+  - @timer — measure how long functions take (performance monitoring)
+  - @retry — automatically retry failed network calls
+  - @cache — avoid recomputing expensive results (memoization)
+  - @validate_types — enforce function argument types at runtime
+  - @rate_limit — prevent abuse (API rate limiting)
 
-CONCEPTS: function decorators, decorator with arguments, wraps, stacking
+These are the #1 asked Python interview topic after basic data structures.
 """
 
 import time
 from functools import wraps
 
 
-# ----- Challenge 20.1 -----
-# Create a @timer decorator that prints how long a function took to execute.
-# Output format: "function_name took X.XXXXs"
+# SCENARIO: Production API has slow endpoints. You need to LOG how long each
+# function takes without adding timing code to every function manually.
+# YOUR FIX: @timer decorator that measures and prints execution time.
+# EXPECTED: @timer on slow_function() → prints "slow_function took 0.05s" + returns result
 def timer(func):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 20.2 -----
-# Create a @retry(max_attempts=3) decorator with arguments.
-# If the function raises an exception, retry up to max_attempts times.
-# If all attempts fail, raise the last exception.
+# SCENARIO: Payment API is unreliable (30% failure rate). Instead of failing
+# immediately, retry up to 3 times before giving up. Decorator with argument.
+# YOUR FIX: @retry(max_attempts=3) → catches exceptions, retries, fails after max.
+# EXPECTED: @retry(3) on flaky_fn() → tries up to 3 times → returns on success
 def retry(max_attempts=3):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 20.3 -----
-# Create a @cache decorator (simple memoization).
-# Store results in a dictionary. If same args are called again, return cached result.
+# SCENARIO: Machine learning feature engineering function takes 30 seconds.
+# Same input = same output. Cache results so repeated calls are instant.
+# YOUR FIX: @cache memoizes results based on arguments. Same args = cached result.
+# EXPECTED: expensive(5) called twice → function body runs only ONCE
 def cache(func):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 20.4 -----
-# Create a @validate_types(**type_hints) decorator that validates argument types.
-# Example: @validate_types(name=str, age=int)
-# If wrong type passed, raise TypeError with a clear message.
+# SCENARIO: A REST framework needs to validate that request handler arguments
+# match expected types BEFORE executing the handler (like Pydantic but simpler).
+# YOUR FIX: @validate_types(name=str, age=int) → raises TypeError if wrong type passed.
+# EXPECTED: create_user("Alice", "twenty") → TypeError ("twenty" is not int)
 def validate_types(**type_hints):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 20.5 -----
-# Create a @rate_limit(max_calls, period) decorator.
-# Raises RuntimeError if function is called more than max_calls times within period seconds.
+# SCENARIO: Public API allows max 5 calls per 60 seconds per user.
+# If exceeded: reject call instead of hitting backend (protect infrastructure).
+# YOUR FIX: @rate_limit(max_calls=5, period=60) → raises after exceeding limit.
+# EXPECTED: Call 6th time within period → raises RateLimitError
 def rate_limit(max_calls, period):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
-    # Test 20.1
     @timer
     def slow_function():
         total = sum(range(1000000))
@@ -62,7 +66,6 @@ if __name__ == "__main__":
     assert result == 499999500000
     print("[PASS] Test 20.1 Passed: timer decorator")
 
-    # Test 20.2
     attempt_count = {"value": 0}
     @retry(max_attempts=3)
     def flaky():
@@ -73,7 +76,6 @@ if __name__ == "__main__":
     assert flaky() == "Done"
     print("[PASS] Test 20.2 Passed: retry decorator")
 
-    # Test 20.3
     call_count = {"value": 0}
     @cache
     def expensive(n):
@@ -84,7 +86,6 @@ if __name__ == "__main__":
     assert call_count["value"] == 1  # Only called once!
     print("[PASS] Test 20.3 Passed: cache decorator")
 
-    # Test 20.4
     @validate_types(name=str, age=int)
     def create_user(name, age):
         return {"name": name, "age": age}

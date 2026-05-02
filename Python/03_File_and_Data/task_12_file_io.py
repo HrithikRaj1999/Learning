@@ -1,73 +1,72 @@
 """
-================================================================
-   TASK 12: File I/O & Context Managers           **        
-================================================================
+==============================================================================
+  TASK 12: File I/O Operations
+==============================================================================
 
-INSTRUCTIONS:
-Web apps read configs, write logs, process uploads. File I/O is essential.
+REAL-WORLD CONTEXT:
+Every app reads/writes files: logs, configs, uploads, exports, cache files.
+Doing it WRONG: forgetting to close files, not handling missing files,
+no proper encoding handling. Python's pathlib and context managers fix this.
 
-CONCEPTS: open, read, write, with statement, pathlib
+SCENARIOS COVERED:
+  - Analyzing file contents (word count, line count for reporting)
+  - Searching through files (grep-like functionality for log analysis)
+  - Writing logs with timestamps (audit trail, debugging)
+  - Finding files by extension (batch processing, cleanup scripts)
 """
 
 import os
 from pathlib import Path
 
 
-# ----- Challenge 12.1 -----
-# Write a function that reads a file and returns the number of lines, words, and characters.
-# Return as a dict: {"lines": X, "words": Y, "chars": Z}
+# SCENARIO: DevOps script needs quick stats about log files: how many lines,
+# how many words, how many characters. Used for monitoring log growth.
+# YOUR FIX: Read file, count lines/words/characters, return stats dict.
+# EXPECTED: file_stats("data.txt") → {"lines": 3, "words": 6, "chars": 42}
 def file_stats(filepath):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 12.2 -----
-# Write a function that takes a log file path and a search term,
-# returns all lines containing that term (case-insensitive).
+# SCENARIO: Support team needs to search ALL log files for a customer's email
+# (case-insensitive). Return matching lines with their line numbers.
+# YOUR FIX: Read file line by line, find lines containing the search term.
+# EXPECTED: search_in_file("app.log", "error") → [(1, "Error occurred"), (5, "Another error")]
 def search_in_file(filepath, term):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# ----- Challenge 12.3 -----
-# Create a context manager class LogWriter that:
-# - Opens a file in append mode on __enter__
-# - Provides a write(message) method that writes with timestamp
-# - Closes the file on __exit__
-# Usage:
-#   with LogWriter("app.log") as log:
-#       log.write("Server started")
 
 from datetime import datetime
 
+
+# SCENARIO: Background job needs to log what it does with timestamps.
+# Must use context manager (with statement) so file is always properly closed,
+# even if the job crashes mid-write.
+# YOUR FIX: LogWriter context manager that opens file, writes with timestamp, closes properly.
+# EXPECTED: with LogWriter("job.log") as log: log.write("Started") → "2024-01-15 10:30:00 Started"
 class LogWriter:
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 12.4 -----
-# Write a function that recursively finds all files with a given extension
-# in a directory and its subdirectories using pathlib.
-# Return a list of Path objects.
+# SCENARIO: A cleanup script finds all .tmp files in a directory tree to delete them.
+# Or: a photo app finds all .jpg files to generate thumbnails.
+# YOUR FIX: Walk directory recursively, find all files with given extension.
+# EXPECTED: find_files_by_extension("./uploads", ".jpg") → ["uploads/photo1.jpg", ...]
 def find_files_by_extension(directory, extension):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
-    # Setup: create a test file
     test_file = Path("_test_file.txt")
     test_file.write_text("Hello World\nPython is great\nHello Python\n")
 
-    # Test 12.1
     stats = file_stats(str(test_file))
     assert stats["lines"] == 3
     assert stats["words"] == 6
     print("[PASS] Test 12.1 Passed: file_stats")
 
-    # Test 12.2
     results = search_in_file(str(test_file), "hello")
     assert len(results) == 2
     print("[PASS] Test 12.2 Passed: search_in_file")
 
-    # Test 12.3
     log_file = "_test_log.txt"
     with LogWriter(log_file) as log:
         log.write("Test message")
@@ -76,7 +75,6 @@ if __name__ == "__main__":
     assert "Test message" in content
     print("[PASS] Test 12.3 Passed: LogWriter")
 
-    # Cleanup
     test_file.unlink(missing_ok=True)
     Path(log_file).unlink(missing_ok=True)
 

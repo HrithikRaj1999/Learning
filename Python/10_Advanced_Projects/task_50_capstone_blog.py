@@ -1,50 +1,27 @@
 """
-========================================================================
-   TASK 50: CAPSTONE -- Full Stack Blog Platform    *****       
-========================================================================
+==============================================================================
+  TASK 50: Capstone Project — Full Blog Platform
+==============================================================================
 
-[Trophy] CAPSTONE PROJECT 1
+REAL-WORLD CONTEXT:
+This is a COMPLETE project you can put on your resume and show in interviews.
+It combines EVERYTHING you've learned: Django, DRF, auth, database, templates,
+deployment. This is what a junior developer builds in their first month at a job.
 
-Build a complete blog platform from scratch using Django.
-This project demonstrates ALL skills from Levels 1-9.
+SCENARIO: Build a production-ready blog platform like Medium/Dev.to:
+  - Users can register, login, write posts, comment
+  - Rich text editing, categories, tags, search
+  - REST API for mobile/SPA frontend
+  - Admin panel for content management
+  - Deployed live (show the URL in interviews!)
 
-TECH STACK: Django + DRF + PostgreSQL + Redis + Docker
+THIS PROVES YOU CAN:
+  - Build a full application end-to-end
+  - Handle auth, CRUD, relationships, search
+  - Deploy to production
+  - Write clean, maintainable code
 
-TIME ESTIMATE: 1-2 weeks
-"""
-
-# =========== REQUIREMENTS ===========
-
-"""
 FEATURES TO BUILD:
-
-1. USER SYSTEM
-   - Registration with email verification
-   - Login / Logout
-   - User profiles with avatar upload
-   - Password reset via email
-
-2. BLOG ENGINE
-   - Create, edit, delete posts (rich text editor)
-   - Categories and tags
-   - Draft / Published status
-   - Featured images
-   - Markdown support
-   - Slug-based URLs
-
-3. COMMENTS
-   - Nested comments (replies)
-   - Edit / delete own comments
-   - Spam filtering (basic)
-
-4. SEARCH & DISCOVERY
-   - Full-text search
-   - Filter by category, tag, date
-   - Related posts suggestions
-   - RSS feed
-
-5. REST API (DRF)
-   - All CRUD operations via API
    - Token authentication
    - Pagination, filtering, ordering
    - API documentation (Swagger/DRF-Spectacular)
@@ -65,7 +42,6 @@ FEATURES TO BUILD:
    - Deploy to a cloud provider
 """
 
-# =========== PROJECT STRUCTURE ===========
 """
 blog_platform/
 |-- docker-compose.yml

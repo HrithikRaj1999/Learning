@@ -1,65 +1,49 @@
 """
-================================================================
-   TASK 27: Migrations & Query Optimization       ****    
-================================================================
+==============================================================================
+  TASK 27: Migrations & Query Optimization
+==============================================================================
 
-INSTRUCTIONS:
-In production, you can't just drop and recreate tables.
-Learn Alembic for migrations and optimize slow queries.
+REAL-WORLD CONTEXT:
+In production, you CAN'T just drop and recreate tables. You need MIGRATIONS:
+  - Add a column to an existing table with 10 million rows
+  - Rename a column without breaking the app
+  - Roll back a bad change
 
-SETUP: pip install sqlalchemy alembic
-CONCEPTS: Alembic, indexes, N+1 problem, eager loading, raw SQL
+Also: without INDEXES, queries on large tables scan EVERY row (slow).
+With indexes: instant lookup (like a book's index vs reading every page).
+
+SCENARIO 1 — Migrations:
+  Your app goes from v1 (users: name, email) to v2 (users: name, email, phone).
+  Alembic generates: "ALTER TABLE users ADD COLUMN phone VARCHAR(20)".
+  If something breaks: alembic downgrade -1 (rollback).
+
+SCENARIO 2 — Indexes:
+  Table has 1,000,000 rows. SELECT WHERE email = 'alice@test.com':
+  - Without index: scans all 1M rows (2 seconds)
+  - With index: finds it instantly (0.001 seconds)
+
+BUILD:
+  1. demonstrate_index_performance() — create table with/without index,
+     measure query time difference on 100K+ rows
+  2. Document: What is Alembic? What commands do you use?
+     - alembic init migrations
+     - alembic revision --autogenerate -m "add phone column"
+     - alembic upgrade head
+     - alembic downgrade -1
 """
-
-
-# ----- Challenge 27.1 -----
-# Research and document (in comments below):
-# 1. What is a database migration?
-# 2. How does Alembic work with SQLAlchemy?
-# 3. What are the basic Alembic commands?
-
-"""
-YOUR NOTES HERE:
-1. Database migration: ...
-2. Alembic: ...
-3. Commands: ...
-"""
-
-
-# ----- Challenge 27.2 -----
-# Write a function that demonstrates the N+1 query problem
-# and then fix it with eager loading (joinedload).
-#
-# BAD (N+1):
-#   authors = session.query(Author).all()
-#   for author in authors:
-#       print(author.posts)  # This triggers a new query for EACH author!
-#
-# GOOD (Eager loading):
-#   from sqlalchemy.orm import joinedload
-#   authors = session.query(Author).options(joinedload(Author.posts)).all()
-
-# Write both versions and explain the difference in comments.
-
-# YOUR CODE HERE
-
-
-# ----- Challenge 27.3 -----
-# Create an index on frequently queried columns.
-# Write a function that:
-# 1. Creates a table with an index on the "email" column
-# 2. Inserts 10000 rows
-# 3. Times a query WITH index vs WITHOUT index
-# Hint: Use sqlite3 for simplicity
 
 import sqlite3
 import time
 
+
+# SCENARIO: Prove that indexes make queries faster.
+# Create a table with 100K rows. Query WITHOUT index (slow). Add index. Query again (fast).
+# Print the time difference to demonstrate the improvement.
+# YOUR FIX: INSERT 100K rows, time a WHERE query, add index, time again, compare.
+# EXPECTED: "Without index: 0.5s | With index: 0.001s | 500x faster"
 def demonstrate_index_performance():
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== INSTRUCTIONS TO RUN ===========
 if __name__ == "__main__":
     print("This task is research + coding. Focus on understanding:")
     print("1. Why migrations matter in production")

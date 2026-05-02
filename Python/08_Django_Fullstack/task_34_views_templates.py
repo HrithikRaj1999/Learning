@@ -1,19 +1,35 @@
 """
-================================================================
-   TASK 34: Django Views & Templates              ***      
-================================================================
+==============================================================================
+  TASK 34: Django Views & Templates
+==============================================================================
 
-INSTRUCTIONS:
-Build views and templates for the blog app from Task 33.
+REAL-WORLD CONTEXT:
+Views handle HTTP requests and return responses. Templates render HTML.
+This is how users SEE your application:
+  - Blog listing page (shows all published posts)
+  - Single post page (shows content + comments)
+  - Category page (filtered posts)
 
-CONCEPTS: Function-based views, class-based views, URL routing, template tags
+SCENARIO: Make the blog VISIBLE to users:
+  1. Function-based views that query the database
+  2. URL routing that maps URLs to views
+  3. Templates that render data into HTML pages
+  4. Pagination (10 posts per page, not all 10,000 at once)
+
+WHAT YOU'LL LEARN:
+  - Django's ORM queries: Post.objects.filter(status='published')
+  - Template inheritance: base.html → post_list.html extends it
+  - URL parameters: /post/my-first-post/ (slug-based URLs)
+  - Pagination: ?page=2 (built into Django)
+
+EXPECTED BEHAVIOR:
+  GET /                    → list of published posts (paginated)
+  GET /post/my-first-post/ → single post detail page
+  GET /category/python/    → all posts in "Python" category
 """
 
-# =========== CHALLENGES ===========
-
-"""
-CHALLENGE 34.1 -- Function-Based Views
-Create these views in blog/views.py:
+# CHALLENGE 34.1 -- Function-Based Views
+# Create these views in blog/views.py:
 
   def post_list(request):
       '''Display all published posts with pagination (10 per page)'''
@@ -32,7 +48,6 @@ Create these views in blog/views.py:
       '''Display all posts in a category'''
       ...
 
-
 CHALLENGE 34.2 -- URL Configuration
 In blog/urls.py:
   urlpatterns = [
@@ -44,14 +59,12 @@ In blog/urls.py:
 Include in myproject/urls.py:
   path('blog/', include('blog.urls')),
 
-
 CHALLENGE 34.3 -- Templates
 Create these templates in blog/templates/blog/:
 
   base.html -- master template with navigation
   post_list.html -- list of posts with pagination
   post_detail.html -- single post with category and tags
-
 
 CHALLENGE 34.4 -- Class-Based Views
 Convert post_list to a ListView and post_detail to a DetailView:
@@ -64,7 +77,6 @@ Convert post_list to a ListView and post_detail to a DetailView:
       queryset = Post.objects.filter(status='published')
 """
 
-# =========== VERIFICATION CHECKLIST ===========
 """
 [ ] post_list view works at /blog/
 [ ] post_detail view works at /blog/post/<slug>/

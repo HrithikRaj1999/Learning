@@ -1,72 +1,42 @@
 """
-================================================================
-   TASK 30: REST API with Flask                   ***      
-================================================================
+==============================================================================
+  TASK 30: REST API (Full CRUD with Flask)
+==============================================================================
 
-SETUP: pip install flask
-RUN:   python task_30_rest_api.py
+REAL-WORLD CONTEXT:
+REST APIs are how frontends talk to backends. The TODO API is the "Hello World"
+of backend development. Every job interview asks you to build one.
 
-INSTRUCTIONS:
-Build a complete REST API for a Todo app. This is the #1 interview project.
+SCENARIO: Build a complete TODO API:
+  - GET    /api/todos     → list all todos
+  - POST   /api/todos     → create a new todo
+  - GET    /api/todos/1   → get single todo by ID
+  - PUT    /api/todos/1   → update a todo (mark complete, change title)
+  - DELETE /api/todos/1   → delete a todo
 
-CONCEPTS: REST principles, CRUD endpoints, JSON, status codes, error handling
+HTTP STATUS CODES (important for APIs):
+  - 200: Success
+  - 201: Created (after POST)
+  - 404: Not Found (bad ID)
+  - 400: Bad Request (missing required fields)
 
-API Design:
-  GET    /api/todos          -> List all todos
-  POST   /api/todos          -> Create a todo
-  GET    /api/todos/<id>     -> Get one todo
-  PUT    /api/todos/<id>     -> Update a todo
-  DELETE /api/todos/<id>     -> Delete a todo
+EXPECTED BEHAVIOR:
+  POST /api/todos {"title": "Buy milk"} → 201 {"id": 1, "title": "Buy milk", "completed": false}
+  GET /api/todos → 200 [{"id": 1, ...}]
+  PUT /api/todos/1 {"completed": true} → 200 {"id": 1, "completed": true}
+  DELETE /api/todos/1 → 200 {"deleted": true}
+  GET /api/todos/999 → 404 {"error": "Not found"}
 """
 
 from flask import Flask, jsonify, request, abort
 
 app = Flask(__name__)
 
-# In-memory storage (replace with database later)
 todos = []
 next_id = 1
 
+# BUILD: Add 5 CRUD route handlers for /api/todos
 
-# ----- Challenge 30.1 -----
-# Implement GET /api/todos -- return all todos
-# YOUR CODE HERE
-
-
-# ----- Challenge 30.2 -----
-# Implement POST /api/todos -- create a new todo
-# Request body: {"title": "Buy groceries", "completed": false}
-# Response: the created todo with id, status 201
-# YOUR CODE HERE
-
-
-# ----- Challenge 30.3 -----
-# Implement GET /api/todos/<id> -- get a single todo
-# Return 404 if not found
-# YOUR CODE HERE
-
-
-# ----- Challenge 30.4 -----
-# Implement PUT /api/todos/<id> -- update a todo
-# Return 404 if not found
-# YOUR CODE HERE
-
-
-# ----- Challenge 30.5 -----
-# Implement DELETE /api/todos/<id> -- delete a todo
-# Return 204 No Content on success
-# YOUR CODE HERE
-
-
-# ----- Challenge 30.6 -----
-# Add error handlers:
-# - 404 -> {"error": "Not found"}
-# - 400 -> {"error": "Bad request"}
-# - 500 -> {"error": "Internal server error"}
-# YOUR CODE HERE
-
-
-# =========== RUN & TEST ===========
 if __name__ == "__main__":
     print(">> REST API running at http://localhost:5000")
     print()

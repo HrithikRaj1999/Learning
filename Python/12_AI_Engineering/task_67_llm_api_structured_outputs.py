@@ -1,35 +1,45 @@
 """
-================================================================
-   TASK 67: LLM API Basics and Structured Outputs    ****
-================================================================
+==============================================================================
+  TASK 67: LLM API — Structured Outputs
+==============================================================================
 
-Goal:
-- Call an LLM API through a small adapter.
-- Return structured JSON, not loose text.
-- Isolate provider-specific code behind an interface.
+REAL-WORLD CONTEXT:
+LLMs return free text. But your app needs STRUCTURED data:
+  - Classify support tickets into categories (billing, technical, account)
+  - Extract entities from text (names, dates, amounts)
+  - Generate data that matches a schema (JSON with specific fields)
 
-Recommended project shape:
-  ai/providers/base.py
-  ai/providers/openai_provider.py
-  ai/schemas.py
-  tests/test_llm_provider_contract.py
+SCENARIO: Auto-classify support tickets:
+  Input: "I haven't received my invoice for January"
+  Output: { category: "billing", priority: "medium", summary: "Missing invoice" }
+
+WHAT'S WRONG (without structured output):
+  LLM says: "This seems like a billing issue" → how do you route it?
+  Need: a Pydantic model that VALIDATES the LLM's output.
+
+YOUR FIX:
+  - Define TicketClassification schema (Pydantic)
+  - LLMProvider protocol (swap real/fake implementations)
+  - FakeLLMProvider for testing (deterministic, no API calls)
+
+EXPECTED BEHAVIOR:
+  provider.classify_ticket("Need invoice") → TicketClassification(category="billing",...)
+  # In tests: use FakeLLMProvider (no OpenAI calls, free, deterministic)
+  # In prod: use OpenAIProvider (real API, structured output mode)
 """
 
 from typing import Protocol
 
 from pydantic import BaseModel, Field
 
-
 class TicketClassification(BaseModel):
     category: str = Field(pattern="^(billing|technical|account|other)$")
     priority: str = Field(pattern="^(low|medium|high|urgent)$")
     summary: str = Field(min_length=5, max_length=200)
 
-
 class LLMProvider(Protocol):
     def classify_ticket(self, text: str) -> TicketClassification:
         ...
-
 
 class FakeLLMProvider:
     """Deterministic fake for tests."""
@@ -39,11 +49,3 @@ class FakeLLMProvider:
         if "invoice" in lowered or "payment" in lowered:
             return TicketClassification(category="billing", priority="medium", summary="Billing related issue")
         return TicketClassification(category="other", priority="low", summary="General support request")
-
-
-# Challenge:
-# - Implement OpenAILLMProvider using the Responses API or your chosen SDK.
-# - Enforce structured output with a schema.
-# - Add retry/backoff for transient failures.
-# - Add tests against FakeLLMProvider so CI does not need an API key.
-

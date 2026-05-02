@@ -1,167 +1,347 @@
-/*
-==============================================================================
-  TASK 08: Indexes and Query Performance
-==============================================================================
-
-LEVEL: Advanced
-CONCEPTS: EXPLAIN, EXPLAIN ANALYZE, B-tree indexes, composite indexes, partial indexes, expression indexes, covering indexes, GIN, BRIN, statistics
-
-HOW TO PRACTICE:
-1. Run ../00_Setup/01_create_schema.sql
-2. Run ../00_Setup/02_seed_data.sql
-3. Write each answer under its prompt.
-4. Keep every solution as one independent SQL statement unless a task asks for DDL or a transaction.
-
-Target: 25 non-repeated exercises for this topic.
-*/
-
 SET search_path TO sql_mastery;
 
-------------------------------------------------------------------------------
--- Challenge 08.01
--- Run EXPLAIN for a customer lookup by email and propose the supporting index.
--- Write your solution below.
+-- ============================================================================
+-- TASK 08: INDEXES AND QUERY PERFORMANCE
+-- ============================================================================
+-- You're the DBA optimizing a slow production system. Dashboards time out,
+-- reports take minutes. These challenges teach you to diagnose with EXPLAIN,
+-- create the right index types, and understand when indexes help vs hurt.
+-- ============================================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.02
--- Create a composite index for orders filtered by customer_id and sorted by order_date desc.
--- Write your solution below.
+-- ==================================================
+-- 08.01 - EXPLAIN a Customer Email Lookup
+-- ==================================================
+-- SCENARIO: The login page searches customers by email. It's slow.
+-- Run EXPLAIN to see if it's doing a sequential scan, then create an index.
+--
+-- YOUR TASK: EXPLAIN the email lookup query. Then CREATE INDEX to support it.
+--
+-- EXPECTED OUTPUT: EXPLAIN output + index creation statement.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.03
--- Create a partial index for open support tickets only.
--- Write your solution below.
+
+-- ==================================================
+-- 08.02 - Composite Index for Customer Orders
+-- ==================================================
+-- SCENARIO: The customer dashboard queries orders filtered by customer_id
+-- and sorted by order_date DESC. A composite index speeds both.
+--
+-- YOUR TASK: CREATE INDEX on orders(customer_id, order_date DESC).
+--
+-- EXPECTED OUTPUT: Composite index supporting filter + sort.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.04
--- Create an expression index for lower(customers.email) and write a query that can use it.
--- Write your solution below.
+
+-- ==================================================
+-- 08.03 - Partial Index for Open Tickets
+-- ==================================================
+-- SCENARIO: 90% of tickets are closed. The support dashboard only queries
+-- open ones. A partial index on just open tickets is smaller and faster.
+--
+-- YOUR TASK: CREATE INDEX ... WHERE status != 'closed'.
+--
+-- EXPECTED OUTPUT: Partial index targeting the active subset.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.05
--- Create a covering index for payments by order_id including amount and status.
--- Write your solution below.
+
+-- ==================================================
+-- 08.04 - Expression Index for Case-Insensitive Email
+-- ==================================================
+-- SCENARIO: Email lookups use LOWER(email) but the index is on raw email.
+-- Create an expression index on the lowercased value.
+--
+-- YOUR TASK: CREATE INDEX ON customers (LOWER(email)).
+-- Write a query that uses it.
+--
+-- EXPECTED OUTPUT: Expression index + matching query.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.06
--- Compare index column order for queries filtering by channel and order_date.
--- Write your solution below.
+
+-- ==================================================
+-- 08.05 - Covering Index for Payments
+-- ==================================================
+-- SCENARIO: A report queries payments by order_id and only reads amount + status.
+-- A covering index includes those columns to avoid table lookups.
+--
+-- YOUR TASK: CREATE INDEX ... INCLUDE (amount, status).
+--
+-- EXPECTED OUTPUT: Covering (INCLUDE) index definition.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.07
--- Rewrite a non-sargable date filter on orders so an index can be used.
--- Write your solution below.
+
+-- ==================================================
+-- 08.06 - Column Order Matters
+-- ==================================================
+-- SCENARIO: Queries filter by channel AND order_date. Does index order
+-- matter? Create both orders and explain which is better for each query.
+--
+-- YOUR TASK: Create index (channel, order_date) vs (order_date, channel).
+-- Comment on which helps which query pattern.
+--
+-- EXPECTED OUTPUT: Two indexes with explanatory comments about column order.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.08
--- Create a GIN index for web_events.metadata and query by device.
--- Write your solution below.
+
+-- ==================================================
+-- 08.07 - Fix Non-Sargable Date Filter
+-- ==================================================
+-- SCENARIO: A query uses WHERE EXTRACT(YEAR FROM order_date) = 2026.
+-- This can't use an index. Rewrite to be sargable.
+--
+-- YOUR TASK: Show the bad query, then rewrite using WHERE order_date >= ... AND order_date < ...
+--
+-- EXPECTED OUTPUT: Non-sargable (bad) → sargable (good) rewrite.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.09
--- Create a GIN index for full-text search over support ticket subject and note text.
--- Write your solution below.
+
+-- ==================================================
+-- 08.08 - GIN Index for JSONB Metadata
+-- ==================================================
+-- SCENARIO: web_events.metadata is JSONB. Queries filter by device value.
+-- A GIN index supports containment (@>) operator queries.
+--
+-- YOUR TASK: CREATE INDEX ... USING gin(metadata). Write query using @>.
+--
+-- EXPECTED OUTPUT: GIN index + matching JSONB query.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.10
--- Create a BRIN index strategy for a large append-only web_events table.
--- Write your solution below.
+
+-- ==================================================
+-- 08.09 - Full-Text Search Index
+-- ==================================================
+-- SCENARIO: Support agents search ticket subjects for keywords. Create a
+-- GIN index on tsvector for fast full-text search.
+--
+-- YOUR TASK: CREATE INDEX using to_tsvector on support_tickets.subject.
+-- Write a query using to_tsquery.
+--
+-- EXPECTED OUTPUT: FTS index + search query.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.11
--- Use EXPLAIN ANALYZE to compare EXISTS versus JOIN DISTINCT for customer activity.
--- Write your solution below.
+
+-- ==================================================
+-- 08.10 - BRIN Index for Append-Only Table
+-- ==================================================
+-- SCENARIO: web_events is append-only and naturally ordered by time.
+-- BRIN indexes are tiny and perfect for this pattern.
+--
+-- YOUR TASK: CREATE INDEX ... USING brin(occurred_at). Explain when BRIN beats B-tree.
+--
+-- EXPECTED OUTPUT: BRIN index + explanatory comments.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.12
--- Find a query where an index might hurt because the table is tiny or selectivity is low.
--- Write your solution below.
+
+-- ==================================================
+-- 08.11 - EXISTS vs JOIN DISTINCT (EXPLAIN ANALYZE)
+-- ==================================================
+-- SCENARIO: Two ways to check "customers with orders": EXISTS subquery
+-- vs JOIN + DISTINCT. Compare their execution plans.
+--
+-- YOUR TASK: Write both queries with EXPLAIN ANALYZE. Comment on which wins.
+--
+-- EXPECTED OUTPUT: Two queries with plan comparison comments.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.13
--- Create statistics on correlated columns channel and status in orders.
--- Write your solution below.
+
+-- ==================================================
+-- 08.12 - When Indexes Hurt
+-- ==================================================
+-- SCENARIO: A tiny 5-row lookup table doesn't benefit from an index.
+-- High-selectivity queries on boolean columns might not either.
+--
+-- YOUR TASK: Show a case where sequential scan is faster than index scan.
+-- Explain why (table size, selectivity, maintenance cost).
+--
+-- EXPECTED OUTPUT: Example + explanation of when indexes are counterproductive.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.14
--- Refresh a materialized daily revenue view and discuss index placement on it.
--- Write your solution below.
+
+-- ==================================================
+-- 08.13 - Extended Statistics on Correlated Columns
+-- ==================================================
+-- SCENARIO: Queries filter orders by both channel AND status. The planner
+-- underestimates rows because it assumes independence. Extended stats help.
+--
+-- YOUR TASK: CREATE STATISTICS on (channel, status) FROM orders.
+--
+-- EXPECTED OUTPUT: Statistics object creation + explanation.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.15
--- Detect unused indexes using catalog-query comments and explain when to drop one.
--- Write your solution below.
+
+-- ==================================================
+-- 08.14 - Materialized View Refresh + Indexes
+-- ==================================================
+-- SCENARIO: The daily_revenue materialized view needs refreshing and
+-- proper indexes for dashboard queries.
+--
+-- YOUR TASK: REFRESH MATERIALIZED VIEW. CREATE INDEX on the mat view.
+-- Discuss CONCURRENTLY option.
+--
+-- EXPECTED OUTPUT: Refresh command + index on materialized view.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.16
--- Optimize a top-products query by pre-aggregating order_items in a CTE.
--- Write your solution below.
+
+-- ==================================================
+-- 08.15 - Detect Unused Indexes
+-- ==================================================
+-- SCENARIO: Over time, indexes accumulate but some are never used.
+-- They slow down writes for no read benefit. Find and evaluate them.
+--
+-- YOUR TASK: Query pg_stat_user_indexes to find indexes with low scan count.
+-- Discuss criteria for dropping.
+--
+-- EXPECTED OUTPUT: Catalog query + decision criteria in comments.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.17
--- Avoid SELECT * in a wide join and explain how it changes memory and I/O.
--- Write your solution below.
+
+-- ==================================================
+-- 08.16 - Optimize with Pre-Aggregation
+-- ==================================================
+-- SCENARIO: A "top products" query scans all order_items every time.
+-- Pre-aggregate in a CTE so the sort operates on fewer rows.
+--
+-- YOUR TASK: Rewrite with CTE pre-aggregation. Explain the improvement.
+--
+-- EXPECTED OUTPUT: Optimized query with pre-aggregated CTE.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.18
--- Compare OFFSET pagination to keyset pagination for orders.
--- Write your solution below.
+
+-- ==================================================
+-- 08.17 - Avoid SELECT * in Joins
+-- ==================================================
+-- SCENARIO: A wide 6-table join uses SELECT *. This fetches hundreds of
+-- columns, wastes memory, and prevents covering indexes from working.
+--
+-- YOUR TASK: Show SELECT * (bad) vs explicit column list (good).
+-- Comment on memory/IO impact.
+--
+-- EXPECTED OUTPUT: Before/after with performance explanation.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.19
--- Write a keyset pagination query using order_date and order_id.
--- Write your solution below.
+
+-- ==================================================
+-- 08.18 - OFFSET vs Keyset Pagination
+-- ==================================================
+-- SCENARIO: Page 500 of orders takes 3 seconds with OFFSET. Keyset
+-- pagination stays fast regardless of page depth.
+--
+-- YOUR TASK: Show OFFSET pagination (slow for deep pages) vs keyset
+-- pagination (consistent speed). Explain why.
+--
+-- EXPECTED OUTPUT: Both approaches with performance comparison comments.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.20
--- Use DISTINCT ON versus ROW_NUMBER for latest payment per order and compare plans.
--- Write your solution below.
+
+-- ==================================================
+-- 08.19 - Keyset Pagination Implementation
+-- ==================================================
+-- SCENARIO: Implement proper keyset (cursor-based) pagination for orders
+-- using order_date + order_id as the cursor.
+--
+-- YOUR TASK: WHERE (order_date, order_id) < (last_seen_date, last_seen_id)
+-- ORDER BY order_date DESC, order_id DESC LIMIT 20.
+--
+-- EXPECTED OUTPUT: Working keyset pagination query.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.21
--- Optimize a query that filters JSONB metadata by campaign and device.
--- Write your solution below.
+
+-- ==================================================
+-- 08.20 - DISTINCT ON vs ROW_NUMBER
+-- ==================================================
+-- SCENARIO: Getting latest payment per order. PostgreSQL's DISTINCT ON is
+-- concise but ROW_NUMBER is more portable. Compare execution plans.
+--
+-- YOUR TASK: Write both approaches. EXPLAIN and comment on plan differences.
+--
+-- EXPECTED OUTPUT: Both queries with plan comparison.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.22
--- Identify a join that needs indexes on both foreign key and referenced key.
--- Write your solution below.
+
+-- ==================================================
+-- 08.21 - Optimize JSONB Filter Query
+-- ==================================================
+-- SCENARIO: A dashboard filters web_events by campaign AND device in metadata.
+-- Without an index on the JSONB path, it's slow.
+--
+-- YOUR TASK: Create appropriate GIN or expression index. Rewrite query to use it.
+--
+-- EXPECTED OUTPUT: Index + optimized JSONB query.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.23
--- Explain when VACUUM and ANALYZE matter after bulk loading seed data.
--- Write your solution below.
+
+-- ==================================================
+-- 08.22 - Indexes on Both Sides of a Join
+-- ==================================================
+-- SCENARIO: A join between orders and order_items is slow. Indexes are
+-- needed on both the FK (order_items.order_id) and PK (orders.order_id).
+--
+-- YOUR TASK: Identify which side needs an index. Create it. Explain why
+-- both sides of a join matter.
+--
+-- EXPECTED OUTPUT: Index creation + join performance explanation.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.24
--- Create a query that shows estimated versus actual rows and describe what mismatch means.
--- Write your solution below.
+
+-- ==================================================
+-- 08.23 - VACUUM and ANALYZE After Bulk Load
+-- ==================================================
+-- SCENARIO: After loading 1M rows into staging, queries are slow because
+-- statistics are stale and dead tuples exist.
+--
+-- YOUR TASK: Run VACUUM ANALYZE. Explain what each does and when to run them.
+--
+-- EXPECTED OUTPUT: VACUUM ANALYZE command + detailed explanation comments.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 08.25
--- Design an indexing strategy for a dashboard with filters by month, city, status, and channel.
--- Write your solution below.
+
+-- ==================================================
+-- 08.24 - Estimated vs Actual Rows Mismatch
+-- ==================================================
+-- SCENARIO: EXPLAIN shows estimated=100 rows but ANALYZE shows actual=50000.
+-- This mismatch causes bad plan choices. Diagnose and fix.
+--
+-- YOUR TASK: Show a query with row estimate mismatch. Explain causes
+-- (stale stats, correlated columns, function volatility).
+--
+-- EXPECTED OUTPUT: EXPLAIN ANALYZE showing mismatch + diagnosis.
+-- ==================================================
+
+
+
+-- ==================================================
+-- 08.25 - Dashboard Indexing Strategy
+-- ==================================================
+-- SCENARIO: A dashboard filters by month, city, status, and channel.
+-- Design a complete indexing strategy covering all filter combinations.
+--
+-- YOUR TASK: Design indexes for the most common filter patterns.
+-- Explain composite index ordering decisions.
+--
+-- EXPECTED OUTPUT: Multiple indexes with strategy explanation.
+-- ==================================================
+
+

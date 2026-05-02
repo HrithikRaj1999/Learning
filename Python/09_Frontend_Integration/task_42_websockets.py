@@ -1,19 +1,31 @@
 """
-================================================================
-   TASK 42: WebSockets with Python                ****    
-================================================================
+==============================================================================
+  TASK 42: WebSockets (Real-Time Communication)
+==============================================================================
 
-SETUP: pip install websockets flask-socketio
-CONCEPTS: WebSocket protocol, real-time communication, events, rooms
+REAL-WORLD CONTEXT:
+HTTP is request/response (client asks, server answers). WebSockets are
+BI-DIRECTIONAL and PERSISTENT — server can push data to client anytime.
 
-INSTRUCTIONS:
-WebSockets enable real-time features: chat, notifications, live updates.
+Used for: chat apps, live notifications, stock tickers, multiplayer games,
+collaborative editing (Google Docs), live dashboards.
+
+SCENARIO:
+  42.1 — Echo Server:
+    Client sends message → server sends it back. Simplest WebSocket example.
+    Learn: connection lifecycle (open, message, close).
+
+  42.2 — Chat Room:
+    Multiple users connect → messages broadcast to ALL users.
+    Features: join/leave notifications, rooms, user names.
+    Uses Flask-SocketIO (production-ready WebSocket for Flask).
+
+WHY NOT JUST USE HTTP POLLING:
+  - HTTP polling: client asks every 1 second "any updates?" (wasteful)
+  - WebSocket: server pushes updates INSTANTLY when they happen (efficient)
 """
 
-# =========== CHALLENGES ===========
-
-"""
-CHALLENGE 42.1 -- Simple WebSocket Echo Server
+# CHALLENGE 42.1 -- Simple WebSocket Echo Server
 Using the 'websockets' library, create a server that:
 - Accepts connections on ws://localhost:8765
 - Echoes back any message it receives
@@ -25,9 +37,6 @@ import websockets
 async def echo(websocket):
     async for message in websocket:
         await websocket.send(f"Echo: {message}")
-
-# YOUR CODE HERE to start the server
-
 
 CHALLENGE 42.2 -- Chat Room with Flask-SocketIO
 Create a chat app with:
@@ -45,9 +54,6 @@ socketio = SocketIO(app)
 @socketio.on('message')
 def handle_message(data):
     emit('message', data, broadcast=True)
-
-# YOUR CODE HERE
-
 
 CHALLENGE 42.3 -- Real-Time Dashboard
 Create a page that shows:

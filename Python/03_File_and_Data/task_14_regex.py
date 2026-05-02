@@ -1,59 +1,63 @@
 """
-================================================================
-   TASK 14: Regex Pattern Matching                ***      
-================================================================
+==============================================================================
+  TASK 14: Regular Expressions
+==============================================================================
 
-INSTRUCTIONS:
-Regex is used for validation (emails, passwords, URLs), parsing, and searching.
+REAL-WORLD CONTEXT:
+Regex is ESSENTIAL for: input validation, log parsing, data extraction,
+search-and-replace. It's ugly but powerful. Every language has it.
 
-CONCEPTS: re module, match, search, findall, sub, compile, groups
+SCENARIOS COVERED:
+  - Email validation (signup forms, contact forms)
+  - Phone number extraction (from unstructured text, OCR results)
+  - Password strength checking (security requirements)
+  - URL masking (privacy compliance, content moderation)
+  - Log file parsing (structured extraction from messy text)
 """
 
 import re
 
 
-# ----- Challenge 14.1 -----
-# Validate an email address.
-# Rules: letters/numbers/dots/underscores @ letters/numbers . 2-4 letter domain
-# Example: "user@example.com" -> True, "bad@.com" -> False
+# SCENARIO: Signup form needs email validation BEFORE hitting the server.
+# Reject obviously invalid emails ("bad@.com") but accept standard formats.
+# YOUR FIX: Regex pattern that matches valid email formats.
+# EXPECTED: is_valid_email("user@example.com") → True; is_valid_email("bad@.com") → False
 def is_valid_email(email):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 14.2 -----
-# Extract all phone numbers from text in format: (XXX) XXX-XXXX or XXX-XXX-XXXX
-# Example: "Call (123) 456-7890 or 987-654-3210" -> ["(123) 456-7890", "987-654-3210"]
+# SCENARIO: A CRM system scans customer messages to auto-detect phone numbers
+# for callback. Messages have mixed text with phones in different formats.
+# YOUR FIX: Extract all phone numbers from text (handle (123) 456-7890 and 987-654-3210).
+# EXPECTED: extract_phone_numbers("Call (123) 456-7890 or 987-654-3210") → 2 numbers
 def extract_phone_numbers(text):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 14.3 -----
-# Validate a password:
-# - At least 8 characters
-# - At least one uppercase letter
-# - At least one lowercase letter
-# - At least one digit
-# - At least one special character (!@#$%^&*)
+# SCENARIO: Security policy requires passwords with: 8+ chars, uppercase, lowercase,
+# digit, and special character. Check ALL rules with regex.
+# YOUR FIX: Validate password meets ALL strength requirements.
+# EXPECTED: is_strong_password("MyP@ssw0rd") → True; is_strong_password("weakpass") → False
 def is_strong_password(password):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 14.4 -----
-# Replace all URLs in text with "[LINK]"
-# URL pattern: http(s)://anything-until-whitespace
+# SCENARIO: Privacy compliance: before showing user-generated content publicly,
+# replace all URLs with "[LINK]" to prevent phishing/spam links.
+# YOUR FIX: Find all http/https URLs and replace with [LINK].
+# EXPECTED: mask_urls("Visit https://google.com") → "Visit [LINK]"
 def mask_urls(text):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 14.5 -----
-# Parse a log line and extract components.
-# Format: "2024-01-15 10:30:45 [ERROR] Database connection failed"
-# Return: {"date": "2024-01-15", "time": "10:30:45", "level": "ERROR", "message": "Database connection failed"}
+# SCENARIO: Monitoring system needs to parse log lines like:
+# "2024-01-15 10:30:45 [ERROR] Database connection failed"
+# Extract: date, time, level, and message as structured data.
+# YOUR FIX: Parse a log line into a dict with timestamp, level, and message.
+# EXPECTED: parse_log_line("2024-01-15 10:30:45 [ERROR] DB failed") → {"level": "ERROR", ...}
 def parse_log_line(line):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
     assert is_valid_email("user@example.com") == True
     assert is_valid_email("bad@.com") == False

@@ -1,48 +1,28 @@
 """
-========================================================================
-   TASK 53: CAPSTONE -- Task Management System      *****       
-========================================================================
+==============================================================================
+  TASK 53: Capstone Project — Task Manager (Trello Clone)
+==============================================================================
 
-[Trophy] CAPSTONE PROJECT 4
+REAL-WORLD CONTEXT:
+Project management tools (Trello, Jira, Asana) are COMPLEX apps that test:
+  - Drag-and-drop UI (frontend challenge)
+  - Real-time collaboration (multiple users editing same board)
+  - Complex permissions (board owners, members, viewers)
+  - Rich data modeling (boards, lists, cards, labels, checklists)
 
-Build a Trello/Jira-like task management app.
-Focus: CRUD, drag-and-drop, team collaboration.
+SCENARIO: Build a Trello-like task manager:
+  - Boards with draggable columns (To Do, In Progress, Done)
+  - Cards with details, labels, due dates, assignments
+  - Team collaboration with activity logs
+  - Filtering and search across all boards
 
-TECH STACK: Django/Flask + PostgreSQL + HTMX or React
-"""
+THIS PROVES YOU CAN:
+  - Build collaborative multi-user applications
+  - Handle complex permissions (who can edit what)
+  - Model hierarchical data (board → list → card → checklist)
+  - Implement real-time updates across users
 
-# =========== REQUIREMENTS ===========
-
-"""
 FEATURES TO BUILD:
-
-1. BOARDS & LISTS
-   - Create boards (projects)
-   - Create lists within boards (e.g., To Do, In Progress, Done)
-   - Drag-and-drop cards between lists
-
-2. TASK CARDS
-   - Title, description, due date
-   - Priority (Low, Medium, High, Urgent)
-   - Labels/tags
-   - Checklists within cards
-   - File attachments
-   - Comments on cards
-
-3. TEAM FEATURES
-   - Invite members to boards
-   - Assign tasks to team members
-   - Activity log (who did what, when)
-
-4. FILTERING & SEARCH
-   - Filter by assignee, label, due date, priority
-   - Full-text search across cards
-   - Sort by various fields
-
-5. NOTIFICATIONS
-   - Task assigned to you
-   - Due date approaching
-   - Comment on your task
 
 6. API
    - Full REST API for all operations

@@ -1,49 +1,48 @@
 """
-================================================================
-   TASK 15: Data Processing Pipeline              ***      
-================================================================
+==============================================================================
+  TASK 15: Data Pipeline (Transform, Aggregate, Clean)
+==============================================================================
 
-INSTRUCTIONS:
-Real-world task: process, transform, and analyze data like a backend dev.
+REAL-WORLD CONTEXT:
+Data pipelines are the BACKBONE of analytics. Every company needs:
+  - Revenue reports (aggregated by category, time period)
+  - Log analysis (error rates, patterns, alerting)
+  - Data cleaning (deduplicate, normalize, fill missing values)
 
-CONCEPTS: chaining operations, data transformation, aggregation
+These are the problems data engineers and backend developers solve DAILY.
 """
 
 from collections import Counter
 from datetime import datetime
 
 
-# ----- Challenge 15.1 -----
-# Given a list of order dicts, calculate total revenue per category.
-# Input: [{"product": "A", "category": "Electronics", "price": 100, "qty": 2}, ...]
-# Output: {"Electronics": 200, "Books": 50, ...}
+# SCENARIO: Finance dashboard shows revenue per product category.
+# Raw data: individual order items. Need: total revenue grouped by category.
+# Revenue = price × quantity for each item, summed per category.
+# YOUR FIX: Group orders by category and sum revenue (price * qty).
+# EXPECTED: revenue_by_category([{"category": "Electronics", "price": 1000, "qty": 1},...]) → {"Electronics": 1500}
 def revenue_by_category(orders):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 15.2 -----
-# Given a list of log entries (dicts with "timestamp", "level", "message"),
-# return a summary: count per level and the most recent error message.
-# Input: [{"timestamp": "2024-01-01 10:00", "level": "INFO", "message": "Started"}, ...]
-# Output: {"counts": {"INFO": 5, "ERROR": 2}, "last_error": "DB timeout"}
+# SCENARIO: On-call engineer needs a quick summary of the last hour's logs:
+# How many INFO vs ERROR? What was the last error? Time range covered?
+# YOUR FIX: Count log levels, find last error message, compute time range.
+# EXPECTED: analyze_logs(logs) → {"counts": {"ERROR": 2, "INFO": 2}, "last_error": "DB timeout"}
 def analyze_logs(logs):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 15.3 -----
-# Build a simple data pipeline: given raw user data (list of dicts),
-# 1. Remove entries with missing "email" field
-# 2. Normalize email to lowercase
-# 3. Remove duplicate emails (keep first occurrence)
-# 4. Sort by "name"
-# Return the cleaned list.
+# SCENARIO: User import from external system has problems:
+# - Missing emails (can't create account without email)
+# - Duplicate emails (same person registered twice)
+# - Inconsistent case ("BOB@test.com" and "bob@test.com" are the same person)
+# YOUR FIX: Remove users with missing/duplicate emails, normalize email case, sort by name.
+# EXPECTED: clean_user_data(dirty_users) → deduplicated, normalized, sorted list
 def clean_user_data(users):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
-    # Test 15.1
     orders = [
         {"product": "Laptop", "category": "Electronics", "price": 1000, "qty": 1},
         {"product": "Book", "category": "Books", "price": 25, "qty": 2},
@@ -54,7 +53,6 @@ if __name__ == "__main__":
     assert rev["Books"] == 50
     print("[PASS] Test 15.1 Passed: revenue_by_category")
 
-    # Test 15.2
     logs = [
         {"timestamp": "2024-01-01 10:00", "level": "INFO", "message": "Started"},
         {"timestamp": "2024-01-01 10:05", "level": "ERROR", "message": "DB failed"},
@@ -66,7 +64,6 @@ if __name__ == "__main__":
     assert summary["last_error"] == "DB timeout"
     print("[PASS] Test 15.2 Passed: analyze_logs")
 
-    # Test 15.3
     users = [
         {"name": "Bob", "email": "BOB@test.com"},
         {"name": "Alice", "email": "alice@test.com"},

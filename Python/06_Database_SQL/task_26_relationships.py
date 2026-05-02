@@ -1,60 +1,40 @@
 """
-================================================================
-   TASK 26: Database Relationships                ****    
-================================================================
+==============================================================================
+  TASK 26: SQLAlchemy Relationships (One-to-Many, Many-to-Many)
+==============================================================================
 
-INSTRUCTIONS:
-Real databases have relationships. Users have Posts. Posts have Comments.
-Orders have Products. Master One-to-Many and Many-to-Many.
+REAL-WORLD CONTEXT:
+Real databases have RELATIONSHIPS between tables:
+  - One Author has Many Posts (one-to-many)
+  - One Post has Many Comments (one-to-many)
+  - Many Students take Many Courses (many-to-many, needs join table)
 
-SETUP: pip install sqlalchemy
-CONCEPTS: ForeignKey, relationship, backref, one-to-many, many-to-many
+SCENARIO: Build a blog system:
+  - Author → has many Posts
+  - Post → has many Comments
+  - Student ←→ Course (many-to-many via enrollment table)
+
+WHAT'S WRONG (without relationships):
+  - Manual JOIN queries everywhere
+  - No referential integrity (orphaned posts when author deleted)
+  - Can't do author.posts (have to write separate query each time)
+
+YOUR FIX: SQLAlchemy relationship() with proper foreign keys.
+
+EXPECTED BEHAVIOR:
+  author = Author(name="Alice")
+  author.posts.append(Post(title="First Post"))
+  session.commit()
+  author.posts  → [Post(title="First Post")]  # navigable!
+  post.author   → Author(name="Alice")         # reverse navigation!
+
+BUILD:
+  1. Author model with posts relationship
+  2. Post model with comments relationship + author_id FK
+  3. Comment model with post_id FK
+  4. Student and Course models with many-to-many via enrollment table
+  5. Test: create data, navigate relationships both directions
 """
 
-
-# ----- Challenge 26.1 -----
-# Create models for a blog system:
-# Author (id, name, email)
-#   |-- Post (id, title, content, author_id -> FK to Author, created_at)
-#       |-- Comment (id, text, post_id -> FK to Post, commenter_name)
-#
-# Set up relationships so you can do:
-#   author.posts -> list of posts
-#   post.author -> the author
-#   post.comments -> list of comments
-
-# YOUR MODELS HERE
-
-
-# ----- Challenge 26.2 -----
-# Create models for a school system with Many-to-Many:
-# Student (id, name)
-# Course (id, title, credits)
-# enrollment table (student_id, course_id, grade)
-#
-# student.courses -> list of courses
-# course.students -> list of students
-
-# YOUR MODELS HERE
-
-
-# ----- Challenge 26.3 -----
-# Write query functions:
-# - get_author_with_posts(session, author_id) -> author with eager-loaded posts
-# - get_posts_with_comments(session) -> all posts with their comments
-# - get_student_courses(session, student_id) -> all courses for a student
-
-# YOUR CODE HERE
-
-
-# =========== INSTRUCTIONS TO RUN ===========
-if __name__ == "__main__":
-    print("SETUP: pip install sqlalchemy")
-    print()
-    print("Build the models above, then test:")
-    print("1. Create an Author with multiple Posts")
-    print("2. Add Comments to Posts")
-    print("3. Create Students and Courses with enrollments")
-    print("4. Query relationships and verify navigation works")
-    print()
-    print("This task is more open-ended -- focus on understanding relationships!")
+# SETUP: pip install sqlalchemy
+# This task is more open-ended -- focus on understanding relationships!

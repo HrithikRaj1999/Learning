@@ -1,19 +1,31 @@
 """
-================================================================
-   TASK 46: Docker for Python Apps                ****    
-================================================================
+==============================================================================
+  TASK 46: Docker (Containerization)
+==============================================================================
 
-SETUP: Install Docker Desktop from docker.com
-CONCEPTS: Dockerfile, docker-compose, images, containers, volumes, networks
+REAL-WORLD CONTEXT:
+"Works on my machine" is the #1 deployment problem. Docker solves it:
+  - Package your app + ALL dependencies into one container
+  - Runs identically on: your laptop, CI server, production server
+  - No "install Python 3.11, then pip install..." on every server
 
-INSTRUCTIONS:
-Docker = your app runs the same everywhere. Essential for deployment.
+SCENARIO:
+  46.1 — Dockerize Flask: Create Dockerfile, build image, run container.
+  46.2 — Docker Compose: Flask + PostgreSQL + Redis in one command.
+  46.3 — Multi-stage Build: Smaller production images (no dev dependencies).
+
+WHY EVERY COMPANY USES DOCKER:
+  - Consistent environments (dev = staging = production)
+  - Easy scaling (run 10 copies of your container)
+  - Isolation (one app can't break another)
+  - Fast deployment (push image, pull image, done)
+
+EXPECTED BEHAVIOR:
+  docker-compose up → Flask app + PostgreSQL + Redis all running
+  curl localhost:5000/health → {"status": "ok", "db": "connected"}
 """
 
-# =========== CHALLENGES ===========
-
-"""
-CHALLENGE 46.1 -- Dockerize a Flask App
+# CHALLENGE 46.1 -- Dockerize a Flask App
 Create a Dockerfile:
 
   FROM python:3.11-slim
@@ -27,7 +39,6 @@ Create a Dockerfile:
 Build & run:
   docker build -t my-flask-app .
   docker run -p 5000:5000 my-flask-app
-
 
 CHALLENGE 46.2 -- Docker Compose with Database
 Create docker-compose.yml for Flask + PostgreSQL:
@@ -54,7 +65,6 @@ Create docker-compose.yml for Flask + PostgreSQL:
   volumes:
     pgdata:
 
-
 CHALLENGE 46.3 -- Multi-Service Stack
 Add Redis and Celery worker to the compose file:
   - Flask web app
@@ -62,7 +72,6 @@ Add Redis and Celery worker to the compose file:
   - Redis (message broker)
   - Celery worker
   - Celery beat (scheduler)
-
 
 CHALLENGE 46.4 -- Production Docker Setup
 - Use multi-stage builds to reduce image size
@@ -72,7 +81,6 @@ CHALLENGE 46.4 -- Production Docker Setup
 - Set proper security (non-root user, read-only filesystem)
 """
 
-# =========== VERIFICATION CHECKLIST ===========
 """
 [ ] Flask app runs in Docker
 [ ] docker-compose up starts app + database

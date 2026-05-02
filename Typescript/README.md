@@ -22,11 +22,12 @@ Typescript/scripts/test_task.ps1 Typescript/01_Type_System_Narrowing/__tests__/t
 ## How to Practice
 
 1. Open a module task file.
-2. Implement one exported challenge function.
-3. Open the matching `__tests__` file.
-4. Remove `.skip` from that challenge's sample test.
-5. Replace the placeholder expected value with the real expected result.
-6. Run the single module test, for example:
+2. Read [SCENARIO_GUIDE.md](./SCENARIO_GUIDE.md) for the real-life scenario, what is unsafe or unfinished, expected output, and how to test.
+3. Implement one exported challenge function.
+4. Open the matching `__tests__` file.
+5. Remove `.skip` from that challenge's sample test.
+6. Replace the placeholder expected value with the real expected result.
+7. Run the single module test, for example:
 
 ```powershell
 npx vitest --run 01_Type_System_Narrowing/__tests__/task_01_type_system_narrowing.test.ts

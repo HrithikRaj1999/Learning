@@ -1,72 +1,72 @@
 """
-================================================================
-   TASK 43: API Integration (Consume External APIs)  ***   
-================================================================
+==============================================================================
+  TASK 43: External API Integration
+==============================================================================
 
-SETUP: pip install requests
-CONCEPTS: HTTP client, API keys, rate limiting, error handling, pagination
+REAL-WORLD CONTEXT:
+Your Python backend often needs to call OTHER APIs:
+  - Weather data for a dashboard
+  - GitHub profiles for a dev tool
+  - Payment processing (Stripe)
+  - Email sending (SendGrid)
 
-INSTRUCTIONS:
-Real apps consume external APIs. Learn to work with them properly.
+SCENARIOS:
+  43.1 — Weather API: Call OpenWeatherMap, handle API keys, parse response.
+  43.2 — GitHub API: Fetch user profiles (public, no auth needed for practice).
+  43.3 — Reusable API Client: Base class with retry, headers, error handling.
+  43.4 — Pagination: APIs return data in pages. Fetch ALL pages automatically.
+
+WHAT'S WRONG (without proper API client):
+  - No retry: one network blip = failed request = broken feature
+  - No timeout: slow API holds up your entire server
+  - No error handling: API returns 500 → your app crashes
+  - No pagination: only get first 30 results out of 5000
+
+EXPECTED BEHAVIOR:
+  client = APIClient("https://api.github.com", max_retries=3)
+  client.get("/users/torvalds") → {"name": "Linus Torvalds", ...}
+  # Automatically retries on failure, times out after 10s, handles errors
 """
 
 import requests
 import json
 
 
-# ----- Challenge 43.1 -----
-# Create a weather checker using OpenWeatherMap API (free tier).
-# - Get API key from https://openweathermap.org/api (free)
-# - Fetch current weather for a city
-# - Return: {"city": "London", "temp": 15.5, "description": "cloudy", "humidity": 80}
-# - Handle errors: city not found, API down, invalid key
-
+# SCENARIO: Dashboard needs current weather. Call external API, parse response,
+# handle errors (invalid city, API down, rate limited).
+# YOUR FIX: Call weather API, return parsed temperature/conditions or error.
 def get_weather(city, api_key="YOUR_API_KEY"):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 43.2 -----
-# Create a GitHub profile fetcher:
-# - Fetch user profile from https://api.github.com/users/{username}
-# - Fetch their repos
-# - Return summary: {"name": "...", "public_repos": 30, "top_languages": [...], "followers": 100}
-
+# SCENARIO: Dev tool shows GitHub profiles. Call public API (no auth needed).
+# Handle: user not found (404), rate limited (403), network error.
+# YOUR FIX: Fetch GitHub user data, return parsed dict or None.
 def get_github_profile(username):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 43.3 -----
-# Create a generic API client class:
-# - Handles base URL, headers, auth tokens
-# - Methods: get(), post(), put(), delete()
-# - Automatic JSON parsing
-# - Retry on 5xx errors
-# - Rate limiting (max N requests per minute)
-
+# SCENARIO: Every external API call needs: base URL, headers, retry, timeout.
+# Instead of repeating this for each API, build a reusable client class.
+# YOUR FIX: APIClient with get/post methods, automatic retry, error handling.
 class APIClient:
     def __init__(self, base_url, headers=None, max_retries=3):
-        pass  # YOUR CODE HERE
+        pass
 
     def get(self, endpoint, params=None):
-        pass  # YOUR CODE HERE
+        pass
 
     def post(self, endpoint, data=None):
-        pass  # YOUR CODE HERE
+        pass
 
 
-# ----- Challenge 43.4 -----
-# Handle API pagination:
-# Fetch ALL pages from a paginated API.
-# Example: GitHub repos API returns 30 per page.
-# Your function should follow "next" links and collect all results.
-
+# SCENARIO: GitHub API returns max 30 repos per page. User has 200 repos.
+# Need to fetch ALL pages automatically (follow "next" links).
+# YOUR FIX: Follow pagination links until no more pages.
 def fetch_all_pages(url, headers=None):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES ===========
 if __name__ == "__main__":
-    # Test 43.2 (works without API key)
     profile = get_github_profile("torvalds")
     if profile:
         print(f"GitHub User: {profile.get('name')}")

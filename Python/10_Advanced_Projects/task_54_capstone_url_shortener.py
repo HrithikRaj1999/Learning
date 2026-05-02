@@ -1,70 +1,69 @@
 """
-========================================================================
-   TASK 54: CAPSTONE -- URL Shortener Service       ****         
-========================================================================
+==============================================================================
+  TASK 54: Capstone Project — URL Shortener (like bit.ly)
+==============================================================================
 
-[Trophy] CAPSTONE PROJECT 5 (Smaller, great for interviews)
+REAL-WORLD CONTEXT:
+URL shorteners seem simple but test important concepts:
+  - Unique ID generation (short codes that don't collide)
+  - Database design (efficient lookups, click tracking)
+  - Redirect handling (301 vs 302, performance)
+  - Analytics (click counts, geographic data, referrer tracking)
 
-Build a URL shortener like bit.ly. Simple but covers many concepts.
+SCENARIO: Build a URL shortener service:
+  - User submits long URL → gets short code (e.g., abc123)
+  - Visiting /abc123 redirects to original URL
+  - Track clicks per URL
+  - Dashboard shows analytics
 
-TECH STACK: Flask + SQLite/PostgreSQL + Redis
+THIS PROVES YOU CAN:
+  - Design efficient database schemas
+  - Handle high-throughput reads (redirects must be FAST)
+  - Generate unique short codes (avoid collisions)
+  - Build a complete service with API + frontend
+
+EXPECTED BEHAVIOR:
+  POST /shorten {"url": "https://very-long-url.com/path"} → {"short": "abc123"}
+  GET /abc123 → 302 Redirect to original URL + increment click count
+  GET /stats/abc123 → {"clicks": 42, "created": "2024-01-15"}
 """
 
 import string
 import random
 import sqlite3
 
-
-# ----- Challenge 54.1 -----
-# Create the URL shortening algorithm:
-# - Generate a unique short code (6 chars: a-z, A-Z, 0-9)
-# - Store mapping: short_code -> original_url
-# - Handle collisions
-
 CHARS = string.ascii_letters + string.digits
 
+
+# SCENARIO: Generate a unique 6-character code for each shortened URL.
+# Must be URL-safe (letters + digits only). Collisions handled by checking DB.
+# YOUR FIX: Random selection from alphanumeric characters.
 def generate_short_code(length=6):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 54.2 -----
-# Create the database layer:
-# - urls table: id, short_code (unique), original_url, created_at, clicks (default 0)
-# - Create, read, increment clicks
-
+# SCENARIO: Create the database table for storing URL mappings.
+# Schema: short_code (unique), original_url, click_count, created_at.
 def setup_database(db_path="urls.db"):
-    pass  # YOUR CODE HERE
+    pass
 
+
+# SCENARIO: User submits a long URL. Store it with a generated short code.
+# Return the short code for constructing the redirect URL.
 def shorten_url(db_path, original_url):
-    pass  # YOUR CODE HERE
+    pass
 
+
+# SCENARIO: User visits /abc123. Look up the original URL for redirect.
+# Return None if short code doesn't exist (for 404 handling).
 def get_original_url(db_path, short_code):
-    pass  # YOUR CODE HERE
+    pass
 
+
+# SCENARIO: Every time someone visits a short URL, count it for analytics.
 def increment_clicks(db_path, short_code):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# ----- Challenge 54.3 -----
-# Create Flask routes:
-# POST /api/shorten {"url": "https://example.com"} -> {"short_url": "http://localhost:5000/abc123"}
-# GET /<short_code> -> redirect to original URL
-# GET /api/stats/<short_code> -> {"original_url": "...", "clicks": 42, "created_at": "..."}
-
-# YOUR FLASK APP HERE
-
-
-# ----- Challenge 54.4 -----
-# Add features:
-# - Custom short codes: POST /api/shorten {"url": "...", "custom_code": "mylink"}
-# - Expiration: URLs expire after N days
-# - Rate limiting: max 10 URLs per hour per IP
-# - Analytics: clicks over time, referrer tracking
-
-# YOUR CODE HERE
-
-
-# =========== TEST CASES ===========
 if __name__ == "__main__":
     code = generate_short_code()
     assert len(code) == 6

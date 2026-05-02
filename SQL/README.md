@@ -35,10 +35,11 @@ SQL/scripts/stop_sql.ps1
 ## How to Use the Tasks
 
 1. Start Docker PostgreSQL with `SQL/scripts/start_sql.ps1`.
-2. Open a task file and write answers below each prompt.
-3. Run queries interactively with `SQL/scripts/psql.ps1`.
-4. Reset the database anytime with `SQL/scripts/reset_sql.ps1`.
-5. Keep your own answers under each prompt or in `solutions/`.
+2. Read [SCENARIO_GUIDE.md](./SCENARIO_GUIDE.md) for the real-life scenario, what can go wrong, expected output, and how to test each exercise.
+3. Open a task file and write answers below each prompt.
+4. Run queries interactively with `SQL/scripts/psql.ps1`.
+5. Reset the database anytime with `SQL/scripts/reset_sql.ps1`.
+6. Keep your own answers under each prompt or in `solutions/`.
 
 ## Modules
 

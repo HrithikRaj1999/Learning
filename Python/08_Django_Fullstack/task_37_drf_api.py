@@ -1,22 +1,34 @@
 """
-================================================================
-   TASK 37: Django REST Framework (DRF) API       ****    
-================================================================
+==============================================================================
+  TASK 37: Django REST Framework (DRF) API
+==============================================================================
 
-SETUP: pip install djangorestframework
-Add 'rest_framework' to INSTALLED_APPS
+REAL-WORLD CONTEXT:
+Modern apps have separate frontend (React/Vue) and backend (Django API).
+Django REST Framework adds: serializers, viewsets, authentication, pagination,
+filtering — everything needed for a production API.
 
-INSTRUCTIONS:
-Build a REST API for the blog using DRF. This is the most in-demand skill.
+SCENARIO: Turn the blog into a REST API:
+  - GET /api/posts/     → list posts (paginated, filterable)
+  - POST /api/posts/    → create post (authenticated users only)
+  - GET /api/posts/1/   → single post detail
+  - PUT /api/posts/1/   → update post (author only)
+  - DELETE /api/posts/1/ → delete post (author only)
 
-CONCEPTS: Serializers, ViewSets, Routers, Authentication, Permissions
+DRF CONCEPTS:
+  - Serializers: convert Model → JSON and validate incoming JSON
+  - ViewSets: CRUD logic in one class (less code than individual views)
+  - Permissions: IsAuthenticated, IsAuthorOrReadOnly
+  - Filters: ?status=published&category=python
+
+EXPECTED BEHAVIOR:
+  GET /api/posts/?status=published → 200 [{...}, {...}] (only published)
+  POST /api/posts/ (unauthenticated) → 401 Unauthorized
+  PUT /api/posts/1/ (not author) → 403 Forbidden
 """
 
-# =========== CHALLENGES ===========
-
-"""
-CHALLENGE 37.1 -- Serializers
-Create blog/serializers.py:
+# CHALLENGE 37.1 -- Serializers
+# Create blog/serializers.py:
 
   from rest_framework import serializers
   from .models import Post, Category, Tag
@@ -38,7 +50,6 @@ Create blog/serializers.py:
                     'status', 'created_at', 'updated_at']
           read_only_fields = ['slug', 'created_at', 'updated_at']
 
-
 CHALLENGE 37.2 -- ViewSets
 Create blog/api_views.py:
 
@@ -54,7 +65,6 @@ Create blog/api_views.py:
       ordering_fields = ['created_at', 'title']
       lookup_field = 'slug'
 
-
 CHALLENGE 37.3 -- URL Routing
   from rest_framework.routers import DefaultRouter
 
@@ -66,9 +76,7 @@ CHALLENGE 37.3 -- URL Routing
       path('api/', include(router.urls)),
   ]
 
-
 CHALLENGE 37.4 -- Token Authentication
-  # settings.py
   REST_FRAMEWORK = {
       'DEFAULT_AUTHENTICATION_CLASSES': [
           'rest_framework.authentication.TokenAuthentication',
@@ -81,7 +89,6 @@ Create endpoints:
   POST /api/auth/login/ -> return token
   GET  /api/auth/profile/ -> return user info (authenticated)
 
-
 CHALLENGE 37.5 -- Custom Permissions
 Create a custom permission:
 - IsAuthorOrReadOnly: Only post author can edit/delete
@@ -93,7 +100,6 @@ Create a custom permission:
           return obj.author == request.user
 """
 
-# =========== VERIFICATION CHECKLIST ===========
 """
 [ ] API browsable at /api/
 [ ] CRUD operations work for posts

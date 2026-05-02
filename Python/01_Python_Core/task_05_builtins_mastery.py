@@ -1,56 +1,64 @@
 """
-================================================================
-   TASK 5: Built-in Functions Mastery             ***      
-================================================================
+==============================================================================
+  TASK 05: Built-in Functions Mastery
+==============================================================================
 
-INSTRUCTIONS:
-Python's built-ins are superpowers. Master map, filter, zip, enumerate, any, all.
+REAL-WORLD CONTEXT:
+Python's built-in functions (zip, map, filter, enumerate, any, all, sorted) are
+interview GOLD. They show you think "Pythonically" — using the language's strengths
+instead of writing verbose C-style loops for everything.
 
-CONCEPTS: map, filter, zip, enumerate, any, all, sorted with key
+SCENARIOS COVERED:
+  - Combining parallel lists (zip: headers + values → dict)
+  - Filtering with conditions (any/all: validation checks)
+  - Finding positions (enumerate: locating items in sequences)
+  - Flexible sorting (sorted with key: custom ordering)
 """
 
 
-# ----- Challenge 5.1 -----
-# Using zip, combine two lists into a dict.
-# Example: ["a","b","c"], [1,2,3] -> {"a": 1, "b": 2, "c": 3}
+# SCENARIO: CSV parser gives you headers=["name","age","city"] and row=["Alice","30","NYC"].
+# You need a dict: {"name": "Alice", "age": "30", "city": "NYC"}. Use zip.
+# YOUR FIX: Combine two parallel lists into a dictionary using zip().
+# EXPECTED: lists_to_dict(["a", "b", "c"], [1, 2, 3]) → {"a": 1, "b": 2, "c": 3}
 def lists_to_dict(keys, values):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 5.2 -----
-# Using map and filter, get lengths of words that have more than 3 letters.
-# Example: ["hi", "hello", "hey", "python", "go"] -> [5, 6]
+# SCENARIO: A readability analyzer needs word lengths, but only for words longer
+# than 4 characters (short words like "the", "is" aren't interesting).
+# YOUR FIX: Return lengths of words that have more than 4 characters.
+# EXPECTED: long_word_lengths(["hi", "hello", "hey", "python", "go"]) → [5, 6]
 def long_word_lengths(words):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 5.3 -----
-# Using enumerate, find all indices where value equals target.
-# Example: [1,3,5,3,7,3], target=3 -> [1, 3, 5]
+# SCENARIO: A log file parser found a suspicious IP. You need ALL line numbers
+# where it appears (for reporting to security team). Enumerate + filter.
+# YOUR FIX: Find all indices where target appears in the list.
+# EXPECTED: find_all_indices([1, 3, 5, 3, 7, 3], 3) → [1, 3, 5]
 def find_all_indices(lst, target):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 5.4 -----
-# Using any() and all(), check:
-# - any_positive: True if any number is positive
-# - all_positive: True if all numbers are positive
+# SCENARIO: Payment validation: "Has at least one positive amount?" (any) vs
+# "Are ALL amounts positive?" (all). Different business rules.
+# YOUR FIX: any_positive → True if at least one number > 0. all_positive → True if every number > 0.
+# EXPECTED: any_positive([-1, -2, 3]) → True; all_positive([1, -2, 3]) → False
 def any_positive(nums):
-    pass  # YOUR CODE HERE
+    pass
 
 def all_positive(nums):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 5.5 -----
-# Sort a list of dicts by a specific key.
-# Example: [{"name":"Bob","age":25},{"name":"Alice","age":22}]
-# sorted by "age" -> [{"name":"Alice","age":22},{"name":"Bob","age":25}]
+# SCENARIO: Admin dashboard lists users. Manager wants them sorted by age (or name,
+# or signup date). Need a generic sort-by-key function for any dict field.
+# YOUR FIX: Sort a list of dicts by a specified key name.
+# EXPECTED: sort_by_key([{"name":"Bob","age":25}, {"name":"Alice","age":22}], "age")
+#           → [{"name":"Alice","age":22}, {"name":"Bob","age":25}]
 def sort_by_key(lst, key):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
     assert lists_to_dict(["a", "b", "c"], [1, 2, 3]) == {"a": 1, "b": 2, "c": 3}
     print("[PASS] Test 5.1 Passed: lists_to_dict")

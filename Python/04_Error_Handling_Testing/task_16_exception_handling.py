@@ -1,42 +1,44 @@
 """
-================================================================
-   TASK 16: Exception Handling Mastery            **        
-================================================================
+==============================================================================
+  TASK 16: Exception Handling
+==============================================================================
 
-INSTRUCTIONS:
-In production, unhandled exceptions = crashed servers. Handle them properly.
+REAL-WORLD CONTEXT:
+Exceptions are how Python handles runtime errors. Without proper handling:
+  - Division by zero crashes your API (500 error for all users)
+  - Network failures kill background jobs permanently
+  - Invalid user input crashes the entire form submission
 
-CONCEPTS: try/except/else/finally, multiple exceptions, exception chaining
+SCENARIOS COVERED:
+  - Safe division (calculator that never crashes, returns error messages)
+  - Batch processing (some items fail, rest continue - don't stop everything)
+  - Retry logic (network calls fail temporarily - try again before giving up)
 """
 
 
-# ----- Challenge 16.1 -----
-# Write a safe_divide function that handles division by zero and type errors.
-# Returns the result or a descriptive error message string.
-# Example: safe_divide(10, 0) -> "Error: Division by zero"
-#          safe_divide(10, "a") -> "Error: Invalid types"
-#          safe_divide(10, 2) -> 5.0
+# SCENARIO: A calculator API endpoint receives user input. User sends divide(10, 0).
+# Without handling: ZeroDivisionError → 500 Internal Server Error → bad UX.
+# YOUR FIX: Catch specific exceptions, return friendly error messages instead of crashing.
+# EXPECTED: safe_divide(10, 2) → 5.0; safe_divide(10, 0) → "Error: zero..."
 def safe_divide(a, b):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 16.2 -----
-# Write a function that processes a list of operations.
-# Each operation is a dict: {"type": "add"|"subtract"|"multiply"|"divide", "a": X, "b": Y}
-# Return list of results. If an operation fails, include {"error": "description"} instead.
+# SCENARIO: Batch job processes 100 operations. Operation #37 has invalid data.
+# Without handling: entire batch stops at #37 and operations 38-100 are lost.
+# YOUR FIX: Process each operation, catch errors per item, continue with the rest.
+# EXPECTED: process_operations([valid, invalid, valid]) → [result, "error: ...", result]
 def process_operations(operations):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 16.3 -----
-# Write a retry decorator-like function.
-# retry(func, max_attempts=3) -> calls func, if it raises, retries up to max_attempts.
-# Returns the result if successful, raises the last exception if all attempts fail.
+# SCENARIO: Payment API is flaky — fails 2 out of 3 times due to network issues.
+# Without retry: user sees "Payment failed" even though retrying would succeed.
+# YOUR FIX: Retry a function up to max_attempts times. Only fail if ALL attempts fail.
+# EXPECTED: retry(flaky_fn, max_attempts=3) → succeeds on 3rd try → returns "Success"
 def retry(func, max_attempts=3):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
     assert safe_divide(10, 2) == 5.0
     assert "zero" in safe_divide(10, 0).lower()
@@ -54,7 +56,6 @@ if __name__ == "__main__":
     assert results[2] == 20
     print("[PASS] Test 16.2 Passed: process_operations")
 
-    # Test 16.3
     call_count = {"value": 0}
     def flaky_function():
         call_count["value"] += 1

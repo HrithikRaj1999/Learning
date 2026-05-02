@@ -1,53 +1,41 @@
 """
-================================================================
-   TASK 75: Capstone - AI Knowledge Base API         *****
-================================================================
+==============================================================================
+  TASK 75: AI Knowledge Base Capstone
+==============================================================================
 
-Build a portfolio-grade AI engineering project.
+REAL-WORLD CONTEXT:
+This is the FINAL capstone. Build a complete AI-powered knowledge base:
+  - Upload documents (PDF, text, markdown)
+  - Ask questions in natural language
+  - Get answers WITH source citations
+  - All behind a FastAPI with auth, streaming, and proper error handling
 
-Project: AI Knowledge Base API
+COMBINES EVERYTHING:
+  - Task 66: Text preprocessing and normalization
+  - Task 67: Structured LLM outputs
+  - Task 68: Vector embeddings and similarity search
+  - Task 69: Document chunking and retrieval
+  - Task 70: RAG endpoint architecture
+  - Task 71: Evaluation framework
+  - Task 72: Tool calling (optional: search tool, calculator)
+  - Task 73: Model serving patterns
+  - Task 74: Safety, security, cost management
 
-User story:
-Users upload documents and ask questions. The API answers using only retrieved
-source material and returns citations.
+FEATURES:
+  - POST /documents → upload and index document (chunked + embedded)
+  - POST /ask → RAG query with streaming response
+  - GET /documents → list indexed documents
+  - Auth: JWT tokens, rate limiting per user
+  - Safety: prompt injection detection, cost tracking, PII redaction
+  - Testing: full test suite with fakes (no real LLM calls in tests)
 
-Core features:
-- JWT auth and per-user document isolation.
-- Upload .txt, .md, and .pdf files.
-- Extract text and chunk it.
-- Generate embeddings.
-- Store vectors in Chroma, FAISS, or pgvector.
-- Retrieve top-k chunks.
-- Generate answer with citations.
-- Stream answer tokens.
-- Track feedback: thumbs up/down plus comments.
-
-Engineering requirements:
-- FastAPI package structure.
-- Service interfaces for embedder, vector store, retriever, generator.
-- Fake services for tests.
-- Postgres for metadata.
-- Redis for rate limiting/cache.
-- Docker compose.
-- CI with lint, tests, and coverage.
-- Observability: request id, latency, token counts, estimated cost.
-
-Evaluation requirements:
-- 30 question-answer-source test cases.
-- Retrieval recall metric.
-- Answer faithfulness rubric.
-- Regression report in README.
-
-Interview talking points:
-- Chunk size and overlap tradeoffs.
-- Vector DB choice and metadata filters.
-- Hallucination controls.
-- Multi-tenant security.
-- Streaming and cancellation.
-- Cost optimization.
+THIS PROVES YOU CAN:
+  Build a production AI application from scratch. This is the #1 most
+  in-demand skill for Python developers in 2024-2025.
 """
 
-
-if __name__ == "__main__":
-    print("Build this as the final FastAPI + AI engineer portfolio project.")
-
+# Build this as a real project folder with proper structure:
+# knowledge_base/
+#   app/
+#     main.py, models/, routes/, services/, tests/
+#   Dockerfile, docker-compose.yml, .env.example, README.md

@@ -1,44 +1,48 @@
 """
-================================================================
-   TASK 3: Set Operations Challenge               **        
-================================================================
+==============================================================================
+  TASK 03: Set Operations
+==============================================================================
 
-INSTRUCTIONS:
-Sets are perfect for fast lookups, deduplication, and math operations.
-
-CONCEPTS: set operations, frozenset, set comprehension
+REAL-WORLD CONTEXT:
+Sets are FAST for membership testing and finding differences. Real uses:
+  - "Which users are in group A but NOT group B?" (targeting/segmentation)
+  - "Are these two words anagrams?" (games, puzzles)
+  - "What's common across ALL datasets?" (finding overlap)
+  - "Remove duplicates but keep original order" (data cleaning)
 """
 
 
-# ----- Challenge 3.1 -----
-# Given two lists, find elements present in first but not in second.
-# Example: [1,2,3,4,5], [3,4,5,6,7] -> {1, 2}
+# SCENARIO: Marketing team has List A (all subscribers) and List B (already contacted).
+# They need: "Who HASN'T been contacted yet?" — items in first but NOT in second.
+# YOUR FIX: Return elements that exist in list1 but not in list2.
+# EXPECTED: unique_to_first([1, 2, 3, 4, 5], [3, 4, 5, 6, 7]) → {1, 2}
 def unique_to_first(list1, list2):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 3.2 -----
-# Check if two strings are anagrams using sets and counting.
-# Example: "listen", "silent" -> True
+# SCENARIO: A word game needs to check if two words use the exact same letters.
+# "listen" and "silent" → True (same letters rearranged). Classic interview question.
+# YOUR FIX: Check if two strings are anagrams (same character counts, ignore case).
+# EXPECTED: are_anagrams("listen", "silent") → True; are_anagrams("hello", "world") → False
 def are_anagrams(s1, s2):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 3.3 -----
-# Given a list of lists, find elements that appear in ALL sublists.
-# Example: [[1,2,3],[2,3,4],[3,4,5]] -> {3}
+# SCENARIO: Three survey groups answered different questions. Find questions
+# that ALL groups answered — the universal overlap for cross-group analysis.
+# YOUR FIX: Find elements common to ALL sub-lists (intersection of all).
+# EXPECTED: common_in_all([[1,2,3], [2,3,4], [3,4,5]]) → {3}
 def common_in_all(lists):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 3.4 -----
-# Remove all duplicates from a list while preserving order.
-# Example: [1, 3, 2, 3, 1, 4, 2] -> [1, 3, 2, 4]
+# SCENARIO: CSV import has duplicate rows. Remove duplicates but keep the FIRST
+# occurrence order (for audit trail: "first seen" matters).
+# YOUR FIX: Remove duplicates while preserving original order of first appearance.
+# EXPECTED: remove_duplicates_ordered([1, 3, 2, 3, 1, 4, 2]) → [1, 3, 2, 4]
 def remove_duplicates_ordered(lst):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
     assert unique_to_first([1, 2, 3, 4, 5], [3, 4, 5, 6, 7]) == {1, 2}
     print("[PASS] Test 3.1 Passed: unique_to_first")

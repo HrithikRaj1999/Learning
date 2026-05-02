@@ -1,73 +1,75 @@
 """
-================================================================
-   TASK 21: Generators & Iterators                ***      
-================================================================
+==============================================================================
+  TASK 21: Generators & Lazy Evaluation
+==============================================================================
 
-INSTRUCTIONS:
-Generators handle large datasets memory-efficiently.
-Django QuerySets are lazy iterators -- same concept!
+REAL-WORLD CONTEXT:
+Generators produce values ONE AT A TIME (lazy). Why this matters:
+  - Processing a 10GB log file: load ALL into memory = crash. Generator = fine.
+  - Infinite sequences (Fibonacci, sensor data): can't store infinite list.
+  - Pipeline processing: transform data in stages without intermediate lists.
 
-CONCEPTS: yield, generator expressions, itertools, lazy evaluation
+SCENARIOS COVERED:
+  - Infinite Fibonacci (algorithmic interviews)
+  - Reading huge files line by line (log processing)
+  - Batch processing (send emails in groups of 100, not all at once)
+  - Pipeline chaining: numbers → squares → filter even → take first N
 """
 
 import itertools
 
 
-# ----- Challenge 21.1 -----
-# Create a generator that yields Fibonacci numbers infinitely.
-# Usage: fib = fibonacci(); next(fib) -> 0, next(fib) -> 1, next(fib) -> 1, ...
+# SCENARIO: Algorithm interview: "Generate Fibonacci numbers." An infinite sequence
+# you can pull values from one at a time. No list = no memory limit.
+# YOUR FIX: Generator that yields 0, 1, 1, 2, 3, 5, 8, 13, ... forever.
+# EXPECTED: fib = fibonacci(); [next(fib) for _ in range(5)] → [0, 1, 1, 2, 3]
 def fibonacci():
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 21.2 -----
-# Create a generator that reads a large file line by line (memory efficient).
-# Yield each line stripped of whitespace.
+# SCENARIO: DevOps script reads a 50GB server log. Loading it all = OOM crash.
+# Generator reads line by line: constant memory regardless of file size.
+# YOUR FIX: Yield each line from file without loading entire file.
+# EXPECTED: for line in read_large_file("big.log"): process(line) → uses ~0 MB extra
 def read_large_file(filepath):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 21.3 -----
-# Create a generator that yields batches from a list.
-# Example: list(batch_generator([1,2,3,4,5], 2)) -> [[1,2], [3,4], [5]]
+# SCENARIO: Email campaign to 10,000 users. Sending all at once overwhelms the
+# email server. Process in batches of 100. Generator yields each batch.
+# YOUR FIX: Yield sublists of given size from input data.
+# EXPECTED: list(batch_generator([1,2,3,4,5], 2)) → [[1,2], [3,4], [5]]
 def batch_generator(data, batch_size):
-    pass  # YOUR CODE HERE
+    pass
 
 
-# ----- Challenge 21.4 -----
-# Create a pipeline of generators:
-# 1. numbers() -> yields 1 to infinity
-# 2. squares(gen) -> yields squares of input generator
-# 3. filter_even(gen) -> yields only even numbers from input
-# 4. take(gen, n) -> yields first n items from input
-# Chain them: take(filter_even(squares(numbers())), 5) -> [4, 16, 36, 64, 100]
+# SCENARIO: Data pipeline — chain generators like Unix pipes:
+# Generate numbers → square them → keep only even → take first 5.
+# Each step is lazy: only computes what's needed.
+# YOUR FIX: Build 4 generators that compose into a pipeline.
+# EXPECTED: list(take(filter_even(squares(numbers())), 5)) → [4, 16, 36, 64, 100]
 def numbers():
-    pass  # YOUR CODE HERE
+    pass
 
 def squares(gen):
-    pass  # YOUR CODE HERE
+    pass
 
 def filter_even(gen):
-    pass  # YOUR CODE HERE
+    pass
 
 def take(gen, n):
-    pass  # YOUR CODE HERE
+    pass
 
-
-# =========== TEST CASES (DO NOT MODIFY) ===========
 if __name__ == "__main__":
-    # Test 21.1
     fib = fibonacci()
     first_10 = [next(fib) for _ in range(10)]
     assert first_10 == [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
     print("[PASS] Test 21.1 Passed: fibonacci generator")
 
-    # Test 21.3
     batches = list(batch_generator([1, 2, 3, 4, 5], 2))
     assert batches == [[1, 2], [3, 4], [5]]
     print("[PASS] Test 21.3 Passed: batch_generator")
 
-    # Test 21.4
     result = list(take(filter_even(squares(numbers())), 5))
     assert result == [4, 16, 36, 64, 100]
     print("[PASS] Test 21.4 Passed: generator pipeline")

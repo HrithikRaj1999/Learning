@@ -1,167 +1,351 @@
-/*
-==============================================================================
-  TASK 05: Window Functions
-==============================================================================
-
-LEVEL: Advanced
-CONCEPTS: ROW_NUMBER, RANK, DENSE_RANK, LEAD/LAG, running totals, moving averages, window frames, NTILE, FIRST_VALUE/LAST_VALUE, gaps and islands
-
-HOW TO PRACTICE:
-1. Run ../00_Setup/01_create_schema.sql
-2. Run ../00_Setup/02_seed_data.sql
-3. Write each answer under its prompt.
-4. Keep every solution as one independent SQL statement unless a task asks for DDL or a transaction.
-
-Target: 25 non-repeated exercises for this topic.
-*/
-
 SET search_path TO sql_mastery;
 
-------------------------------------------------------------------------------
--- Challenge 05.01
--- Rank customers by lifetime net revenue using RANK and DENSE_RANK.
--- Write your solution below.
+-- ============================================================================
+-- TASK 05: WINDOW FUNCTIONS
+-- ============================================================================
+-- Window functions let you calculate across rows without collapsing them.
+-- Rankings, running totals, moving averages, gap detection — these are the
+-- tools that separate junior from senior SQL developers in interviews.
+-- ============================================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.02
--- Return the first order per customer using ROW_NUMBER.
--- Write your solution below.
+-- ==================================================
+-- 05.01 - Customer Revenue Ranking
+-- ==================================================
+-- SCENARIO: The VIP leaderboard ranks customers by lifetime net revenue.
+-- Show both RANK (ties skip) and DENSE_RANK (ties don't skip).
+--
+-- YOUR TASK: Calculate total net revenue per customer, then apply
+-- RANK() and DENSE_RANK() ordered by revenue descending.
+--
+-- EXPECTED OUTPUT: customer_id | net_revenue | rank | dense_rank
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.03
--- Return the latest support ticket event per ticket using ROW_NUMBER.
--- Write your solution below.
+
+-- ==================================================
+-- 05.02 - First Order Per Customer
+-- ==================================================
+-- SCENARIO: The onboarding team needs each customer's very first order.
+-- Use ROW_NUMBER to pick row 1 per customer by order_date.
+--
+-- YOUR TASK: ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date)
+-- then filter to row_num = 1.
+--
+-- EXPECTED OUTPUT: One row per customer — their earliest order.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.04
--- Calculate a running total of daily successful payment amount.
--- Write your solution below.
+
+-- ==================================================
+-- 05.03 - Latest Ticket Event
+-- ==================================================
+-- SCENARIO: The support dashboard shows the most recent event per ticket.
+-- Use ROW_NUMBER to pick the latest one.
+--
+-- YOUR TASK: ROW_NUMBER() PARTITION BY ticket_id ORDER BY occurred_at DESC.
+-- Keep only row 1.
+--
+-- EXPECTED OUTPUT: One event row per ticket (the most recent).
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.05
--- Calculate a 7-day moving average of daily web event count.
--- Write your solution below.
+
+-- ==================================================
+-- 05.04 - Running Total of Daily Payments
+-- ==================================================
+-- SCENARIO: The treasury dashboard shows cumulative successful payment
+-- amounts as they accumulate day by day.
+--
+-- YOUR TASK: SUM(daily_amount) OVER (ORDER BY payment_date) for a
+-- running total of successful payments.
+--
+-- EXPECTED OUTPUT: payment_date | daily_amount | running_total
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.06
--- Use LAG to show the previous order date for each customer and days between orders.
--- Write your solution below.
+
+-- ==================================================
+-- 05.05 - 7-Day Moving Average of Web Events
+-- ==================================================
+-- SCENARIO: Product analytics smooths daily web event counts with a
+-- 7-day moving average to spot real trends vs noise.
+--
+-- YOUR TASK: AVG(daily_count) OVER (ORDER BY event_date ROWS BETWEEN
+-- 6 PRECEDING AND CURRENT ROW).
+--
+-- EXPECTED OUTPUT: event_date | daily_count | moving_avg_7d
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.07
--- Use LEAD to show the next ticket event time for each ticket.
--- Write your solution below.
+
+-- ==================================================
+-- 05.06 - Days Between Orders (LAG)
+-- ==================================================
+-- SCENARIO: The retention team tracks how many days pass between a
+-- customer's consecutive orders to detect churn risk.
+--
+-- YOUR TASK: Use LAG(order_date) OVER (PARTITION BY customer_id ORDER BY
+-- order_date) to get previous order date, then calculate difference.
+--
+-- EXPECTED OUTPUT: customer_id | order_date | prev_order_date | days_between
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.08
--- Find orders where order total is greater than the customer's previous order total.
--- Write your solution below.
+
+-- ==================================================
+-- 05.07 - Next Ticket Event Time (LEAD)
+-- ==================================================
+-- SCENARIO: The SLA tracker needs to know when the NEXT event will happen
+-- for each ticket event — to measure response gaps.
+--
+-- YOUR TASK: Use LEAD(occurred_at) OVER (PARTITION BY ticket_id ORDER BY
+-- occurred_at) to show next event time.
+--
+-- EXPECTED OUTPUT: ticket_id | event_time | next_event_time
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.09
--- Compute percent_rank of products by revenue within each category.
--- Write your solution below.
+
+-- ==================================================
+-- 05.08 - Orders Bigger Than Previous
+-- ==================================================
+-- SCENARIO: Sales celebrates "growing customers" — orders where the total
+-- is larger than the customer's previous order.
+--
+-- YOUR TASK: Use LAG to get previous order total, filter where current > previous.
+--
+-- EXPECTED OUTPUT: Orders that were larger than the customer's prior order.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.10
--- Divide customers into revenue quartiles using NTILE.
--- Write your solution below.
+
+-- ==================================================
+-- 05.09 - Product Revenue Percentile Within Category
+-- ==================================================
+-- SCENARIO: Merchandising categorizes products as top/middle/bottom
+-- performers within their category using percent_rank.
+--
+-- YOUR TASK: PERCENT_RANK() OVER (PARTITION BY category ORDER BY revenue).
+--
+-- EXPECTED OUTPUT: product_id | category | revenue | pct_rank
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.11
--- Return the top three products by quantity sold within each category.
--- Write your solution below.
+
+-- ==================================================
+-- 05.10 - Customer Revenue Quartiles (NTILE)
+-- ==================================================
+-- SCENARIO: The CRM divides customers into 4 tiers based on spend.
+-- NTILE(4) distributes them evenly into quartiles.
+--
+-- YOUR TASK: NTILE(4) OVER (ORDER BY lifetime_revenue DESC).
+--
+-- EXPECTED OUTPUT: customer_id | revenue | quartile (1=top, 4=bottom)
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.12
--- Use FIRST_VALUE to show each customer's first channel and compare it to later channels.
--- Write your solution below.
+
+-- ==================================================
+-- 05.11 - Top 3 Products Per Category
+-- ==================================================
+-- SCENARIO: The homepage features "Top 3 Best Sellers" per category.
+-- Rank products by quantity sold within each category.
+--
+-- YOUR TASK: ROW_NUMBER() PARTITION BY category, filter to top 3.
+--
+-- EXPECTED OUTPUT: Top 3 products by quantity for each category.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.13
--- Use LAST_VALUE with an explicit frame to show each customer's latest order status on every order row.
--- Write your solution below.
+
+-- ==================================================
+-- 05.12 - First Channel Per Customer (FIRST_VALUE)
+-- ==================================================
+-- SCENARIO: Attribution wants to know each customer's first purchase
+-- channel and compare it to their later channels.
+--
+-- YOUR TASK: FIRST_VALUE(channel) OVER (PARTITION BY customer_id
+-- ORDER BY order_date).
+--
+-- EXPECTED OUTPUT: Each order row with the customer's first-ever channel.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.14
--- Calculate cumulative subscription monthly recurring revenue by start month.
--- Write your solution below.
+
+-- ==================================================
+-- 05.13 - Latest Order Status (LAST_VALUE with Frame)
+-- ==================================================
+-- SCENARIO: Show each customer's latest order status on every order row.
+-- Requires explicit frame: ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING.
+--
+-- YOUR TASK: LAST_VALUE(status) OVER (PARTITION BY customer_id
+-- ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING).
+--
+-- EXPECTED OUTPUT: Every order row with latest_status column.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.15
--- Detect gaps of more than 14 days between customer web sessions.
--- Write your solution below.
+
+-- ==================================================
+-- 05.14 - Cumulative Subscription MRR
+-- ==================================================
+-- SCENARIO: The investor deck shows how MRR grew over time. Calculate
+-- cumulative sum of subscription monthly_amount by start month.
+--
+-- YOUR TASK: SUM(monthly_amount) OVER (ORDER BY start_month) for
+-- running MRR growth.
+--
+-- EXPECTED OUTPUT: start_month | new_mrr | cumulative_mrr
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.16
--- Group consecutive daily activity into islands per customer.
--- Write your solution below.
+
+-- ==================================================
+-- 05.15 - Session Gaps > 14 Days
+-- ==================================================
+-- SCENARIO: The engagement team flags customers who go dark — more than
+-- 14 days between web sessions indicates disengagement.
+--
+-- YOUR TASK: Use LAG to find gaps > 14 days between customer web events.
+--
+-- EXPECTED OUTPUT: customer_id | event_date | prev_event_date | gap_days (>14 only)
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.17
--- Calculate each order's percentage of monthly revenue using SUM over a partition.
--- Write your solution below.
+
+-- ==================================================
+-- 05.16 - Activity Islands (Gaps-and-Islands)
+-- ==================================================
+-- SCENARIO: Group consecutive days of activity into "islands" per customer.
+-- A gap of 2+ days starts a new island.
+--
+-- YOUR TASK: Use ROW_NUMBER and date arithmetic to identify island groups.
+--
+-- EXPECTED OUTPUT: customer_id | island_id | start_date | end_date | days_active
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.18
--- Return products whose price is above the category average using AVG as a window function.
--- Write your solution below.
+
+-- ==================================================
+-- 05.17 - Order's Share of Monthly Revenue
+-- ==================================================
+-- SCENARIO: Each order's percentage contribution to its month's total
+-- revenue — useful for identifying outlier orders.
+--
+-- YOUR TASK: order_total / SUM(order_total) OVER (PARTITION BY month).
+--
+-- EXPECTED OUTPUT: order_id | month | order_total | pct_of_monthly_revenue
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.19
--- Calculate support ticket resolution-time rank by priority.
--- Write your solution below.
+
+-- ==================================================
+-- 05.18 - Products Above Category Average Price
+-- ==================================================
+-- SCENARIO: Flag "premium" products priced above their category average
+-- without a separate GROUP BY query.
+--
+-- YOUR TASK: AVG(list_price) OVER (PARTITION BY category) then filter
+-- where list_price > category_avg.
+--
+-- EXPECTED OUTPUT: Products priced above their category's average.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.20
--- Use COUNT over to show total orders per customer without collapsing rows.
--- Write your solution below.
+
+-- ==================================================
+-- 05.19 - Ticket Resolution Speed Rank by Priority
+-- ==================================================
+-- SCENARIO: The support SLA ranks how quickly tickets are resolved
+-- within each priority level.
+--
+-- YOUR TASK: RANK() OVER (PARTITION BY priority ORDER BY resolution_hours ASC).
+--
+-- EXPECTED OUTPUT: ticket_id | priority | resolution_hours | speed_rank
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.21
--- Build a cohort table using MIN signup month over customer partitions.
--- Write your solution below.
+
+-- ==================================================
+-- 05.20 - Total Orders Per Customer (Without Collapsing)
+-- ==================================================
+-- SCENARIO: The order list view needs to show "Order 3 of 7" — total
+-- order count per customer on every row without grouping.
+--
+-- YOUR TASK: COUNT(*) OVER (PARTITION BY customer_id) on each order row.
+--
+-- EXPECTED OUTPUT: Each order row with a total_customer_orders column.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.22
--- Calculate running inventory balance per product ordered by movement_at.
--- Write your solution below.
+
+-- ==================================================
+-- 05.21 - Signup Month Cohort Table
+-- ==================================================
+-- SCENARIO: The cohort analysis starts by assigning each customer to
+-- their signup month cohort using MIN(signup_date) over a partition.
+--
+-- YOUR TASK: Use MIN(signup_date) OVER (PARTITION BY customer_id)
+-- truncated to month as cohort_month.
+--
+-- EXPECTED OUTPUT: Each order row tagged with the customer's cohort_month.
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.23
--- Find the first failed payment after a successful payment for each customer.
--- Write your solution below.
+
+-- ==================================================
+-- 05.22 - Running Inventory Balance
+-- ==================================================
+-- SCENARIO: The warehouse dashboard shows real-time stock level per
+-- product as movements happen chronologically.
+--
+-- YOUR TASK: SUM(quantity_change) OVER (PARTITION BY product_id
+-- ORDER BY movement_at) for running balance.
+--
+-- EXPECTED OUTPUT: product_id | movement_at | change | running_balance
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.24
--- Compare each employee's closed ticket count to their department average using window aggregates.
--- Write your solution below.
+
+-- ==================================================
+-- 05.23 - First Failed Payment After Success
+-- ==================================================
+-- SCENARIO: The fraud team flags customers whose payment failed AFTER
+-- a previously successful one — possible card expiry or stolen card.
+--
+-- YOUR TASK: Use LAG/LEAD to find the first 'failed' payment that
+-- comes after a 'success' payment for each customer.
+--
+-- EXPECTED OUTPUT: customer_id | failed_payment_id | occurred_after_success
+-- ==================================================
 
 
-------------------------------------------------------------------------------
--- Challenge 05.25
--- Create a sessionized web_event result where a new session group starts after 30 minutes of inactivity.
--- Write your solution below.
+
+-- ==================================================
+-- 05.24 - Employee vs Department Average Tickets
+-- ==================================================
+-- SCENARIO: HR compares each support agent's closed ticket count to
+-- their department average — who's above/below average?
+--
+-- YOUR TASK: COUNT tickets per employee, then AVG() OVER (PARTITION BY
+-- department) to compare individual vs department average.
+--
+-- EXPECTED OUTPUT: employee | closed_count | dept_avg | above_or_below
+-- ==================================================
+
+
+
+-- ==================================================
+-- 05.25 - Web Event Sessionization (30-Min Inactivity)
+-- ==================================================
+-- SCENARIO: The analytics team defines a "session" as continuous activity
+-- with no gap > 30 minutes. Assign a session_group_id.
+--
+-- YOUR TASK: Use LAG to detect 30-min gaps, then cumulative SUM of
+-- gap flags to create session groups.
+--
+-- EXPECTED OUTPUT: event_id | customer_id | occurred_at | session_group
+-- ==================================================
+
+
