@@ -17,7 +17,7 @@ String manipulation is EVERYWHERE in real code:
 # YOUR FIX: Convert string to title case (each word capitalized).
 # EXPECTED: custom_title_case("hello world") → "Hello World"
 def custom_title_case(s):
-    pass
+    return 
 
 
 # SCENARIO: A content validation system checks if a phrase reads the same backward
@@ -53,20 +53,26 @@ def snake_to_camel(s):
     pass
 
 if __name__ == "__main__":
-    assert custom_title_case("hello world") == "Hello World"
+    result = custom_title_case("hello world")
+    assert result == "Hello World", f"[FAIL] Test 4.1 custom_title_case\n  Input:    'hello world'\n  Expected: 'Hello World'\n  Got:      '{result}'"
     print("[PASS] Test 4.1 Passed: custom_title_case")
 
-    assert is_palindrome("A man, a plan, a canal: Panama") == True
-    assert is_palindrome("hello") == False
+    result = is_palindrome("A man, a plan, a canal: Panama")
+    assert result == True, f"[FAIL] Test 4.2a is_palindrome\n  Input:    'A man, a plan, a canal: Panama'\n  Expected: True\n  Got:      {result}"
+    result = is_palindrome("hello")
+    assert result == False, f"[FAIL] Test 4.2b is_palindrome\n  Input:    'hello'\n  Expected: False\n  Got:      {result}"
     print("[PASS] Test 4.2 Passed: is_palindrome")
 
-    assert run_length_encode("aaabbbccddddee") == "a3b3c2d4e2"
+    result = run_length_encode("aaabbbccddddee")
+    assert result == "a3b3c2d4e2", f"[FAIL] Test 4.3 run_length_encode\n  Input:    'aaabbbccddddee'\n  Expected: 'a3b3c2d4e2'\n  Got:      '{result}'"
     print("[PASS] Test 4.3 Passed: run_length_encode")
 
-    assert extract_emails_simple("Contact us at info@test.com or help@dev.org") == ["info@test.com", "help@dev.org"]
+    result = extract_emails_simple("Contact us at info@test.com or help@dev.org")
+    assert result == ["info@test.com", "help@dev.org"], f"[FAIL] Test 4.4 extract_emails_simple\n  Input:    'Contact us at info@test.com or help@dev.org'\n  Expected: ['info@test.com', 'help@dev.org']\n  Got:      {result}"
     print("[PASS] Test 4.4 Passed: extract_emails_simple")
 
-    assert snake_to_camel("hello_world_python") == "helloWorldPython"
+    result = snake_to_camel("hello_world_python")
+    assert result == "helloWorldPython", f"[FAIL] Test 4.5 snake_to_camel\n  Input:    'hello_world_python'\n  Expected: 'helloWorldPython'\n  Got:      '{result}'"
     print("[PASS] Test 4.5 Passed: snake_to_camel")
 
     print("\n*** ALL TASK 4 TESTS PASSED! ***")

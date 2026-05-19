@@ -444,6 +444,91 @@ If you cannot complete every section, solve these first.
 
 ---
 
+# 18b. Top 50 Most Asked FAANG/MAANG & Fortune 500 Questions (2025-2026)
+
+> **Sources**: LeetCode company frequency data, Grind 75, NeetCode 150, Sean Prashad's LeetCode Patterns, Tech Interview Handbook, GeeksforGeeks MAANG list, IGotAnOffer Google SWE data — all cross-referenced as of May 2026.
+>
+> **Companies tracked**: Google, Amazon, Meta, Microsoft, Apple, Bloomberg, Goldman Sachs, JPMorgan, Oracle, Uber, LinkedIn, TikTok, Netflix, Nvidia, Salesforce, Adobe
+
+| # | Question | Difficulty | Category | Top Asking Companies (last 6 months) |
+|---:|---|---|---|---|
+| 1 | Two Sum | Easy | Array / HashMap | Google (158), Amazon (76), Microsoft (30), Meta (23), Bloomberg (22) |
+| 2 | Add Two Numbers | Medium | Linked List | Google (39), Amazon (24), Bloomberg (12), Microsoft (9), Meta (5) |
+| 3 | Trapping Rain Water | Hard | Two Pointers / Stack | Amazon (29), Google (18), Goldman Sachs (13), Microsoft (12), Bloomberg (7) |
+| 4 | Longest Substring Without Repeating Characters | Medium | Sliding Window | Google (28), Amazon (24), Microsoft (13), IBM (11), Bloomberg (7) |
+| 5 | Best Time to Buy and Sell Stock | Easy | Array / DP | Amazon (27), Google (21), Meta (15), Bloomberg (11), Microsoft (5) |
+| 6 | 3Sum | Medium | Two Pointers | Google (25), Amazon (14), Meta (7), Bloomberg (7), Microsoft (6) |
+| 7 | Median of Two Sorted Arrays | Hard | Binary Search | Google (25), Amazon (19), Meta (9), Bloomberg (6), Goldman Sachs (5) |
+| 8 | Number of Islands | Medium | Graph / BFS / DFS | Amazon (25), Google (14), Bloomberg (12), Microsoft (10), Meta (7) |
+| 9 | Course Schedule | Medium | Topological Sort | Amazon (25), Google (7), TikTok (6), Meta (5), Uber (4) |
+| 10 | Merge K Sorted Lists | Hard | Heap / Linked List | Amazon (23), Google (12), Bloomberg (6), Microsoft (5), Meta (4) |
+| 11 | Longest Palindromic Substring | Medium | DP / Two Pointers | Google (21), Amazon (15), Bloomberg (13), Microsoft (9), Meta (4) |
+| 12 | Longest Consecutive Sequence | Medium | HashMap / Set | Google (20), Amazon (13), Bloomberg (6), Meta (4), Microsoft (3) |
+| 13 | Top K Frequent Elements | Medium | Heap / Bucket Sort | Google (20), Amazon (10), Meta (6), Apple (6), Bloomberg (3) |
+| 14 | Merge Intervals | Medium | Sorting / Intervals | Google (19), Amazon (18), Bloomberg (13), Microsoft (8), Apple (8) |
+| 15 | Container With Most Water | Medium | Two Pointers | Google (17), Amazon (11), Goldman Sachs (7), Meta (5), Microsoft (5) |
+| 16 | Valid Parentheses | Easy | Stack | Google (17), Amazon (12), Meta (11), Bloomberg (9), LinkedIn (7) |
+| 17 | Maximum Subarray | Medium | Kadane / DP | Google (17), Amazon (10), Microsoft (8), LinkedIn (7), Apple (7) |
+| 18 | Lowest Common Ancestor of Binary Tree | Medium | Tree / DFS | Amazon (17), Meta (9), Google (4), Bloomberg (3), Microsoft (2) |
+| 19 | Group Anagrams | Medium | HashMap / Sorting | Amazon (16), Bloomberg (9), Google (8), Meta (8), Microsoft (4) |
+| 20 | Majority Element | Easy | Boyer-Moore | Google (16), Amazon (8), Microsoft (8), Meta (7), Bloomberg (2) |
+| 21 | Generate Parentheses | Medium | Backtracking | Amazon (15), Google (10), Microsoft (10), Bloomberg (6), Meta (5) |
+| 22 | Search in Rotated Sorted Array | Medium | Binary Search | Amazon (15), Google (7), Meta (5), Microsoft (5), Bloomberg (3) |
+| 23 | Letter Combinations of a Phone Number | Medium | Backtracking | Amazon (13), Google (9), Meta (9), Microsoft (4), LinkedIn (4) |
+| 24 | House Robber | Medium | DP | Amazon (14), Google (9), Meta (3), Microsoft (3), Bloomberg (3) |
+| 25 | Spiral Matrix | Medium | Matrix / Simulation | Google (13), Microsoft (7), Amazon (4), Apple (4), Meta (3) |
+| 26 | Contains Duplicate | Easy | HashMap / Set | Google (13), Meta (6), Amazon (5), Microsoft (2), Apple (2) |
+| 27 | Kth Largest Element in an Array | Medium | Heap / Quickselect | Google (12), Amazon (7), Meta (4), Apple (3), Microsoft (2) |
+| 28 | Reverse Linked List | Easy | Linked List | Google (12), Apple (6), Amazon (4), Meta (4), Microsoft (3) |
+| 29 | Move Zeroes | Easy | Two Pointers | Microsoft (12), Google (9), Amazon (6), Bloomberg (5), Meta (3) |
+| 30 | Binary Tree Right Side View | Medium | BFS / DFS | Meta (11), Amazon (7), Microsoft (3), Google (2), Oracle (2) |
+| 31 | Permutations | Medium | Backtracking | Google (11), Amazon (6), Meta (3), Microsoft (3), Bloomberg (2) |
+| 32 | Meeting Rooms II | Medium | Heap / Intervals | Amazon (10), Bloomberg (10), Microsoft (7), Apple (7), Google (6) |
+| 33 | Course Schedule II | Medium | Topological Sort | Amazon (10), Apple (7), Google (7), Meta (3), Microsoft (2) |
+| 34 | Middle of the Linked List | Easy | Two Pointers | Google (10), Amazon (8), Meta (3), Microsoft (3), Bloomberg (3) |
+| 35 | Rotate Image | Medium | Matrix | Google (9), Amazon (9), Bloomberg (5), Meta (4), Apple (4) |
+| 36 | Jump Game | Medium | Greedy | Google (9), Amazon (9), Meta (3), Microsoft (3), Bloomberg (2) |
+| 37 | Sort Colors | Medium | Dutch National Flag | Google (9), Amazon (6), Microsoft (4), Bloomberg (4), Meta (4) |
+| 38 | Sliding Window Maximum | Hard | Deque / Monotonic Queue | Amazon (9), Google (5), Microsoft (4), Meta (4), JPMorgan (5) |
+| 39 | Find Median from Data Stream | Hard | Two Heaps | Amazon (9), Microsoft (6), Google (4), Apple (3), Uber (2) |
+| 40 | Coin Change | Medium | DP | Google (7), Amazon (7), Meta (5), Bloomberg (4), Microsoft (3) |
+| 41 | Subsets | Medium | Backtracking | Amazon (9), Google (8), Microsoft (3), Meta (3), Bloomberg (2) |
+| 42 | Longest Increasing Subsequence | Medium | DP / Binary Search | Google (8), Microsoft (5), Amazon (5), Bloomberg (4), Meta (2) |
+| 43 | Product of Array Except Self | Medium | Prefix/Suffix | Google (7), Amazon (7), Apple (4), Meta (3), Microsoft (2) |
+| 44 | Palindrome Linked List | Easy | Linked List / Two Pointers | Amazon (7), Meta (7), Google (6), Microsoft (5), Bloomberg (4) |
+| 45 | Binary Tree Level Order Traversal | Medium | BFS | Google (7), Bloomberg (4), Microsoft (3), Amazon (3), Oracle (3) |
+| 46 | Word Break | Medium | DP / Trie | Bloomberg (6), Amazon (5), Google (3), Microsoft (3), Meta (3) |
+| 47 | Validate Binary Search Tree | Medium | DFS / BST | Amazon (4), Meta (3), Google (2), Microsoft (2), Bloomberg (2) |
+| 48 | Implement Trie (Prefix Tree) | Medium | Trie | Amazon (4), Microsoft (3), Oracle (3), Google (2), Meta (2) |
+| 49 | LRU Cache | Medium | HashMap + Linked List | Meta (frequent), Amazon, Google, Microsoft, Bloomberg |
+| 50 | Serialize and Deserialize Binary Tree | Hard | Tree / Design | Microsoft (4), Amazon (4), Google (3), Meta (2), TikTok (2) |
+
+---
+
+### Key Observations from Frequency Data
+
+```text
+1. Google asks the MOST questions overall — Two Sum alone was asked 158 times in 6 months
+2. Amazon is consistently #2 across almost every problem
+3. Meta favors: Tree problems, Sliding Window, Backtracking
+4. Microsoft favors: Matrix, Binary Search, Linked List problems
+5. Bloomberg loves: Intervals, Stack, BFS/DFS problems
+6. Goldman Sachs focuses: Two Pointers, Math, DP
+7. Hard problems (Trapping Rain Water, Median of Two Sorted Arrays) appear very frequently at senior levels
+```
+
+### How to Use This List
+
+```text
+Phase 1 (Week 1-2): Problems 1-20 (highest frequency — solve these FIRST)
+Phase 2 (Week 3-4): Problems 21-35 (high frequency — solidify patterns)
+Phase 3 (Week 5-6): Problems 36-50 (complete coverage)
+
+For each problem: Follow the Daily Rule (Section 19) before coding.
+```
+
+---
+
 # 19. Daily Rule
 
 For every problem, write this before moving forward:
