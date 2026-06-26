@@ -1,0 +1,69 @@
+flowchart LR
+    %% LEFT
+    subgraph B1[Clients]
+        direction TB
+        CLIENT[Web / Mobile User]
+    end
+
+    %% GATEWAY
+    subgraph B2[Gateways]
+        direction TB
+        APIGW[API Gateway]
+        WSGW[WebSocket Gateway]
+    end
+
+    %% SERVICES
+    subgraph B3[Services]
+        direction TB
+        ORDER[Order Service]
+        TRACK[Order Tracker Service]
+        NOTIF[Notification Service]
+        EXAD[Exchange Order Adapter]
+    end
+
+    %% DATABASES
+    subgraph B4[Databases]
+        direction TB
+        ODB[(Order DB)]
+        TDB[(Trade / Position DB)]
+    end
+
+    %% CACHE / STREAMS
+    subgraph B5[Cache / Streams]
+        direction TB
+        OKAFKA[(Kafka Order Events)]
+    end
+
+    %% EXTERNAL
+    subgraph B6[External Systems]
+        direction TB
+        EXCH[Exchange NSE / BSE]
+    end
+
+    CLIENT -->|buy / sell / cancel order| APIGW
+    CLIENT <-->|order status updates| WSGW
+
+    APIGW -->|create order request| ORDER
+    ORDER -->|save new order| ODB
+    ORDER -->|send order| EXAD
+
+    EXCH -->|ack / fill / reject| EXAD
+    EXAD -->|publish order events| OKAFKA
+    OKAFKA -->|consume status updates| TRACK
+
+    TRACK -->|update order state| ODB
+    TRACK -->|save executed trade| TDB
+    TRACK -->|notify user| NOTIF
+    NOTIF -->|push update| WSGW
+
+    classDef svc fill:#ffffff,stroke:#111,stroke-width:2px,color:#111;
+    classDef db fill:#ffffff,stroke:#111,stroke-width:1.5px,color:#111;
+    classDef cache fill:#f8f8f8,stroke:#111,stroke-width:1.5px,color:#111;
+    classDef ext fill:#fafafa,stroke:#111,stroke-width:2px,color:#111;
+    classDef gw fill:#f3f3f3,stroke:#111,stroke-width:2.5px,color:#111;
+
+    class APIGW,WSGW gw;
+    class ORDER,TRACK,NOTIF,EXAD svc;
+    class ODB,TDB db;
+    class OKAFKA cache;
+    class EXCH ext;

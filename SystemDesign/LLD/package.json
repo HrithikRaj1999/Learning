@@ -1,0 +1,17 @@
+{
+  "name": "lld-typescript",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Low-Level Design in TypeScript: SOLID, GoF Design Patterns, and Clean Code — each demo has buggy BadCode plus hint-only GoodCode you fix yourself.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "run:file": "tsx",
+    "solid": "tsc --noEmit -p tsconfig.json"
+  },
+  "keywords": ["lld", "solid", "design-patterns", "clean-code", "typescript", "oop"],
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0"
+  }
+}

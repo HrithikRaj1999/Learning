@@ -1,0 +1,280 @@
+╔══════════════════════════════════════════════════════════════════╗
+║         TOP 20 HLD & LLD — FORTUNE 500 INTERVIEW GUIDE          ║
+║              Python & TypeScript Friendly | 2025–26             ║
+╚══════════════════════════════════════════════════════════════════╝
+
+ROOT
+│
+├── [A] KEY CONCEPTS (READ FIRST)
+│   ├── HLD = Bird's-eye view → Architecture, Scale, Trade-offs
+│   ├── LLD = Component-level → Classes, APIs, DB Schema, Patterns
+│   ├── HLD Level → Senior / Staff Engineers
+│   └── LLD Level → SDE-1 / SDE-2 Engineers
+│
+│
+├── [B] TOP 20 HLD QUESTIONS
+│   │
+│   ├── B01. URL Shortener (bit.ly)
+│   │     ├── Core: Encode/decode long URL → short key
+│   │     ├── Scale: 1B URLs ≈ 10TB storage
+│   │     ├── DB: NoSQL (Cassandra) for sharding
+│   │     └── Asked: ~40% of HLD rounds (Google, Amazon)
+│   │
+│   ├── B02. Twitter / X — Feed System
+│   │     ├── Core: Post tweets, follow users, timeline
+│   │     ├── Scale: 500M users, 500M tweets/day
+│   │     ├── Stack: Kafka (fanout) + Cassandra + Redis cache
+│   │     └── Trade-off: Push vs Pull feed model
+│   │
+│   ├── B03. Uber — Ride Matching
+│   │     ├── Core: Match driver + rider, real-time ETA
+│   │     ├── DB: PostGIS / Quadtree for geo-location
+│   │     ├── Protocol: WebSockets for live updates
+│   │     └── Asked: ~30% of FAANG SDE-2 rounds
+│   │
+│   ├── B04. WhatsApp — Chat System
+│   │     ├── Core: 1-1 chat, group chat, media
+│   │     ├── Protocol: WebSocket (persistent conn)
+│   │     ├── Storage: Cassandra (messages) + S3 (media)
+│   │     └── Key: Message delivery receipts (sent/delivered/read)
+│   │
+│   ├── B05. YouTube — Video Platform
+│   │     ├── Core: Upload, transcode, stream video
+│   │     ├── Scale: 500 hrs of video uploaded per minute
+│   │     ├── Stack: Kafka → Transcoder → S3 + CDN
+│   │     └── Key: Adaptive bitrate streaming (HLS/DASH)
+│   │
+│   ├── B06. Netflix — Recommendation System
+│   │     ├── Core: Personalized video recommendations
+│   │     ├── Challenge: Cold start (new user, no history)
+│   │     ├── Stack: Spark ML + Kafka + Redis serving layer
+│   │     └── Optimize: Watch time (not just clicks)
+│   │
+│   ├── B07. Instagram — Photo Sharing
+│   │     ├── Core: Upload photos, follow, explore feed
+│   │     ├── Storage: S3 (photos) + CDN (delivery)
+│   │     └── Scale: Follower graph in Redis + Neo4j
+│   │
+│   ├── B08. Google Search — Web Crawler & Index
+│   │     ├── Core: Crawl web → build inverted index → rank
+│   │     ├── Stack: Distributed crawlers + Bigtable
+│   │     └── Key: PageRank + dedup via URL hashing
+│   │
+│   ├── B09. Distributed Cache (Redis-like)
+│   │     ├── Core: Key-value store, sub-ms reads
+│   │     ├── Strategies: Cache-aside, write-through, write-back
+│   │     ├── Eviction: LRU / LFU
+│   │     └── Key: Cache invalidation + thundering herd
+│   │
+│   ├── B10. Rate Limiter
+│   │     ├── Core: Limit req/sec per user or IP
+│   │     ├── Algorithms: Token Bucket, Sliding Window Counter
+│   │     ├── Backend: Redis INCR + TTL
+│   │     └── Asked: Amazon, Cloudflare, Stripe interviews
+│   │
+│   ├── B11. Notification System
+│   │     ├── Core: Push / SMS / Email at scale
+│   │     ├── Stack: Kafka → Worker Pool → FCM/APNS/Twilio
+│   │     └── Key: Priority queues + retry + dedup
+│   │
+│   ├── B12. Payment System (Stripe-like)
+│   │     ├── Core: Charge, refund, reconcile
+│   │     ├── Key: Idempotency keys (no double charge)
+│   │     ├── DB: ACID transactions (Postgres)
+│   │     └── Fraud: ML scoring before processing
+│   │
+│   ├── B13. Search Autocomplete (Google-like)
+│   │     ├── Core: Suggest as user types, <100ms
+│   │     ├── Structure: Trie + query log frequency
+│   │     ├── Typo handling: Levenshtein distance
+│   │     └── Cache top-k suggestions in Redis
+│   │
+│   ├── B14. Twitter Trending Topics
+│   │     ├── Core: Find top hashtags in real-time
+│   │     ├── Scale: Filter 500M tweets/day
+│   │     ├── Stack: Kafka + Flink (stream processing)
+│   │     └── Trade-off: Latency vs accuracy; global vs local
+│   │
+│   ├── B15. Distributed Message Queue (Kafka-like)
+│   │     ├── Core: Async pub-sub at scale
+│   │     ├── Concepts: Topics, partitions, consumer groups
+│   │     └── Guarantee: At-least-once delivery + offset commit
+│   │
+│   ├── B16. Ad Click Aggregation System
+│   │     ├── Core: Count ad clicks in real-time
+│   │     ├── Stack: Kafka → Flink → ClickHouse
+│   │     └── Key: Dedup clicks + fraud filtering
+│   │
+│   ├── B17. Google Drive / Dropbox
+│   │     ├── Core: Upload, sync, share files
+│   │     ├── Key: Chunked upload + dedup (content hash)
+│   │     ├── Conflict: Last-write-wins or version vector
+│   │     └── Storage: S3 + metadata in Postgres
+│   │
+│   ├── B18. Stock Trading System
+│   │     ├── Core: Place orders, match buy/sell
+│   │     ├── Key: Low-latency order matching engine
+│   │     ├── DB: ACID + audit log (append-only)
+│   │     └── Pattern: CQRS + Event Sourcing (H-M1, H-M2)
+│   │
+│   ├── B19. Hotel / Flight Booking System
+│   │     ├── Core: Search → Lock seat → Pay → Confirm
+│   │     ├── Key: Prevent double booking (optimistic lock)
+│   │     ├── Pattern: Saga (H-M3) for distributed txn
+│   │     └── DB: Postgres with row-level locking
+│   │
+│   └── B20. CDN — Content Delivery Network
+│         ├── Core: Serve static content from edge nodes
+│         ├── Key: Cache hit ratio + geo-routing
+│         ├── Push vs Pull model for origin sync
+│         └── Invalidation: Cache purge on content update
+│
+│
+├── [C] TOP 20 LLD QUESTIONS
+│   │
+│   ├── C01. Parking Lot
+│   │     ├── Classes: ParkingLot, Level, Spot, Vehicle, Ticket
+│   │     ├── Pattern: Factory (create vehicle types)
+│   │     └── Asked: ~40% of SDE-1 interviews
+│   │
+│   ├── C02. Elevator System
+│   │     ├── Classes: Elevator, Floor, Request, Scheduler
+│   │     ├── Algorithm: SCAN (like disk scheduling)
+│   │     └── Pattern: State Machine
+│   │
+│   ├── C03. Library Management System
+│   │     ├── Classes: Book, Member, Librarian, Loan, Fine
+│   │     ├── Pattern: State (book: available/issued/reserved)
+│   │     └── DB: ISBN → book copies → member mapping
+│   │
+│   ├── C04. Chess Game
+│   │     ├── Classes: Board, Piece, King/Queen/Rook..., Move
+│   │     ├── Pattern: Strategy (each piece has move strategy)
+│   │     └── Key: Check / Checkmate detection logic
+│   │
+│   ├── C05. ATM Machine
+│   │     ├── Classes: ATM, Card, Account, CashDispenser
+│   │     ├── Pattern: State (Idle→Auth→Select→Dispense)
+│   │     └── Key: Transaction rollback on failure
+│   │
+│   ├── C06. Vending Machine
+│   │     ├── Classes: VendingMachine, Inventory, Coin, Item
+│   │     ├── Pattern: State (NoMoney→HasMoney→Dispense)
+│   │     └── Key: Exact change / refund logic
+│   │
+│   ├── C07. Movie Ticket Booking (BookMyShow)
+│   │     ├── Classes: Show, Screen, Seat, Booking, Payment
+│   │     ├── Key: Seat lock with TTL (Redis SETNX)
+│   │     └── Prevent: Two users booking same seat
+│   │
+│   ├── C08. Hotel Management System
+│   │     ├── Classes: Hotel, Room, Reservation, Guest, Bill
+│   │     ├── Pattern: Strategy (pricing: weekend, holiday)
+│   │     └── Key: Room availability calendar
+│   │
+│   ├── C09. Online Shopping Cart
+│   │     ├── Classes: Cart, CartItem, Product, Order, Coupon
+│   │     ├── Pattern: Observer (inventory update on purchase)
+│   │     └── Key: Price snapshot at checkout time
+│   │
+│   ├── C10. Rate Limiter — Class Design
+│   │     ├── Interface: RateLimiter.allow(user_id) → bool
+│   │     ├── Impl 1: TokenBucket
+│   │     ├── Impl 2: SlidingWindowCounter
+│   │     └── Pattern: Strategy (swap algorithms)
+│   │
+│   ├── C11. Logger Framework
+│   │     ├── Classes: Logger, LogLevel, Appender, Formatter
+│   │     ├── Pattern: Chain of Responsibility
+│   │     └── Appenders: FileAppender, ConsoleAppender, DBAppender
+│   │
+│   ├── C12. File System Design
+│   │     ├── Classes: File, Directory, FileSystem, Permission
+│   │     ├── Pattern: Composite (Dir contains Files or Dirs)
+│   │     └── Key: Unix-like inode structure
+│   │
+│   ├── C13. LRU / LFU Cache
+│   │     ├── LRU: DoublyLinkedList + HashMap → O(1) get/put
+│   │     ├── LFU: MinHeap + HashMap → O(log n)
+│   │     └── Python: collections.OrderedDict trick for LRU
+│   │
+│   ├── C14. Pub-Sub System
+│   │     ├── Classes: Topic, Publisher, Subscriber, Message
+│   │     ├── Pattern: Observer
+│   │     └── Key: Thread-safe queue + retry on failure
+│   │
+│   ├── C15. Notification Service
+│   │     ├── Channels: Email, SMS, Push
+│   │     ├── Pattern: Strategy (swap channel)
+│   │     └── Pattern: Template Method (fixed steps, override)
+│   │
+│   ├── C16. Traffic Signal System
+│   │     ├── Classes: Signal, TrafficLight, Timer, Intersection
+│   │     ├── Pattern: State (Green→Yellow→Red→Green)
+│   │     └── Key: Emergency override logic
+│   │
+│   ├── C17. Snake & Ladder / Board Game
+│   │     ├── Classes: Board, Player, Dice, Snake, Ladder, Game
+│   │     ├── Pattern: Command (record moves for undo)
+│   │     └── Key: Extensible for any board game
+│   │
+│   ├── C18. Splitwise — Bill Splitting
+│   │     ├── Classes: User, Group, Expense, Settlement
+│   │     ├── Algorithm: Graph to minimize # of transactions
+│   │     └── Key: Track net balance per user pair
+│   │
+│   ├── C19. Social Graph (LinkedIn-like)
+│   │     ├── Classes: User, Connection, Feed, Post
+│   │     ├── Degree: BFS for 1st / 2nd / 3rd connections
+│   │     └── DB: Graph DB (Neo4j) or adjacency list in Redis
+│   │
+│   └── C20. Thread Pool — Concurrency Design
+│         ├── Classes: Worker, Task, TaskQueue, ThreadPoolExecutor
+│         ├── Key: Blocking queue (producer-consumer)
+│         └── Key: Graceful shutdown + task drain
+│
+│
+├── [B-M] MISSING HLD PATTERNS (add to your prep)
+│   ├── H-M1. Event Sourcing     → Banking audit log
+│   ├── H-M2. CQRS               → Amazon order: separate read/write
+│   ├── H-M3. Saga Pattern        → Hotel + Flight + Pay in sequence
+│   ├── H-M4. Sidecar/Service Mesh→ Kubernetes + Istio + Envoy
+│   ├── H-M5. Backpressure        → Netflix CDN flow control
+│   ├── H-M6. Leader Election     → Zookeeper picks Kafka leader
+│   ├── H-M7. Write-Ahead Log     → Postgres crash recovery
+│   └── H-M8. Consensus (Raft)    → etcd, Google Spanner
+│
+│
+├── [C-M] MISSING LLD PATTERNS (add to your prep)
+│   ├── L-M1. Decorator    → Python logging.Handler wrappers
+│   ├── L-M2. Proxy        → Spring AOP transaction proxy
+│   ├── L-M3. Flyweight    → Python string interning, game sprites
+│   ├── L-M4. Iterator     → Custom __iter__ in Python class
+│   ├── L-M5. Mediator     → Chat room: users don't talk directly
+│   ├── L-M6. Memento      → Undo/Redo (VS Code, Photoshop)
+│   ├── L-M7. Visitor      → Compiler AST traversal
+│   └── L-M8. Template Method→ Python AbstractMethod fixed steps
+│
+│
+└── [D] LANGUAGE GUIDE
+    ├── D1. HLD  → Language does NOT matter (no code written)
+    ├── D2. Python LLD
+    │     ├── Interface → use ABC + @abstractmethod
+    │     ├── Private   → _name convention (not enforced)
+    │     └── Types     → from typing import List, Optional
+    └── D3. TypeScript LLD
+          ├── Interface → interface keyword (clean)
+          ├── Access    → private / public / protected
+          └── Types     → built-in, strict mode recommended
+
+
+╔══════════════════════════════════════════════════════════════════╗
+║  QUICK REFERENCE — HOW TO USE THIS FILE                         ║
+║                                                                  ║
+║  Next session, just say:                                         ║
+║  → "Deep dive B03"       = Uber HLD full design                  ║
+║  → "Code C13 in Python"  = LRU Cache implementation             ║
+║  → "Explain H-M3"        = Saga pattern with example            ║
+║  → "Compare B09 vs B10"  = Cache vs Rate Limiter                ║
+╚══════════════════════════════════════════════════════════════════╝
+
