@@ -6,20 +6,20 @@ Goal: move from intermediate SQL to advanced, production-ready SQL across queryi
 
 | # | Module | Level | Main Skills | Exercises | Status |
 |---|--------|-------|-------------|-----------|--------|
-| 01 | Querying, Filtering, and Sorting | Intermediate | SELECT, WHERE, ORDER BY, LIMIT/OFFSET | 25 | [ ] |
-| 02 | Joins and Relationships | Intermediate-Advanced | INNER JOIN, LEFT JOIN, FULL JOIN, self join | 25 | [ ] |
-| 03 | Aggregation and Grouping | Intermediate-Advanced | GROUP BY, HAVING, COUNT DISTINCT, filtered aggregates | 25 | [ ] |
-| 04 | Subqueries and CTEs | Intermediate-Advanced | scalar subqueries, correlated subqueries, EXISTS, NOT EXISTS | 25 | [ ] |
-| 05 | Window Functions | Advanced | ROW_NUMBER, RANK, DENSE_RANK, LEAD/LAG | 25 | [ ] |
-| 06 | Data Modeling and DDL | Advanced | schemas, CREATE TABLE, ALTER TABLE, constraints | 25 | [ ] |
-| 07 | DML, Transactions, and MERGE | Advanced | INSERT, UPDATE, DELETE, UPSERT | 25 | [ ] |
-| 08 | Indexes and Query Performance | Advanced | EXPLAIN, EXPLAIN ANALYZE, B-tree indexes, composite indexes | 25 | [ ] |
-| 09 | PostgreSQL Advanced Types and Functions | Advanced | JSONB, arrays, ranges, intervals | 25 | [ ] |
-| 10 | Analytics, Reporting, and Cohorts | Advanced | cohort analysis, retention, funnels, RFM | 25 | [ ] |
-| 11 | Views, Security, and Row-Level Security | Advanced | views, materialized views, roles, GRANT | 25 | [ ] |
-| 12 | Procedures, Triggers, and Automation | Advanced | SQL functions, PL/pgSQL, procedures, triggers | 25 | [ ] |
-| 13 | Data Quality, Testing, and Auditing | Advanced | data tests, deduplication, reconciliation, anomaly detection | 25 | [ ] |
-| 14 | Capstone Projects | Expert | schema design, analytics engineering, performance tuning, security | 25 | [ ] |
+| 01 | Querying, Filtering, and Sorting | Basic → Advanced | SELECT, WHERE, ORDER BY, LIMIT/OFFSET | 10 | [ ] |
+| 02 | Joins and Relationships | Basic → Expert | INNER JOIN, LEFT JOIN, FULL JOIN, self join | 10 | [ ] |
+| 03 | Aggregation and Grouping | Basic → Expert | GROUP BY, HAVING, COUNT DISTINCT, filtered aggregates | 10 | [ ] |
+| 04 | Subqueries and CTEs | Basic → Expert | scalar subqueries, correlated subqueries, EXISTS, NOT EXISTS | 10 | [ ] |
+| 05 | Window Functions | Basic → Expert | ROW_NUMBER, RANK, DENSE_RANK, LEAD/LAG | 10 | [ ] |
+| 06 | Data Modeling and DDL | Basic → Expert | schemas, CREATE TABLE, ALTER TABLE, constraints | 10 | [ ] |
+| 07 | DML, Transactions, and MERGE | Basic → Expert | INSERT, UPDATE, DELETE, UPSERT | 10 | [ ] |
+| 08 | Indexes and Query Performance | Basic → Expert | EXPLAIN, EXPLAIN ANALYZE, B-tree indexes, composite indexes | 10 | [ ] |
+| 09 | PostgreSQL Advanced Types and Functions | Basic → Expert | JSONB, arrays, ranges, intervals | 10 | [ ] |
+| 10 | Analytics, Reporting, and Cohorts | Basic → Expert | cohort analysis, retention, funnels, RFM | 10 | [ ] |
+| 11 | Views, Security, and Row-Level Security | Basic → Expert | views, materialized views, roles, GRANT | 10 | [ ] |
+| 12 | Procedures, Triggers, and Automation | Basic → Expert | SQL functions, PL/pgSQL, procedures, triggers | 10 | [ ] |
+| 13 | Data Quality, Testing, and Auditing | Basic → Expert | data tests, deduplication, reconciliation, anomaly detection | 10 | [ ] |
+| 14 | Capstone Projects | Expert | schema design, analytics engineering, performance tuning, security | 10 | [ ] |
 
 ## Suggested Order
 

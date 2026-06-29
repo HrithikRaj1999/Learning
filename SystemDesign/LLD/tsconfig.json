@@ -11,7 +11,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["SOLID", "DesignPatterns", "CleanCode"]
+  "include": [
+    "SOLID",
+    "DesignPatterns",
+    "CleanCode"
+  ]
 }

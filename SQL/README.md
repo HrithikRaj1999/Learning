@@ -45,22 +45,22 @@ SQL/scripts/stop_sql.ps1
 
 | # | Folder | Topic | Level | Exercises |
 |---|--------|-------|-------|-----------|
-| 01 | `01_Querying_Filtering_Sorting` | Querying, Filtering, and Sorting | Intermediate | 25 |
-| 02 | `02_Joins_Relationships` | Joins and Relationships | Intermediate-Advanced | 25 |
-| 03 | `03_Aggregation_Grouping` | Aggregation and Grouping | Intermediate-Advanced | 25 |
-| 04 | `04_Subqueries_CTEs` | Subqueries and CTEs | Intermediate-Advanced | 25 |
-| 05 | `05_Window_Functions` | Window Functions | Advanced | 25 |
-| 06 | `06_Data_Modeling_DDL` | Data Modeling and DDL | Advanced | 25 |
-| 07 | `07_DML_Transactions_Merge` | DML, Transactions, and MERGE | Advanced | 25 |
-| 08 | `08_Indexes_Performance` | Indexes and Query Performance | Advanced | 25 |
-| 09 | `09_PostgreSQL_Advanced_Types` | PostgreSQL Advanced Types and Functions | Advanced | 25 |
-| 10 | `10_Analytics_Reporting_Cohorts` | Analytics, Reporting, and Cohorts | Advanced | 25 |
-| 11 | `11_Views_Security_RLS` | Views, Security, and Row-Level Security | Advanced | 25 |
-| 12 | `12_Procedures_Triggers_Automation` | Procedures, Triggers, and Automation | Advanced | 25 |
-| 13 | `13_Data_Quality_Testing_Auditing` | Data Quality, Testing, and Auditing | Advanced | 25 |
-| 14 | `14_Capstone_Projects` | Capstone Projects | Expert | 25 |
+| 01 | `01_Querying_Filtering_Sorting` | Querying, Filtering, and Sorting | Basic → Advanced | 10 |
+| 02 | `02_Joins_Relationships` | Joins and Relationships | Basic → Expert | 10 |
+| 03 | `03_Aggregation_Grouping` | Aggregation and Grouping | Basic → Expert | 10 |
+| 04 | `04_Subqueries_CTEs` | Subqueries and CTEs | Basic → Expert | 10 |
+| 05 | `05_Window_Functions` | Window Functions | Basic → Expert | 10 |
+| 06 | `06_Data_Modeling_DDL` | Data Modeling and DDL | Basic → Expert | 10 |
+| 07 | `07_DML_Transactions_Merge` | DML, Transactions, and MERGE | Basic → Expert | 10 |
+| 08 | `08_Indexes_Performance` | Indexes and Query Performance | Basic → Expert | 10 |
+| 09 | `09_PostgreSQL_Advanced_Types` | PostgreSQL Advanced Types and Functions | Basic → Expert | 10 |
+| 10 | `10_Analytics_Reporting_Cohorts` | Analytics, Reporting, and Cohorts | Basic → Expert | 10 |
+| 11 | `11_Views_Security_RLS` | Views, Security, and Row-Level Security | Basic → Expert | 10 |
+| 12 | `12_Procedures_Triggers_Automation` | Procedures, Triggers, and Automation | Basic → Expert | 10 |
+| 13 | `13_Data_Quality_Testing_Auditing` | Data Quality, Testing, and Auditing | Basic → Expert | 10 |
+| 14 | `14_Capstone_Projects` | Capstone Projects | Expert | 10 |
 
-Total exercises: 350
+Total exercises: 140
 
 ## Progress Standard
 
