@@ -1,3 +1,28 @@
+// =============================================================================
+// WHAT IS WRONG — Single Responsibility Principle (SRP) violation
+// =============================================================================
+// SRP rule: ONE reason to change per class. Employee has FOUR: payroll rules,
+// DB persistence, email sending, and report formatting. Four different teams
+// would all need to edit this same class.
+//
+// REAL SCENARIO: pay logic is duplicated — calculatePay() AND sendPayslip()
+// each compute pay independently. Add overtime rules in one, forget the other,
+// and the payslip now disagrees with the actual pay. That is exactly the drift
+// SRP prevents. Also: the DB string hardcodes a password (secret leak) and the
+// INSERT concatenates raw values (SQL-injection shape) — security concerns
+// buried inside a "business" class nobody reviews for security.
+//
+// WHY BAD: one class, many axes of change = constant merge conflicts, untestable
+// units (cannot test pay math without SMTP/DB), and logic drift between copies.
+//
+// HOW TO FIX (no code): separate concerns —
+//   - Employee = data only.
+//   - PayrollCalculator = the ONE source of truth for pay (overtime, tax).
+//   - EmployeeRepository = persistence (parameterized queries, secret from env).
+//   - PayslipMailer = email.
+//   - ReportFormatter = html/csv/json output.
+// Compose them; each changes for one reason only.
+// =============================================================================
 // ❌ SRP VIOLATION — "Single Responsibility Principle"
 // A class should have ONE, and only one, reason to change.
 // This class has FOUR reasons to change: business rules, DB schema,

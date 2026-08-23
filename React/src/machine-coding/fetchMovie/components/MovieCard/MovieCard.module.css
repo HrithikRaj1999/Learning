@@ -1,0 +1,31 @@
+/* components/MovieCard/MovieCard.module.css */
+.card {
+  background: #1a1d24;
+  border-radius: 10px;
+  overflow: hidden;
+  display: block;
+  text-decoration: none;
+  color: #e8e8ea;
+  transition: transform 0.15s;
+}
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* aspect-ratio + bg = poster-shaped placeholder, zero layout shift */
+.poster {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  display: block;
+  background: #24272f;
+}
+.title {
+  font-size: 14px;
+  margin: 10px 10px 2px;
+}
+.year {
+  font-size: 12px;
+  color: #8b8f9a;
+  margin: 0 10px 10px;
+}

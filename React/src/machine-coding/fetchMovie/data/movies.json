@@ -1,0 +1,1802 @@
+[
+  {
+    "id": 101,
+    "title": "Scarface",
+    "imdb_rating": 8.3,
+    "year": 1983,
+    "genre": "Crime, Drama",
+    "director": "Brian De Palma",
+    "image_url": "https://picsum.photos/seed/101/300/450"
+  },
+  {
+    "id": 102,
+    "title": "Taxi Driver",
+    "imdb_rating": 8.2,
+    "year": 1976,
+    "genre": "Crime, Drama",
+    "director": "Martin Scorsese",
+    "image_url": "https://picsum.photos/seed/102/300/450"
+  },
+  {
+    "id": 103,
+    "title": "Lawrence of Arabia",
+    "imdb_rating": 8.3,
+    "year": 1962,
+    "genre": "Adventure, Biography, Drama",
+    "director": "David Lean",
+    "image_url": "https://picsum.photos/seed/103/300/450"
+  },
+  {
+    "id": 104,
+    "title": "To Kill a Mockingbird",
+    "imdb_rating": 8.3,
+    "year": 1962,
+    "genre": "Crime, Drama",
+    "director": "Robert Mulligan",
+    "image_url": "https://picsum.photos/seed/104/300/450"
+  },
+  {
+    "id": 105,
+    "title": "L.A. Confidential",
+    "imdb_rating": 8.2,
+    "year": 1997,
+    "genre": "Crime, Drama, Mystery",
+    "director": "Curtis Hanson",
+    "image_url": "https://picsum.photos/seed/105/300/450"
+  },
+  {
+    "id": 106,
+    "title": "Up",
+    "imdb_rating": 8.3,
+    "year": 2009,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Pete Docter, Bob Peterson",
+    "image_url": "https://picsum.photos/seed/106/300/450"
+  },
+  {
+    "id": 107,
+    "title": "Batman Begins",
+    "imdb_rating": 8.2,
+    "year": 2005,
+    "genre": "Action, Adventure",
+    "director": "Christopher Nolan",
+    "image_url": "https://picsum.photos/seed/107/300/450"
+  },
+  {
+    "id": 108,
+    "title": "Some Like It Hot",
+    "imdb_rating": 8.2,
+    "year": 1959,
+    "genre": "Comedy, Music, Romance",
+    "director": "Billy Wilder",
+    "image_url": "https://picsum.photos/seed/108/300/450"
+  },
+  {
+    "id": 109,
+    "title": "Green Book",
+    "imdb_rating": 8.2,
+    "year": 2018,
+    "genre": "Biography, Comedy, Drama",
+    "director": "Peter Farrelly",
+    "image_url": "https://picsum.photos/seed/109/300/450"
+  },
+  {
+    "id": 110,
+    "title": "A Separation",
+    "imdb_rating": 8.3,
+    "year": 2011,
+    "genre": "Drama",
+    "director": "Asghar Farhadi",
+    "image_url": "https://picsum.photos/seed/110/300/450"
+  },
+  {
+    "id": 111,
+    "title": "Die Hard",
+    "imdb_rating": 8.2,
+    "year": 1988,
+    "genre": "Action, Thriller",
+    "director": "John McTiernan",
+    "image_url": "https://picsum.photos/seed/111/300/450"
+  },
+  {
+    "id": 112,
+    "title": "Indiana Jones and the Last Crusade",
+    "imdb_rating": 8.2,
+    "year": 1989,
+    "genre": "Action, Adventure",
+    "director": "Steven Spielberg",
+    "image_url": "https://picsum.photos/seed/112/300/450"
+  },
+  {
+    "id": 113,
+    "title": "1917",
+    "imdb_rating": 8.2,
+    "year": 2019,
+    "genre": "Action, Drama, War",
+    "director": "Sam Mendes",
+    "image_url": "https://picsum.photos/seed/113/300/450"
+  },
+  {
+    "id": 114,
+    "title": "Yojimbo",
+    "imdb_rating": 8.2,
+    "year": 1961,
+    "genre": "Action, Drama, Thriller",
+    "director": "Akira Kurosawa",
+    "image_url": "https://picsum.photos/seed/114/300/450"
+  },
+  {
+    "id": 115,
+    "title": "Downfall",
+    "imdb_rating": 8.2,
+    "year": 2004,
+    "genre": "Biography, Drama, History",
+    "director": "Oliver Hirschbiegel",
+    "image_url": "https://picsum.photos/seed/115/300/450"
+  },
+  {
+    "id": 116,
+    "title": "Mad Max: Fury Road",
+    "imdb_rating": 8.1,
+    "year": 2015,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "George Miller",
+    "image_url": "https://picsum.photos/seed/116/300/450"
+  },
+  {
+    "id": 117,
+    "title": "Heat",
+    "imdb_rating": 8.3,
+    "year": 1995,
+    "genre": "Action, Crime, Drama",
+    "director": "Michael Mann",
+    "image_url": "https://picsum.photos/seed/117/300/450"
+  },
+  {
+    "id": 118,
+    "title": "Good Bye Lenin!",
+    "imdb_rating": 7.7,
+    "year": 2003,
+    "genre": "Comedy, Drama, Romance",
+    "director": "Wolfgang Becker",
+    "image_url": "https://picsum.photos/seed/118/300/450"
+  },
+  {
+    "id": 119,
+    "title": "Children of Heaven",
+    "imdb_rating": 8.2,
+    "year": 1997,
+    "genre": "Drama, Family",
+    "director": "Majid Majidi",
+    "image_url": "https://picsum.photos/seed/119/300/450"
+  },
+  {
+    "id": 120,
+    "title": "The Great Escape",
+    "imdb_rating": 8.2,
+    "year": 1963,
+    "genre": "Adventure, Drama, History",
+    "director": "John Sturges",
+    "image_url": "https://picsum.photos/seed/120/300/450"
+  },
+  {
+    "id": 121,
+    "title": "Unforgiven",
+    "imdb_rating": 8.2,
+    "year": 1992,
+    "genre": "Drama, Western",
+    "director": "Clint Eastwood",
+    "image_url": "https://picsum.photos/seed/121/300/450"
+  },
+  {
+    "id": 122,
+    "title": "Pan's Labyrinth",
+    "imdb_rating": 8.2,
+    "year": 2006,
+    "genre": "Drama, Fantasy, War",
+    "director": "Guillermo del Toro",
+    "image_url": "https://picsum.photos/seed/122/300/450"
+  },
+  {
+    "id": 123,
+    "title": "Room",
+    "imdb_rating": 8.1,
+    "year": 2015,
+    "genre": "Drama, Thriller",
+    "director": "Lenny Abrahamson",
+    "image_url": "https://picsum.photos/seed/123/300/450"
+  },
+  {
+    "id": 124,
+    "title": "My Neighbor Totoro",
+    "imdb_rating": 8.1,
+    "year": 1988,
+    "genre": "Animation, Family, Fantasy",
+    "director": "Hayao Miyazaki",
+    "image_url": "https://picsum.photos/seed/124/300/450"
+  },
+  {
+    "id": 125,
+    "title": "Ran",
+    "imdb_rating": 8.2,
+    "year": 1985,
+    "genre": "Action, Drama, War",
+    "director": "Akira Kurosawa",
+    "image_url": "https://picsum.photos/seed/125/300/450"
+  },
+  {
+    "id": 126,
+    "title": "The Secret in Their Eyes",
+    "imdb_rating": 8.2,
+    "year": 2009,
+    "genre": "Drama, Mystery, Romance",
+    "director": "Juan José Campanella",
+    "image_url": "https://picsum.photos/seed/126/300/450"
+  },
+  {
+    "id": 127,
+    "title": "The Gold Rush",
+    "imdb_rating": 8.1,
+    "year": 1925,
+    "genre": "Adventure, Comedy, Drama",
+    "director": "Charles Chaplin",
+    "image_url": "https://picsum.photos/seed/127/300/450"
+  },
+  {
+    "id": 128,
+    "title": "Casino",
+    "imdb_rating": 8.2,
+    "year": 1995,
+    "genre": "Crime, Drama",
+    "director": "Martin Scorsese",
+    "image_url": "https://picsum.photos/seed/128/300/450"
+  },
+  {
+    "id": 129,
+    "title": "A Beautiful Mind",
+    "imdb_rating": 8.2,
+    "year": 2001,
+    "genre": "Biography, Drama",
+    "director": "Ron Howard",
+    "image_url": "https://picsum.photos/seed/129/300/450"
+  },
+  {
+    "id": 130,
+    "title": "The Elephant Man",
+    "imdb_rating": 8.2,
+    "year": 1980,
+    "genre": "Biography, Drama",
+    "director": "David Lynch",
+    "image_url": "https://picsum.photos/seed/130/300/450"
+  },
+  {
+    "id": 131,
+    "title": "V for Vendetta",
+    "imdb_rating": 8.2,
+    "year": 2005,
+    "genre": "Action, Drama, Sci-Fi",
+    "director": "James McTeigue",
+    "image_url": "https://picsum.photos/seed/131/300/450"
+  },
+  {
+    "id": 132,
+    "title": "Howl's Moving Castle",
+    "imdb_rating": 8.2,
+    "year": 2004,
+    "genre": "Animation, Adventure, Family",
+    "director": "Hayao Miyazaki",
+    "image_url": "https://picsum.photos/seed/132/300/450"
+  },
+  {
+    "id": 133,
+    "title": "Lock, Stock and Two Smoking Barrels",
+    "imdb_rating": 8.2,
+    "year": 1998,
+    "genre": "Action, Comedy, Crime",
+    "director": "Guy Ritchie",
+    "image_url": "https://picsum.photos/seed/133/300/450"
+  },
+  {
+    "id": 134,
+    "title": "The Wolf of Wall Street",
+    "imdb_rating": 8.2,
+    "year": 2013,
+    "genre": "Biography, Comedy, Crime",
+    "director": "Martin Scorsese",
+    "image_url": "https://picsum.photos/seed/134/300/450"
+  },
+  {
+    "id": 135,
+    "title": "Dial M for Murder",
+    "imdb_rating": 8.2,
+    "year": 1954,
+    "genre": "Crime, Thriller",
+    "director": "Alfred Hitchcock",
+    "image_url": "https://picsum.photos/seed/135/300/450"
+  },
+  {
+    "id": 136,
+    "title": "Warrior",
+    "imdb_rating": 8.1,
+    "year": 2011,
+    "genre": "Action, Drama, Sport",
+    "director": "Gavin O'Connor",
+    "image_url": "https://picsum.photos/seed/136/300/450"
+  },
+  {
+    "id": 137,
+    "title": "The Truman Show",
+    "imdb_rating": 8.2,
+    "year": 1998,
+    "genre": "Comedy, Drama, Sci-Fi",
+    "director": "Peter Weir",
+    "image_url": "https://picsum.photos/seed/137/300/450"
+  },
+  {
+    "id": 138,
+    "title": "Trainspotting",
+    "imdb_rating": 8.1,
+    "year": 1996,
+    "genre": "Drama",
+    "director": "Danny Boyle",
+    "image_url": "https://picsum.photos/seed/138/300/450"
+  },
+  {
+    "id": 139,
+    "title": "Fargo",
+    "imdb_rating": 8.1,
+    "year": 1996,
+    "genre": "Crime, Thriller",
+    "director": "Joel Coen, Ethan Coen",
+    "image_url": "https://picsum.photos/seed/139/300/450"
+  },
+  {
+    "id": 140,
+    "title": "Prisoners",
+    "imdb_rating": 8.1,
+    "year": 2013,
+    "genre": "Crime, Drama, Mystery",
+    "director": "Denis Villeneuve",
+    "image_url": "https://picsum.photos/seed/140/300/450"
+  },
+  {
+    "id": 141,
+    "title": "Catch Me If You Can",
+    "imdb_rating": 8.1,
+    "year": 2002,
+    "genre": "Biography, Crime, Drama",
+    "director": "Steven Spielberg",
+    "image_url": "https://picsum.photos/seed/141/300/450"
+  },
+  {
+    "id": 142,
+    "title": "The Sixth Sense",
+    "imdb_rating": 8.2,
+    "year": 1999,
+    "genre": "Drama, Mystery, Thriller",
+    "director": "M. Night Shyamalan",
+    "image_url": "https://picsum.photos/seed/142/300/450"
+  },
+  {
+    "id": 143,
+    "title": "Gran Torino",
+    "imdb_rating": 8.1,
+    "year": 2008,
+    "genre": "Drama",
+    "director": "Clint Eastwood",
+    "image_url": "https://picsum.photos/seed/143/300/450"
+  },
+  {
+    "id": 144,
+    "title": "The Big Lebowski",
+    "imdb_rating": 8.1,
+    "year": 1998,
+    "genre": "Comedy, Crime",
+    "director": "Joel Coen, Ethan Coen",
+    "image_url": "https://picsum.photos/seed/144/300/450"
+  },
+  {
+    "id": 145,
+    "title": "Kill Bill: Vol. 1",
+    "imdb_rating": 8.2,
+    "year": 2003,
+    "genre": "Action, Crime, Drama",
+    "director": "Quentin Tarantino",
+    "image_url": "https://picsum.photos/seed/145/300/450"
+  },
+  {
+    "id": 146,
+    "title": "Blade Runner",
+    "imdb_rating": 8.1,
+    "year": 1982,
+    "genre": "Action, Sci-Fi, Thriller",
+    "director": "Ridley Scott",
+    "image_url": "https://picsum.photos/seed/146/300/450"
+  },
+  {
+    "id": 147,
+    "title": "Shutter Island",
+    "imdb_rating": 8.2,
+    "year": 2010,
+    "genre": "Mystery, Thriller",
+    "director": "Martin Scorsese",
+    "image_url": "https://picsum.photos/seed/147/300/450"
+  },
+  {
+    "id": 148,
+    "title": "No Country for Old Men",
+    "imdb_rating": 8.1,
+    "year": 2007,
+    "genre": "Crime, Drama, Thriller",
+    "director": "Joel Coen, Ethan Coen",
+    "image_url": "https://picsum.photos/seed/148/300/450"
+  },
+  {
+    "id": 149,
+    "title": "The Thing",
+    "imdb_rating": 8.2,
+    "year": 1982,
+    "genre": "Horror, Mystery, Sci-Fi",
+    "director": "John Carpenter",
+    "image_url": "https://picsum.photos/seed/149/300/450"
+  },
+  {
+    "id": 150,
+    "title": "Platoon",
+    "imdb_rating": 8.1,
+    "year": 1986,
+    "genre": "Drama, War",
+    "director": "Oliver Stone",
+    "image_url": "https://picsum.photos/seed/150/300/450"
+  },
+  {
+    "id": 151,
+    "title": "Jurassic Park",
+    "imdb_rating": 8.2,
+    "year": 1993,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "Steven Spielberg",
+    "image_url": "https://picsum.photos/seed/151/300/450"
+  },
+  {
+    "id": 152,
+    "title": "The Deer Hunter",
+    "imdb_rating": 8.1,
+    "year": 1978,
+    "genre": "Drama, War",
+    "director": "Michael Cimino",
+    "image_url": "https://picsum.photos/seed/152/300/450"
+  },
+  {
+    "id": 153,
+    "title": "Stalker",
+    "imdb_rating": 8.1,
+    "year": 1979,
+    "genre": "Drama, Sci-Fi",
+    "director": "Andrei Tarkovsky",
+    "image_url": "https://picsum.photos/seed/153/300/450"
+  },
+  {
+    "id": 154,
+    "title": "Before Sunrise",
+    "imdb_rating": 8.1,
+    "year": 1995,
+    "genre": "Drama, Romance",
+    "director": "Richard Linklater",
+    "image_url": "https://picsum.photos/seed/154/300/450"
+  },
+  {
+    "id": 155,
+    "title": "Mary and Max",
+    "imdb_rating": 8.1,
+    "year": 2009,
+    "genre": "Animation, Comedy, Drama",
+    "director": "Adam Elliot",
+    "image_url": "https://picsum.photos/seed/155/300/450"
+  },
+  {
+    "id": 156,
+    "title": "Finding Nemo",
+    "imdb_rating": 8.1,
+    "year": 2003,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Andrew Stanton, Lee Unkrich",
+    "image_url": "https://picsum.photos/seed/156/300/450"
+  },
+  {
+    "id": 157,
+    "title": "There Will Be Blood",
+    "imdb_rating": 8.2,
+    "year": 2007,
+    "genre": "Drama",
+    "director": "Paul Thomas Anderson",
+    "image_url": "https://picsum.photos/seed/157/300/450"
+  },
+  {
+    "id": 158,
+    "title": "Into the Wild",
+    "imdb_rating": 8.1,
+    "year": 2007,
+    "genre": "Adventure, Biography, Drama",
+    "director": "Sean Penn",
+    "image_url": "https://picsum.photos/seed/158/300/450"
+  },
+  {
+    "id": 159,
+    "title": "Rush",
+    "imdb_rating": 8.1,
+    "year": 2013,
+    "genre": "Action, Biography, Drama",
+    "director": "Ron Howard",
+    "image_url": "https://picsum.photos/seed/159/300/450"
+  },
+  {
+    "id": 160,
+    "title": "Hacksaw Ridge",
+    "imdb_rating": 8.1,
+    "year": 2016,
+    "genre": "Biography, Drama, History",
+    "director": "Mel Gibson",
+    "image_url": "https://picsum.photos/seed/160/300/450"
+  },
+  {
+    "id": 161,
+    "title": "Million Dollar Baby",
+    "imdb_rating": 8.1,
+    "year": 2004,
+    "genre": "Drama, Sport",
+    "director": "Clint Eastwood",
+    "image_url": "https://picsum.photos/seed/161/300/450"
+  },
+  {
+    "id": 162,
+    "title": "Stand by Me",
+    "imdb_rating": 8.1,
+    "year": 1986,
+    "genre": "Adventure, Drama",
+    "director": "Rob Reiner",
+    "image_url": "https://picsum.photos/seed/162/300/450"
+  },
+  {
+    "id": 163,
+    "title": "Logan",
+    "imdb_rating": 8.1,
+    "year": 2017,
+    "genre": "Action, Drama, Sci-Fi",
+    "director": "James Mangold",
+    "image_url": "https://picsum.photos/seed/163/300/450"
+  },
+  {
+    "id": 164,
+    "title": "Spotlight",
+    "imdb_rating": 8.1,
+    "year": 2015,
+    "genre": "Biography, Crime, Drama",
+    "director": "Tom McCarthy",
+    "image_url": "https://picsum.photos/seed/164/300/450"
+  },
+  {
+    "id": 165,
+    "title": "Ben-Hur",
+    "imdb_rating": 8.1,
+    "year": 1959,
+    "genre": "Adventure, Drama, History",
+    "director": "William Wyler",
+    "image_url": "https://picsum.photos/seed/165/300/450"
+  },
+  {
+    "id": 166,
+    "title": "Network",
+    "imdb_rating": 8.1,
+    "year": 1976,
+    "genre": "Drama",
+    "director": "Sidney Lumet",
+    "image_url": "https://picsum.photos/seed/166/300/450"
+  },
+  {
+    "id": 167,
+    "title": "Mad Max 2: The Road Warrior",
+    "imdb_rating": 7.6,
+    "year": 1981,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "George Miller",
+    "image_url": "https://picsum.photos/seed/167/300/450"
+  },
+  {
+    "id": 168,
+    "title": "The Grand Budapest Hotel",
+    "imdb_rating": 8.1,
+    "year": 2014,
+    "genre": "Adventure, Comedy, Crime",
+    "director": "Wes Anderson",
+    "image_url": "https://picsum.photos/seed/168/300/450"
+  },
+  {
+    "id": 169,
+    "title": "Gone Girl",
+    "imdb_rating": 8.1,
+    "year": 2014,
+    "genre": "Drama, Mystery, Thriller",
+    "director": "David Fincher",
+    "image_url": "https://picsum.photos/seed/169/300/450"
+  },
+  {
+    "id": 170,
+    "title": "Dead Poets Society",
+    "imdb_rating": 8.1,
+    "year": 1989,
+    "genre": "Comedy, Drama",
+    "director": "Peter Weir",
+    "image_url": "https://picsum.photos/seed/170/300/450"
+  },
+  {
+    "id": 171,
+    "title": "Hachi: A Dog's Tale",
+    "imdb_rating": 8.1,
+    "year": 2009,
+    "genre": "Biography, Drama, Family",
+    "director": "Lasse Hallström",
+    "image_url": "https://picsum.photos/seed/171/300/450"
+  },
+  {
+    "id": 172,
+    "title": "The Princess Bride",
+    "imdb_rating": 8.0,
+    "year": 1987,
+    "genre": "Adventure, Family, Fantasy",
+    "director": "Rob Reiner",
+    "image_url": "https://picsum.photos/seed/172/300/450"
+  },
+  {
+    "id": 173,
+    "title": "Amores Perros",
+    "imdb_rating": 8.1,
+    "year": 2000,
+    "genre": "Drama, Thriller",
+    "director": "Alejandro G. Iñárritu",
+    "image_url": "https://picsum.photos/seed/173/300/450"
+  },
+  {
+    "id": 174,
+    "title": "Rocky",
+    "imdb_rating": 8.1,
+    "year": 1976,
+    "genre": "Drama, Sport",
+    "director": "John G. Avildsen",
+    "image_url": "https://picsum.photos/seed/174/300/450"
+  },
+  {
+    "id": 175,
+    "title": "Barry Lyndon",
+    "imdb_rating": 8.1,
+    "year": 1975,
+    "genre": "Adventure, Drama, History",
+    "director": "Stanley Kubrick",
+    "image_url": "https://picsum.photos/seed/175/300/450"
+  },
+  {
+    "id": 176,
+    "title": "Ford v Ferrari",
+    "imdb_rating": 8.1,
+    "year": 2019,
+    "genre": "Action, Biography, Drama",
+    "director": "James Mangold",
+    "image_url": "https://picsum.photos/seed/176/300/450"
+  },
+  {
+    "id": 177,
+    "title": "Monsters, Inc.",
+    "imdb_rating": 8.1,
+    "year": 2001,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Pete Docter, David Silverman",
+    "image_url": "https://picsum.photos/seed/177/300/450"
+  },
+  {
+    "id": 178,
+    "title": "Memories of Murder",
+    "imdb_rating": 8.1,
+    "year": 2003,
+    "genre": "Crime, Drama, Mystery",
+    "director": "Bong Joon Ho",
+    "image_url": "https://picsum.photos/seed/178/300/450"
+  },
+  {
+    "id": 179,
+    "title": "Deadpool",
+    "imdb_rating": 8.0,
+    "year": 2016,
+    "genre": "Action, Adventure, Comedy",
+    "director": "Tim Miller",
+    "image_url": "https://picsum.photos/seed/179/300/450"
+  },
+  {
+    "id": 180,
+    "title": "Catch Me If You Can",
+    "imdb_rating": 8.1,
+    "year": 2002,
+    "genre": "Biography, Crime, Drama",
+    "director": "Steven Spielberg",
+    "image_url": "https://picsum.photos/seed/180/300/450"
+  },
+  {
+    "id": 181,
+    "title": "The Terminator",
+    "imdb_rating": 8.1,
+    "year": 1984,
+    "genre": "Action, Sci-Fi",
+    "director": "James Cameron",
+    "image_url": "https://picsum.photos/seed/181/300/450"
+  },
+  {
+    "id": 182,
+    "title": "Rebecca",
+    "imdb_rating": 8.1,
+    "year": 1940,
+    "genre": "Drama, Mystery, Romance",
+    "director": "Alfred Hitchcock",
+    "image_url": "https://picsum.photos/seed/182/300/450"
+  },
+  {
+    "id": 183,
+    "title": "Nausicaä of the Valley of the Wind",
+    "imdb_rating": 8.0,
+    "year": 1984,
+    "genre": "Animation, Adventure, Sci-Fi",
+    "director": "Hayao Miyazaki",
+    "image_url": "https://picsum.photos/seed/183/300/450"
+  },
+  {
+    "id": 184,
+    "title": "Pirates of the Caribbean: The Curse of the Black Pearl",
+    "imdb_rating": 8.0,
+    "year": 2003,
+    "genre": "Action, Adventure, Fantasy",
+    "director": "Gore Verbinski",
+    "image_url": "https://picsum.photos/seed/184/300/450"
+  },
+  {
+    "id": 185,
+    "title": "Before Sunset",
+    "imdb_rating": 8.1,
+    "year": 2004,
+    "genre": "Drama, Romance",
+    "director": "Richard Linklater",
+    "image_url": "https://picsum.photos/seed/185/300/450"
+  },
+  {
+    "id": 186,
+    "title": "La Haine",
+    "imdb_rating": 8.1,
+    "year": 1995,
+    "genre": "Crime, Drama",
+    "director": "Mathieu Kassovitz",
+    "image_url": "https://picsum.photos/seed/186/300/450"
+  },
+  {
+    "id": 187,
+    "title": "Fanny and Alexander",
+    "imdb_rating": 8.1,
+    "year": 1982,
+    "genre": "Drama",
+    "director": "Ingmar Bergman",
+    "image_url": "https://picsum.photos/seed/187/300/450"
+  },
+  {
+    "id": 188,
+    "title": "Cool Hand Luke",
+    "imdb_rating": 8.1,
+    "year": 1967,
+    "genre": "Crime, Drama",
+    "director": "Stuart Rosenberg",
+    "image_url": "https://picsum.photos/seed/188/300/450"
+  },
+  {
+    "id": 189,
+    "title": "Dangal",
+    "imdb_rating": 8.3,
+    "year": 2016,
+    "genre": "Action, Biography, Drama",
+    "director": "Nitesh Tiwari",
+    "image_url": "https://picsum.photos/seed/189/300/450"
+  },
+  {
+    "id": 190,
+    "title": "The Help",
+    "imdb_rating": 8.1,
+    "year": 2011,
+    "genre": "Drama",
+    "director": "Tate Taylor",
+    "image_url": "https://picsum.photos/seed/190/300/450"
+  },
+  {
+    "id": 191,
+    "title": "In the Mood for Love",
+    "imdb_rating": 8.1,
+    "year": 2000,
+    "genre": "Drama, Romance",
+    "director": "Kar-Wai Wong",
+    "image_url": "https://picsum.photos/seed/191/300/450"
+  },
+  {
+    "id": 192,
+    "title": "Guardians of the Galaxy",
+    "imdb_rating": 8.0,
+    "year": 2014,
+    "genre": "Action, Adventure, Comedy",
+    "director": "James Gunn",
+    "image_url": "https://picsum.photos/seed/192/300/450"
+  },
+  {
+    "id": 193,
+    "title": "Donnie Darko",
+    "imdb_rating": 8.0,
+    "year": 2001,
+    "genre": "Drama, Mystery, Sci-Fi",
+    "director": "Richard Kelly",
+    "image_url": "https://picsum.photos/seed/193/300/450"
+  },
+  {
+    "id": 194,
+    "title": "The Iron Giant",
+    "imdb_rating": 8.1,
+    "year": 1999,
+    "genre": "Animation, Action, Adventure",
+    "director": "Brad Bird",
+    "image_url": "https://picsum.photos/seed/194/300/450"
+  },
+  {
+    "id": 195,
+    "title": "Gangs of Wasseypur",
+    "imdb_rating": 8.2,
+    "year": 2012,
+    "genre": "Action, Comedy, Crime",
+    "director": "Anurag Kashyap",
+    "image_url": "https://picsum.photos/seed/195/300/450"
+  },
+  {
+    "id": 196,
+    "title": "The Bridge on the River Kwai",
+    "imdb_rating": 8.1,
+    "year": 1957,
+    "genre": "Adventure, Drama, War",
+    "director": "David Lean",
+    "image_url": "https://picsum.photos/seed/196/300/450"
+  },
+  {
+    "id": 197,
+    "title": "My Father and My Son",
+    "imdb_rating": 8.2,
+    "year": 2005,
+    "genre": "Drama, Family",
+    "director": "Çagan Irmak",
+    "image_url": "https://picsum.photos/seed/197/300/450"
+  },
+  {
+    "id": 198,
+    "title": "Beauty and the Beast",
+    "imdb_rating": 8.0,
+    "year": 1991,
+    "genre": "Animation, Family, Fantasy",
+    "director": "Gary Trousdale, Kirk Wise",
+    "image_url": "https://picsum.photos/seed/198/300/450"
+  },
+  {
+    "id": 199,
+    "title": "Persona",
+    "imdb_rating": 8.1,
+    "year": 1966,
+    "genre": "Drama, Thriller",
+    "director": "Ingmar Bergman",
+    "image_url": "https://picsum.photos/seed/199/300/450"
+  },
+  {
+    "id": 200,
+    "title": "X-Men: Days of Future Past",
+    "imdb_rating": 7.9,
+    "year": 2014,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "Bryan Singer",
+    "image_url": "https://picsum.photos/seed/200/300/450"
+  },
+  {
+    "id": 201,
+    "title": "Aladdin",
+    "imdb_rating": 8.0,
+    "year": 1992,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Ron Clements, John Musker",
+    "image_url": "https://picsum.photos/seed/201/300/450"
+  },
+  {
+    "id": 202,
+    "title": "Life of Brian",
+    "imdb_rating": 8.0,
+    "year": 1979,
+    "genre": "Comedy",
+    "director": "Terry Jones",
+    "image_url": "https://picsum.photos/seed/202/300/450"
+  },
+  {
+    "id": 203,
+    "title": "Blade Runner 2049",
+    "imdb_rating": 8.0,
+    "year": 2017,
+    "genre": "Action, Drama, Mystery",
+    "director": "Denis Villeneuve",
+    "image_url": "https://picsum.photos/seed/203/300/450"
+  },
+  {
+    "id": 204,
+    "title": "Arrival",
+    "imdb_rating": 7.9,
+    "year": 2016,
+    "genre": "Drama, Mystery, Sci-Fi",
+    "director": "Denis Villeneuve",
+    "image_url": "https://picsum.photos/seed/204/300/450"
+  },
+  {
+    "id": 205,
+    "title": "The Matrix Reloaded",
+    "imdb_rating": 7.2,
+    "year": 2003,
+    "genre": "Action, Sci-Fi",
+    "director": "Lana Wachowski, Lilly Wachowski",
+    "image_url": "https://picsum.photos/seed/205/300/450"
+  },
+  {
+    "id": 206,
+    "title": "Her",
+    "imdb_rating": 8.0,
+    "year": 2013,
+    "genre": "Drama, Romance, Sci-Fi",
+    "director": "Spike Jonze",
+    "image_url": "https://picsum.photos/seed/206/300/450"
+  },
+  {
+    "id": 207,
+    "title": "Avatar",
+    "imdb_rating": 7.8,
+    "year": 2009,
+    "genre": "Action, Adventure, Fantasy",
+    "director": "James Cameron",
+    "image_url": "https://picsum.photos/seed/207/300/450"
+  },
+  {
+    "id": 208,
+    "title": "Bohemian Rhapsody",
+    "imdb_rating": 7.9,
+    "year": 2018,
+    "genre": "Biography, Drama, Music",
+    "director": "Bryan Singer",
+    "image_url": "https://picsum.photos/seed/208/300/450"
+  },
+  {
+    "id": 209,
+    "title": "Blood Diamond",
+    "imdb_rating": 8.0,
+    "year": 2006,
+    "genre": "Adventure, Drama, Thriller",
+    "director": "Edward Zwick",
+    "image_url": "https://picsum.photos/seed/209/300/450"
+  },
+  {
+    "id": 210,
+    "title": "The Avengers",
+    "imdb_rating": 8.0,
+    "year": 2012,
+    "genre": "Action, Sci-Fi",
+    "director": "Joss Whedon",
+    "image_url": "https://picsum.photos/seed/210/300/450"
+  },
+  {
+    "id": 211,
+    "title": "A Clockwork Orange",
+    "imdb_rating": 8.3,
+    "year": 1971,
+    "genre": "Crime, Sci-Fi",
+    "director": "Stanley Kubrick",
+    "image_url": "https://picsum.photos/seed/211/300/450"
+  },
+  {
+    "id": 212,
+    "title": "Kill Bill: Vol. 2",
+    "imdb_rating": 8.0,
+    "year": 2004,
+    "genre": "Action, Crime, Thriller",
+    "director": "Quentin Tarantino",
+    "image_url": "https://picsum.photos/seed/212/300/450"
+  },
+  {
+    "id": 213,
+    "title": "Jaws",
+    "imdb_rating": 8.1,
+    "year": 1975,
+    "genre": "Adventure, Thriller",
+    "director": "Steven Spielberg",
+    "image_url": "https://picsum.photos/seed/213/300/450"
+  },
+  {
+    "id": 214,
+    "title": "Harry Potter and the Deathly Hallows: Part 2",
+    "imdb_rating": 8.1,
+    "year": 2011,
+    "genre": "Adventure, Fantasy, Mystery",
+    "director": "David Yates",
+    "image_url": "https://picsum.photos/seed/214/300/450"
+  },
+  {
+    "id": 215,
+    "title": "Slumdog Millionaire",
+    "imdb_rating": 8.0,
+    "year": 2008,
+    "genre": "Drama, Romance",
+    "director": "Danny Boyle, Loveleen Tandan",
+    "image_url": "https://picsum.photos/seed/215/300/450"
+  },
+  {
+    "id": 216,
+    "title": "Black Swan",
+    "imdb_rating": 8.0,
+    "year": 2010,
+    "genre": "Drama, Thriller",
+    "director": "Darren Aronofsky",
+    "image_url": "https://picsum.photos/seed/216/300/450"
+  },
+  {
+    "id": 217,
+    "title": "Dallas Buyers Club",
+    "imdb_rating": 8.0,
+    "year": 2013,
+    "genre": "Biography, Drama",
+    "director": "Jean-Marc Vallée",
+    "image_url": "https://picsum.photos/seed/217/300/450"
+  },
+  {
+    "id": 218,
+    "title": "The Imitation Game",
+    "imdb_rating": 8.0,
+    "year": 2014,
+    "genre": "Biography, Drama, Thriller",
+    "director": "Morten Tyldum",
+    "image_url": "https://picsum.photos/seed/218/300/450"
+  },
+  {
+    "id": 219,
+    "title": "Sin City",
+    "imdb_rating": 8.0,
+    "year": 2005,
+    "genre": "Crime, Thriller",
+    "director": "Frank Miller, Quentin Tarantino",
+    "image_url": "https://picsum.photos/seed/219/300/450"
+  },
+  {
+    "id": 220,
+    "title": "District 9",
+    "imdb_rating": 7.9,
+    "year": 2009,
+    "genre": "Action, Sci-Fi, Thriller",
+    "director": "Neill Blomkamp",
+    "image_url": "https://picsum.photos/seed/220/300/450"
+  },
+  {
+    "id": 221,
+    "title": "Thor: Ragnarok",
+    "imdb_rating": 7.9,
+    "year": 2017,
+    "genre": "Action, Adventure, Comedy",
+    "director": "Taika Waititi",
+    "image_url": "https://picsum.photos/seed/221/300/450"
+  },
+  {
+    "id": 222,
+    "title": "Iron Man",
+    "imdb_rating": 7.9,
+    "year": 2008,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "Jon Favreau",
+    "image_url": "https://picsum.photos/seed/222/300/450"
+  },
+  {
+    "id": 223,
+    "title": "Star Wars: The Force Awakens",
+    "imdb_rating": 7.8,
+    "year": 2015,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "J.J. Abrams",
+    "image_url": "https://picsum.photos/seed/223/300/450"
+  },
+  {
+    "id": 224,
+    "title": "E.T. the Extra-Terrestrial",
+    "imdb_rating": 7.9,
+    "year": 1982,
+    "genre": "Family, Sci-Fi",
+    "director": "Steven Spielberg",
+    "image_url": "https://picsum.photos/seed/224/300/450"
+  },
+  {
+    "id": 225,
+    "title": "The Martian",
+    "imdb_rating": 8.0,
+    "year": 2015,
+    "genre": "Adventure, Drama, Sci-Fi",
+    "director": "Ridley Scott",
+    "image_url": "https://picsum.photos/seed/225/300/450"
+  },
+  {
+    "id": 226,
+    "title": "Dune: Part One",
+    "imdb_rating": 8.0,
+    "year": 2021,
+    "genre": "Action, Adventure, Drama",
+    "director": "Denis Villeneuve",
+    "image_url": "https://picsum.photos/seed/226/300/450"
+  },
+  {
+    "id": 227,
+    "title": "The Revenant",
+    "imdb_rating": 8.0,
+    "year": 2015,
+    "genre": "Action, Adventure, Drama",
+    "director": "Alejandro G. Iñárritu",
+    "image_url": "https://picsum.photos/seed/227/300/450"
+  },
+  {
+    "id": 228,
+    "title": "A Fistful of Dollars",
+    "imdb_rating": 7.9,
+    "year": 1964,
+    "genre": "Action, Drama, Western",
+    "director": "Sergio Leone",
+    "image_url": "https://picsum.photos/seed/228/300/450"
+  },
+  {
+    "id": 229,
+    "title": "Let the Right One In",
+    "imdb_rating": 7.9,
+    "year": 2008,
+    "genre": "Drama, Fantasy, Horror",
+    "director": "Tomas Alfredson",
+    "image_url": "https://picsum.photos/seed/229/300/450"
+  },
+  {
+    "id": 230,
+    "title": "Nightcrawler",
+    "imdb_rating": 7.8,
+    "year": 2014,
+    "genre": "Crime, Drama, Thriller",
+    "director": "Dan Gilroy",
+    "image_url": "https://picsum.photos/seed/230/300/450"
+  },
+  {
+    "id": 231,
+    "title": "The Incredibles",
+    "imdb_rating": 8.0,
+    "year": 2004,
+    "genre": "Animation, Action, Adventure",
+    "director": "Brad Bird",
+    "image_url": "https://picsum.photos/seed/231/300/450"
+  },
+  {
+    "id": 232,
+    "title": "The Perks of Being a Wallflower",
+    "imdb_rating": 7.9,
+    "year": 2012,
+    "genre": "Drama, Romance",
+    "director": "Stephen Chbosky",
+    "image_url": "https://picsum.photos/seed/232/300/450"
+  },
+  {
+    "id": 233,
+    "title": "Spider-Man",
+    "imdb_rating": 7.4,
+    "year": 2002,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "Sam Raimi",
+    "image_url": "https://picsum.photos/seed/233/300/450"
+  },
+  {
+    "id": 234,
+    "title": "Spider-Man 2",
+    "imdb_rating": 7.5,
+    "year": 2004,
+    "genre": "Action, Adventure, Sci-Fi",
+    "director": "Sam Raimi",
+    "image_url": "https://picsum.photos/seed/234/300/450"
+  },
+  {
+    "id": 235,
+    "title": "The Breakfast Club",
+    "imdb_rating": 7.8,
+    "year": 1985,
+    "genre": "Comedy, Drama",
+    "director": "John Hughes",
+    "image_url": "https://picsum.photos/seed/235/300/450"
+  },
+  {
+    "id": 236,
+    "title": "Ratatouille",
+    "imdb_rating": 8.1,
+    "year": 2007,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Brad Bird, Jan Pinkava",
+    "image_url": "https://picsum.photos/seed/236/300/450"
+  },
+  {
+    "id": 237,
+    "title": "Amour",
+    "imdb_rating": 7.9,
+    "year": 2012,
+    "genre": "Drama, Romance",
+    "director": "Michael Haneke",
+    "image_url": "https://picsum.photos/seed/237/300/450"
+  },
+  {
+    "id": 238,
+    "title": "Zootopia",
+    "imdb_rating": 8.0,
+    "year": 2016,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Byron Howard, Rich Moore",
+    "image_url": "https://picsum.photos/seed/238/300/450"
+  },
+  {
+    "id": 239,
+    "title": "The Bourne Ultimatum",
+    "imdb_rating": 8.0,
+    "year": 2007,
+    "genre": "Action, Mystery, Thriller",
+    "director": "Paul Greengrass",
+    "image_url": "https://picsum.photos/seed/239/300/450"
+  },
+  {
+    "id": 240,
+    "title": "Casino Royale",
+    "imdb_rating": 8.0,
+    "year": 2006,
+    "genre": "Action, Adventure, Thriller",
+    "director": "Martin Campbell",
+    "image_url": "https://picsum.photos/seed/240/300/450"
+  },
+  {
+    "id": 241,
+    "title": "Shrek",
+    "imdb_rating": 7.9,
+    "year": 2001,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Andrew Adamson, Vicky Jenson",
+    "image_url": "https://picsum.photos/seed/241/300/450"
+  },
+  {
+    "id": 242,
+    "title": "Titanic",
+    "imdb_rating": 7.9,
+    "year": 1997,
+    "genre": "Drama, Romance",
+    "director": "James Cameron",
+    "image_url": "https://picsum.photos/seed/242/300/450"
+  },
+  {
+    "id": 243,
+    "title": "Children of Men",
+    "imdb_rating": 7.9,
+    "year": 2006,
+    "genre": "Action, Drama, Sci-Fi",
+    "director": "Alfonso Cuarón",
+    "image_url": "https://picsum.photos/seed/243/300/450"
+  },
+  {
+    "id": 244,
+    "title": "The Wrestler",
+    "imdb_rating": 7.9,
+    "year": 2008,
+    "genre": "Drama, Sport",
+    "director": "Darren Aronofsky",
+    "image_url": "https://picsum.photos/seed/244/300/450"
+  },
+  {
+    "id": 245,
+    "title": "Dunkirk",
+    "imdb_rating": 7.8,
+    "year": 2017,
+    "genre": "Action, Drama, History",
+    "director": "Christopher Nolan",
+    "image_url": "https://picsum.photos/seed/245/300/450"
+  },
+  {
+    "id": 246,
+    "title": "Boyhood",
+    "imdb_rating": 7.9,
+    "year": 2014,
+    "genre": "Drama",
+    "director": "Richard Linklater",
+    "image_url": "https://picsum.photos/seed/246/300/450"
+  },
+  {
+    "id": 247,
+    "title": "Three Billboards Outside Ebbing, Missouri",
+    "imdb_rating": 8.1,
+    "year": 2017,
+    "genre": "Comedy, Crime, Drama",
+    "director": "Martin McDonagh",
+    "image_url": "https://picsum.photos/seed/247/300/450"
+  },
+  {
+    "id": 248,
+    "title": "A Star is Born",
+    "imdb_rating": 7.6,
+    "year": 2018,
+    "genre": "Drama, Music, Romance",
+    "director": "Bradley Cooper",
+    "image_url": "https://picsum.photos/seed/248/300/450"
+  },
+  {
+    "id": 249,
+    "title": "The Big Short",
+    "imdb_rating": 7.8,
+    "year": 2015,
+    "genre": "Biography, Comedy, Drama",
+    "director": "Adam McKay",
+    "image_url": "https://picsum.photos/seed/249/300/450"
+  },
+  {
+    "id": 250,
+    "title": "Knives Out",
+    "imdb_rating": 7.9,
+    "year": 2019,
+    "genre": "Comedy, Crime, Drama",
+    "director": "Rian Johnson",
+    "image_url": "https://picsum.photos/seed/250/300/450"
+  },
+  {
+    "id": 251,
+    "title": "Inside Out",
+    "imdb_rating": 8.1,
+    "year": 2015,
+    "genre": "Animation, Adventure, Comedy",
+    "director": "Pete Docter, Ronnie Del Carmen",
+    "image_url": "https://picsum.photos/seed/251/300/450"
+  },
+  {
+    "id": 252,
+    "title": "Sicario",
+    "imdb_rating": 7.6,
+    "year": 2015,
+    "genre": "Action, Crime, Drama",
+    "director": "Denis Villeneuve",
+    "image_url": "https://picsum.photos/seed/252/300/450"
+  },
+  {
+    "id": 253,
+    "title": "Ex Machina",
+    "imdb_rating": 7.7,
+    "year": 2014,
+    "genre": "Drama, Sci-Fi, Thriller",
+    "director": "Alex Garland",
+    "image_url": "https://picsum.photos/seed/253/300/450"
+  },
+  {
+    "id": 254,
+    "title": "Silver Linings Playbook",
+    "imdb_rating": 7.7,
+    "year": 2012,
+    "genre": "Comedy, Drama, Romance",
+    "director": "David O. Russell",
+    "image_url": "https://picsum.photos/seed/254/300/450"
+  },
+  {
+    "id": 255,
+    "title": "The Social Network",
+    "imdb_rating": 7.8,
+    "year": 2010,
+    "genre": "Biography, Drama",
+    "director": "David Fincher",
+    "image_url": "https://picsum.photos/seed/255/300/450"
+  },
+  {
+    "id": 256,
+    "title": "Drive",
+    "imdb_rating": 7.8,
+    "year": 2011,
+    "genre": "Action, Drama",
+    "director": "Nicolas Winding Refn",
+    "image_url": "https://picsum.photos/seed/256/300/450"
+  },
+  {
+    "id": 257,
+    "title": "The King's Speech",
+    "imdb_rating": 8.0,
+    "year": 2010,
+    "genre": "Biography, Drama, History",
+    "director": "Tom Hooper",
+    "image_url": "https://picsum.photos/seed/257/300/450"
+  },
+  {
+    "id": 258,
+    "title": "Gravity",
+    "imdb_rating": 7.7,
+    "year": 2013,
+    "genre": "Action, Drama, Sci-Fi",
+    "director": "Alfonso Cuarón",
+    "image_url": "https://picsum.photos/seed/258/300/450"
+  },
+  {
+    "id": 259,
+    "title": "Birdman",
+    "imdb_rating": 7.7,
+    "year": 2014,
+    "genre": "Comedy, Drama",
+    "director": "Alejandro G. Iñárritu",
+    "image_url": "https://picsum.photos/seed/259/300/450"
+  },
+  {
+    "id": 260,
+    "title": "Zodiac",
+    "imdb_rating": 7.7,
+    "year": 2007,
+    "genre": "Crime, Drama, Mystery",
+    "director": "David Fincher",
+    "image_url": "https://picsum.photos/seed/260/300/450"
+  },
+  {
+    "id": 261,
+    "title": "Nocturnal Animals",
+    "imdb_rating": 7.5,
+    "year": 2016,
+    "genre": "Drama, Thriller",
+    "director": "Tom Ford",
+    "image_url": "https://picsum.photos/seed/261/300/450"
+  },
+  {
+    "id": 262,
+    "title": "Moonlight",
+    "imdb_rating": 7.4,
+    "year": 2016,
+    "genre": "Drama",
+    "director": "Barry Jenkins",
+    "image_url": "https://picsum.photos/seed/262/300/450"
+  },
+  {
+    "id": 263,
+    "title": "The Shape of Water",
+    "imdb_rating": 7.3,
+    "year": 2017,
+    "genre": "Drama, Fantasy, Romance",
+    "director": "Guillermo del Toro",
+    "image_url": "https://picsum.photos/seed/263/300/450"
+  },
+  {
+    "id": 264,
+    "title": "Get Out",
+    "imdb_rating": 7.7,
+    "year": 2017,
+    "genre": "Horror, Mystery, Thriller",
+    "director": "Jordan Peele",
+    "image_url": "https://picsum.photos/seed/264/300/450"
+  },
+  {
+    "id": 265,
+    "title": "The Grand Illusion",
+    "imdb_rating": 8.1,
+    "year": 1937,
+    "genre": "Drama, War",
+    "director": "Jean Renoir",
+    "image_url": "https://picsum.photos/seed/265/300/450"
+  },
+  {
+    "id": 266,
+    "title": "Touch of Evil",
+    "imdb_rating": 8.0,
+    "year": 1958,
+    "genre": "Crime, Drama, Film-Noir",
+    "director": "Orson Welles",
+    "image_url": "https://picsum.photos/seed/266/300/450"
+  },
+  {
+    "id": 267,
+    "title": "Double Indemnity",
+    "imdb_rating": 8.3,
+    "year": 1944,
+    "genre": "Crime, Drama, Film-Noir",
+    "director": "Billy Wilder",
+    "image_url": "https://picsum.photos/seed/267/300/450"
+  },
+  {
+    "id": 268,
+    "title": "Annie Hall",
+    "imdb_rating": 8.0,
+    "year": 1977,
+    "genre": "Comedy, Romance",
+    "director": "Woody Allen",
+    "image_url": "https://picsum.photos/seed/268/300/450"
+  },
+  {
+    "id": 269,
+    "title": "The Seventh Seal",
+    "imdb_rating": 8.1,
+    "year": 1957,
+    "genre": "Drama, Fantasy",
+    "director": "Ingmar Bergman",
+    "image_url": "https://picsum.photos/seed/269/300/450"
+  },
+  {
+    "id": 270,
+    "title": "Solaris",
+    "imdb_rating": 8.0,
+    "year": 1972,
+    "genre": "Drama, Mystery, Sci-Fi",
+    "director": "Andrei Tarkovsky",
+    "image_url": "https://picsum.photos/seed/270/300/450"
+  },
+  {
+    "id": 271,
+    "title": "Fargo",
+    "imdb_rating": 8.1,
+    "year": 1996,
+    "genre": "Crime, Thriller",
+    "director": "Joel Coen",
+    "image_url": "https://picsum.photos/seed/271/300/450"
+  },
+  {
+    "id": 272,
+    "title": "Lagaan",
+    "imdb_rating": 8.1,
+    "year": 2001,
+    "genre": "Drama, Musical, Sport",
+    "director": "Ashutosh Gowariker",
+    "image_url": "https://picsum.photos/seed/272/300/450"
+  },
+  {
+    "id": 273,
+    "title": "Wild Strawberries",
+    "imdb_rating": 8.1,
+    "year": 1957,
+    "genre": "Drama, Romance",
+    "director": "Ingmar Bergman",
+    "image_url": "https://picsum.photos/seed/273/300/450"
+  },
+  {
+    "id": 274,
+    "title": "The Battle of Algiers",
+    "imdb_rating": 8.1,
+    "year": 1966,
+    "genre": "Drama, War",
+    "director": "Gillo Pontecorvo",
+    "image_url": "https://picsum.photos/seed/274/300/450"
+  },
+  {
+    "id": 275,
+    "title": "Sleuth",
+    "imdb_rating": 8.0,
+    "year": 1972,
+    "genre": "Mystery, Thriller",
+    "director": "Joseph L. Mankiewicz",
+    "image_url": "https://picsum.photos/seed/275/300/450"
+  },
+  {
+    "id": 276,
+    "title": "The Wages of Fear",
+    "imdb_rating": 8.2,
+    "year": 1953,
+    "genre": "Adventure, Drama, Thriller",
+    "director": "Henri-Georges Clouzot",
+    "image_url": "https://picsum.photos/seed/276/300/450"
+  },
+  {
+    "id": 277,
+    "title": "In the Name of the Father",
+    "imdb_rating": 8.1,
+    "year": 1993,
+    "genre": "Biography, Crime, Drama",
+    "director": "Jim Sheridan",
+    "image_url": "https://picsum.photos/seed/277/300/450"
+  },
+  {
+    "id": 278,
+    "title": "Paris, Texas",
+    "imdb_rating": 8.1,
+    "year": 1984,
+    "genre": "Drama",
+    "director": "Wim Wenders",
+    "image_url": "https://picsum.photos/seed/278/300/450"
+  },
+  {
+    "id": 279,
+    "title": "The 400 Blows",
+    "imdb_rating": 8.1,
+    "year": 1959,
+    "genre": "Crime, Drama",
+    "director": "François Truffaut",
+    "image_url": "https://picsum.photos/seed/279/300/450"
+  },
+  {
+    "id": 280,
+    "title": "All About Eve",
+    "imdb_rating": 8.2,
+    "year": 1950,
+    "genre": "Drama",
+    "director": "Joseph L. Mankiewicz",
+    "image_url": "https://picsum.photos/seed/280/300/450"
+  },
+  {
+    "id": 281,
+    "title": "Spring, Summer, Fall, Winter... and Spring",
+    "imdb_rating": 8.0,
+    "year": 2003,
+    "genre": "Drama, Romance",
+    "director": "Ki-duk Kim",
+    "image_url": "https://picsum.photos/seed/281/300/450"
+  },
+  {
+    "id": 282,
+    "title": "My Left Foot",
+    "imdb_rating": 7.9,
+    "year": 1989,
+    "genre": "Biography, Drama",
+    "director": "Jim Sheridan",
+    "image_url": "https://picsum.photos/seed/282/300/450"
+  },
+  {
+    "id": 283,
+    "title": "The Third Man",
+    "imdb_rating": 8.1,
+    "year": 1949,
+    "genre": "Film-Noir, Mystery, Thriller",
+    "director": "Carol Reed",
+    "image_url": "https://picsum.photos/seed/283/300/450"
+  },
+  {
+    "id": 284,
+    "title": "The Secret of Kells",
+    "imdb_rating": 7.5,
+    "year": 2009,
+    "genre": "Animation, Adventure, Family",
+    "director": "Tomm Moore",
+    "image_url": "https://picsum.photos/seed/284/300/450"
+  },
+  {
+    "id": 285,
+    "title": "Mulholland Drive",
+    "imdb_rating": 7.9,
+    "year": 2001,
+    "genre": "Drama, Mystery, Thriller",
+    "director": "David Lynch",
+    "image_url": "https://picsum.photos/seed/285/300/450"
+  },
+  {
+    "id": 286,
+    "title": "Amores Perros",
+    "imdb_rating": 8.1,
+    "year": 2000,
+    "genre": "Drama, Thriller",
+    "director": "Alejandro G. Iñárritu",
+    "image_url": "https://picsum.photos/seed/286/300/450"
+  },
+  {
+    "id": 287,
+    "title": "Jojo Rabbit",
+    "imdb_rating": 7.9,
+    "year": 2019,
+    "genre": "Comedy, Drama, War",
+    "director": "Taika Waititi",
+    "image_url": "https://picsum.photos/seed/287/300/450"
+  },
+  {
+    "id": 288,
+    "title": "Gattaca",
+    "imdb_rating": 7.8,
+    "year": 1997,
+    "genre": "Drama, Sci-Fi, Thriller",
+    "director": "Andrew Niccol",
+    "image_url": "https://picsum.photos/seed/288/300/450"
+  },
+  {
+    "id": 289,
+    "title": "The Untouchables",
+    "imdb_rating": 7.9,
+    "year": 1987,
+    "genre": "Crime, Drama, Thriller",
+    "director": "Brian De Palma",
+    "image_url": "https://picsum.photos/seed/289/300/450"
+  },
+  {
+    "id": 290,
+    "title": "Blood Simple",
+    "imdb_rating": 7.6,
+    "year": 1984,
+    "genre": "Crime, Drama, Thriller",
+    "director": "Joel Coen, Ethan Coen",
+    "image_url": "https://picsum.photos/seed/290/300/450"
+  },
+  {
+    "id": 291,
+    "title": "Scent of a Woman",
+    "imdb_rating": 8.0,
+    "year": 1992,
+    "genre": "Drama",
+    "director": "Martin Brest",
+    "image_url": "https://picsum.photos/seed/291/300/450"
+  },
+  {
+    "id": 292,
+    "title": "Dances with Wolves",
+    "imdb_rating": 8.0,
+    "year": 1990,
+    "genre": "Adventure, Drama, Western",
+    "director": "Kevin Costner",
+    "image_url": "https://picsum.photos/seed/292/300/450"
+  },
+  {
+    "id": 293,
+    "title": "The Graduate",
+    "imdb_rating": 8.0,
+    "year": 1967,
+    "genre": "Comedy, Drama, Romance",
+    "director": "Mike Nichols",
+    "image_url": "https://picsum.photos/seed/293/300/450"
+  },
+  {
+    "id": 294,
+    "title": "Barton Fink",
+    "imdb_rating": 7.6,
+    "year": 1991,
+    "genre": "Comedy, Drama, Thriller",
+    "director": "Joel Coen",
+    "image_url": "https://picsum.photos/seed/294/300/450"
+  },
+  {
+    "id": 295,
+    "title": "A Man for All Seasons",
+    "imdb_rating": 7.7,
+    "year": 1966,
+    "genre": "Biography, Drama, History",
+    "director": "Fred Zinnemann",
+    "image_url": "https://picsum.photos/seed/295/300/450"
+  },
+  {
+    "id": 296,
+    "title": "Dog Day Afternoon",
+    "imdb_rating": 8.0,
+    "year": 1975,
+    "genre": "Biography, Crime, Drama",
+    "director": "Sidney Lumet",
+    "image_url": "https://picsum.photos/seed/296/300/450"
+  },
+  {
+    "id": 297,
+    "title": "Tombstone",
+    "imdb_rating": 7.8,
+    "year": 1993,
+    "genre": "Action, Biography, Drama",
+    "director": "George P. Cosmatos",
+    "image_url": "https://picsum.photos/seed/297/300/450"
+  },
+  {
+    "id": 298,
+    "title": "Ed Wood",
+    "imdb_rating": 7.8,
+    "year": 1994,
+    "genre": "Biography, Comedy, Drama",
+    "director": "Tim Burton",
+    "image_url": "https://picsum.photos/seed/298/300/450"
+  },
+  {
+    "id": 299,
+    "title": "Glengarry Glen Ross",
+    "imdb_rating": 7.7,
+    "year": 1992,
+    "genre": "Crime, Drama, Mystery",
+    "director": "James Foley",
+    "image_url": "https://picsum.photos/seed/299/300/450"
+  },
+  {
+    "id": 300,
+    "title": "Magnolia",
+    "imdb_rating": 8.0,
+    "year": 1999,
+    "genre": "Drama",
+    "director": "Paul Thomas Anderson",
+    "image_url": "https://picsum.photos/seed/300/300/450"
+  }
+]

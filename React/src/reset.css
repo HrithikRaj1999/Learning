@@ -1,0 +1,66 @@
+/* ---------------------------------------------------------------------------
+   The ONLY global stylesheet in this project.
+
+   It is deliberately structural — no colours, no spacing, no component styling.
+   Anything decorative lives in a *.module.css next to the component that owns
+   it, so nothing here can reach into an exercise and change how it looks.
+   --------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+:root {
+  /* Lets the UA pick sane defaults (form controls, scrollbars) per theme. */
+  color-scheme: light dark;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  /* A neutral inherited default so unstyled text is not Times New Roman.
+     Every exercise sets its own font on its root, overriding this. */
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+#root {
+  min-height: 100dvh;
+}
