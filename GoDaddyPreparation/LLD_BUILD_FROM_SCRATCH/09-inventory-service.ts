@@ -1,82 +1,94 @@
 /*
 Q3.9  Inventory Management Service (Backend Craft Round)
 
-================================================================
+============================================================
 1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
-================================================================
-- DATA STRUCTURE: Transactional Service with Optimistic Concurrency Control (Version field on Stock Row) + Idempotency Store.
-- WHY: Prevents double-selling / race conditions when two customers buy the last item simultaneously!
-  Never read-then-write without guarding against concurrent updates.
+============================================================
+- DATA STRUCTURE:
+    Service with Optimistic Concurrency Control (`version` column)
+    + Idempotency Store.
+- WHY WE NEED IT:
+    Prevents double-selling / race conditions when two customers
+    buy the last unit simultaneously! Never read-then-write
+    without guarding against concurrent updates.
 
-================================================================
-2. INTUITION (What I am thinking to tell to interviewer)
-================================================================
-- "Race condition: 2 clients read `available = 1` concurrently. Both write `available = 0`, selling 2 units when only 1 exists."
-- "FIX 1: Optimistic Locking (`version` column). Guarded SQL update: `UPDATE stock SET available = $1, version = version + 1 WHERE sku = $2 AND version = $3`. If 0 rows updated, we lost the race -> abort transaction and retry!"
-- "FIX 2: Idempotency Key. Network drops response after DB commits -> client retries request. Storing result under `idempotencyKey` in the SAME transaction returns saved result without re-deducting stock."
-- "FIX 3: Exponential Backoff with Full Jitter. Spreads out retries so concurrent writers don't thrasher database simultaneously."
-- "FIX 4: Non-retryable Error distinction (Out of stock is permanent; version conflict is transient)."
+============================================================
+2. INTUITION (What I am thinking to tell interviewer)
+============================================================
+- "Race condition: 2 clients read `available = 1` concurrently.
+   Both write `available = 0`, selling 2 units when only 1 exists."
+- "FIX 1: Optimistic Locking (`version` column). Guarded update:
+   `UPDATE stock SET available = $1, version = version + 1
+    WHERE sku = $2 AND version = $3`. If 0 rows updated, lost
+   the race -> abort transaction and retry!"
+- "FIX 2: Idempotency Key. Network drops reply after DB commits ->
+   client retries request. Storing result under `idempotencyKey`
+   in SAME transaction returns saved result without re-deducting."
+- "FIX 3: Exponential Backoff + Full Jitter spreads out retries."
+- "FIX 4: OutOfStock is non-retryable; version conflict is."
 
-================================================================
+============================================================
 3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
-================================================================
-- reserve(command): Retry Loop (up to MAX_ATTEMPTS = 3).
-    1. Wrap `reserveOnce(tx, command)` inside `db.runInTransaction()`.
-    2. Catch error: If `OutOfStockError`, THROW IMMEDIATELY (waiting won't generate stock!).
-    3. If `attempt === MAX_ATTEMPTS`, send command to `DeadLetterQueue` and throw.
-    4. Sleep with `backoff(attempt)` (Exponential delay with Full Jitter).
+============================================================
+- reserve(command): Retry loop (MAX_ATTEMPTS = 3).
+    1. Wrap `reserveOnce(tx, command)` inside `runInTransaction()`.
+    2. Catch error: If `OutOfStockError`, THROW IMMEDIATELY!
+    3. If `attempt === MAX_ATTEMPTS`, send to DLQ and throw.
+    4. Sleep `backoff(attempt)` (Exponential + Full Jitter).
 - reserveOnce(tx, command):
-    1. Check `tx.findResult(command.idempotencyKey)`. If existing result found, return it immediately (Idempotency check).
-    2. Read stock row: `tx.findStock(command.sku)`.
-    3. If missing or `stock.available < command.quantity`, throw `OutOfStockError`.
-    4. Attempt guarded update: `tx.updateStock(sku, remaining, version)`.
-    5. If returned rows === 0, throw `VersionConflictError` (triggers transaction retry).
-    6. Record reservation: `tx.addReservation()`.
-    7. Save result into idempotency store: `tx.saveResult(key, result)` IN THE SAME TRANSACTION.
+    1. `tx.findResult(key)` -> return saved result if present.
+    2. Read `stock = tx.findStock(sku)`.
+    3. If missing or `stock.available < qty`, throw `OutOfStock`.
+    4. `rows = tx.updateStock(sku, remaining, version)`.
+    5. If `rows === 0`, throw `VersionConflictError` (triggers retry).
+    6. Record `tx.addReservation()`.
+    7. `tx.saveResult(key, result)` IN SAME TRANSACTION.
 
 SHORT SYNTAX TRICKS:
-  const ceiling = BASE_DELAY_MS * 2 ** (attempt - 1); // Exponential ceiling
-  Math.random() * Math.min(ceiling, MAX_DELAY_MS);    // Full Jitter backoff
+  const ceiling = BASE_DELAY_MS * 2 ** (attempt - 1);
+  Math.random() * Math.min(ceiling, MAX_DELAY_MS); // Full Jitter
 
-================================================================
+============================================================
 4. TIME & SPACE COMPLEXITY
-================================================================
+============================================================
 - TIME COMPLEXITY:
-    - Normal path: O(1) indexed SQL reads/writes inside 1 transaction.
-    - Contended path: Retries up to MAX_ATTEMPTS (Exponential backoff bounded by MAX_DELAY_MS).
-- SPACE COMPLEXITY: O(1) in memory; O(Orders) storage for Idempotency log & Reservation records.
+    - Normal path    : O(1) indexed SQL ops in 1 transaction.
+    - Contended path : Retries up to MAX_ATTEMPTS with jitter.
+- SPACE COMPLEXITY:
+    - O(1) in-memory; O(Orders) storage for Idempotency log.
 
-================================================================
+============================================================
 5. VISUAL DIAGRAM
-================================================================
+============================================================
 Optimistic Locking Timeline (Stock: 5 available, Version: 7):
 
-  Time  Client Request A                    Client Request B
-  t1    BEGIN TX                            BEGIN TX
-  t2    Read stock (5, v7)                  Read stock (5, v7)
-  t3    UPDATE WHERE v=7 -> 1 row updated!
-        Stock = 3, Version = 8
+  Time  Client Request A          Client Request B
+  t1    BEGIN TX                  BEGIN TX
+  t2    Read stock (5, v7)        Read stock (5, v7)
+  t3    UPDATE WHERE v=7
+        Stock=3, Version=8
   t4    COMMIT TX
-  t5                                        UPDATE WHERE v=7 -> 0 ROWS UPDATED!
-                                            (Race lost! v7 is stale!)
-  t6                                        ROLLBACK TX, Sleep backoff(1)
-  t7                                        Retry: BEGIN TX
-  t8                                        Read fresh stock (3, v8)
-  t9                                        UPDATE WHERE v=8 -> 1 row updated! COMMIT!
+  t5                              UPDATE WHERE v=7 -> 0 ROWS!
+                                  (Race lost!)
+  t6                              ROLLBACK TX, Sleep backoff(1)
+  t7                              Retry: BEGIN TX
+  t8                              Read fresh stock (3, v8)
+  t9                              UPDATE WHERE v=8 -> 1 ROW! COMMIT!
 
-Idempotency Guard (Lost Network Response):
+Idempotency Guard:
   Client -> reserve(key-1) -> DB COMMITS TX -> Network drops response
-  Client -> reserve(key-1) -> DB finds key-1 saved -> Returns saved result! (Stock unchanged!)
+  Client -> reserve(key-1) -> DB finds key-1 -> Returns saved result!
 
-================================================================
+============================================================
 6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
-================================================================
-- RETRY WHOLE TRANSACTION: Never retry half the steps! Retry MUST restart transaction to fetch fresh version number!
-- DO NOT RETRY OUT-OF-STOCK: OutOfStock is a business domain error (waiting does not replenish stock).
-- COMMIT IDEMPOTENCY RECORD IN SAME TRANSACTION: If saved in a separate write, network failure after stock commit causes duplicate deductions.
-- OPTIMISTIC VS PESSIMISTIC (`SELECT ... FOR UPDATE`): Use Optimistic when conflicts are low; switch to Pessimistic (`FOR UPDATE`) for flash sales with extreme single-SKU contention.
+============================================================
+- RETRY WHOLE TRANSACTION: Re-read fresh version on retry!
+- DO NOT RETRY OUT-OF-STOCK: OutOfStock is a domain error.
+- COMMIT IDEMPOTENCY RECORD IN SAME TRANSACTION: Saved
+  separately, post-commit failure causes duplicate reserves.
+- OPTIMISTIC VS PESSIMISTIC (`FOR UPDATE`): Optimistic for low
+  contention; Pessimistic (`FOR UPDATE`) for flash sales.
 */
-
 
 type ReserveCommand = {
   idempotencyKey: string; // same key = same intent
@@ -273,28 +285,3 @@ service.reserve(command).then(async (first) => {
   console.log(stock); // available 3, not 1
 });
 
-/*
-================================================================
-5. SAY OUT LOUD
-================================================================
-- "The stock update, the reservation row and the idempotency
-   record all commit together. Split them and you get a
-   reservation with no stock movement."
-- "Optimistic vs SELECT ... FOR UPDATE:
-     optimistic  - no lock held. Great when conflicts are
-                   rare. Costs a retry when they happen.
-     FOR UPDATE  - the row is locked for the transaction.
-                   Better for one hot SKU in a flash sale,
-                   where optimistic retries would spin.
-   I would start optimistic and move a hot SKU to
-   pessimistic. And always lock rows in the same order, or
-   two transactions deadlock."
-- "The idempotency key needs a UNIQUE constraint. The
-   constraint is the real guard. The SELECT is the fast path."
-- "Reservations must expire. If one is never confirmed, a
-   sweeper releases the stock, or inventory leaks into
-   abandoned carts."
-- "To scale: shard by SKU. For a very hot item, split one
-   row into N sub-rows and pick one at random, so writers
-   stop fighting over a single row."
-*/

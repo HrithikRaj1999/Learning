@@ -1,31 +1,38 @@
 /*
 Q3.1  Stack from Scratch (Dynamic Array)
 
-================================================================
+============================================================
 1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
-================================================================
-- DATA STRUCTURE: Dynamic Array (a contiguous block of slots) + a `top` pointer index.
-- WHY: Stack is LIFO (Last-In, First-Out). We only ever add or remove from the TOP.
-  An array lets us index directly into the top position without moving any other items.
+============================================================
+- DATA STRUCTURE:
+    Dynamic Array (contiguous block) + `top` pointer index.
+- WHY WE NEED IT:
+    Stack is LIFO (Last-In, First-Out). We only ever add or
+    remove from the TOP. An array lets us index directly
+    into `top` in O(1) without shifting elements.
 
-================================================================
-2. INTUITION (What I am thinking to tell to interviewer)
-================================================================
-- "A stack only operates at the top. I track an array of fixed capacity and a `top` index."
+============================================================
+2. INTUITION (What I am thinking to tell interviewer)
+============================================================
+- "Stack only operates at the top."
+- "I use an array of fixed capacity and a `top` index."
 - "`top` starts at -1 (empty state)."
-- "Push increases `top` by 1 and writes the value."
-- "Pop reads value at `top`, clears the slot to prevent memory leaks, and decreases `top` by 1."
-- "When full (`top + 1 === capacity`), I double array capacity and copy items over. Doubling keeps insertion amortized O(1)."
+- "Push: increment `top` by 1 and write the value."
+- "Pop: read value at `top`, set slot to undefined (avoids
+   memory leak), and decrement `top` by 1."
+- "When full (`top + 1 === capacity`), double array size
+   and copy elements. Doubling keeps push amortized O(1)."
 
-================================================================
+============================================================
 3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
-================================================================
+============================================================
 - push(value):
-    1. If `top + 1 === slots.length`, call grow() (create new array of 2x size, copy items).
-    2. Write value at ++top.
+    1. If `top + 1 === slots.length`, call grow() (create
+       2x array, copy existing items).
+    2. Write value at `slots[++top]`.
 - pop():
     1. If empty (`top === -1`), throw error.
-    2. Read value at `slots[top]`.
+    2. Read `slots[top]`.
     3. Clear `slots[top--] = undefined`.
     4. Return saved value.
 - peek():
@@ -34,22 +41,23 @@ Q3.1  Stack from Scratch (Dynamic Array)
 - isEmpty(): Return `top === -1`.
 
 SHORT SYNTAX TRICKS:
-  slots[++top] = value        // Move up and write in 1 step
-  slots[top--] = undefined    // Clear and move down in 1 step
+  slots[++top] = value        // Move up & write in 1 step
+  slots[top--] = undefined    // Clear & move down in 1 step
 
-================================================================
+============================================================
 4. TIME & SPACE COMPLEXITY
-================================================================
+============================================================
 - TIME COMPLEXITY:
-    - push(x) : Amortized O(1) [O(N) only during double resize]
+    - push(x) : Amortized O(1) [O(N) on array resize]
     - pop()   : O(1)
     - peek()  : O(1)
-- SPACE COMPLEXITY: O(N) where N is the total items stored.
+- SPACE COMPLEXITY:
+    - O(N) where N is the total items stored.
 
-================================================================
+============================================================
 5. VISUAL DIAGRAM
-================================================================
-Capacity 4. push 10, 20, 30, 40, then push 50 (triggers grow):
+============================================================
+Capacity 4. push 10, 20, 30, 40, then push 50 (grow):
 
   push(10)  [10,  _,  _,  _]   top = 0
   push(20)  [10, 20,  _,  _]   top = 1
@@ -64,15 +72,17 @@ Capacity 4. push 10, 20, 30, 40, then push 50 (triggers grow):
   pop()     Read 50, clear slot 4, top back to 3:
             [10, 20, 30, 40,  _,  _,  _,  _]   top = 3
 
-================================================================
+============================================================
 6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
-================================================================
+============================================================
 - `top` starts at -1, NOT 0. Size is always `top + 1`.
-- ALWAYS CLEAR SLOT ON POP (`slots[top] = undefined`) to avoid memory leak in garbage-collected languages.
-- Doubling capacity is crucial. Growing by +1 slot each time turns push into O(N).
-- Linked list alternative gives true O(1) with no copying, but array gives far better CPU cache locality.
+- CLEAR SLOT ON POP (`slots[top] = undefined`) to prevent
+  memory leaks in garbage-collected environments.
+- DOUBLE CAPACITY ON GROW: Incrementing by +1 slot turns
+  push into O(N) worst-case every push.
+- Linked list alternative gives true O(1) without resize,
+  but dynamic array gives far superior CPU cache locality.
 */
-
 
 export class Stack<T> {
   // my own block of slots. I only index into it.
@@ -120,17 +130,3 @@ console.log(stack.pop());   // 30
 console.log(stack.peek());  // 20
 console.log(stack.size());  // 2
 
-/*
-================================================================
-5. SAY OUT LOUD
-================================================================
-- "push, pop and peek are O(1). push is amortised O(1),
-   because resize is O(n) but happens once every n pushes."
-- "Doubling is what makes it amortised."
-- "To shrink, halve only when size drops below capacity / 4.
-   At / 2 it thrashes: grow, shrink, grow, shrink."
-- "Linked nodes also work. True O(1) and no copying, but one
-   object per item and worse cache use. The array wins."
-- "Not thread safe. In Java I would use ArrayDeque, not the
-   old Stack class, which locks on every call."
-*/

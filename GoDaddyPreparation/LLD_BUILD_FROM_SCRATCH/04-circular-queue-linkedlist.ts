@@ -1,84 +1,87 @@
 /*
 Q3.4  Circular Queue / Ring Buffer (Linked Ring)
 
-================================================================
+============================================================
 1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
-================================================================
-- DATA STRUCTURE: Linked Ring of Nodes (Closed Loop Linked List).
-- WHY: A standard Queue on an array wastes space or causes expensive O(N) element shifts on dequeue.
-  A Ring Buffer reuses fixed pre-allocated nodes without shifting or dynamic memory allocation.
+============================================================
+- DATA STRUCTURE:
+    Linked Ring of Nodes (Closed Loop Linked List).
+- WHY WE NEED IT:
+    Queue on array causes expensive O(N) element shifts.
+    Ring Buffer reuses pre-allocated nodes without shifting
+    or runtime memory allocations.
 
-================================================================
-2. INTUITION (What I am thinking to tell to interviewer)
-================================================================
-- "Pre-allocate N nodes upfront in constructor and form a closed ring: `last.next = first`."
-- "Track two pointers: `write` (where next item goes) and `read` (where oldest item sits)."
-- "Track `count`: CRITICAL because when full and when empty, `read === write`! The `count` variable breaks this tie."
-- "Enqueue writes at `write` pointer and moves `write = write.next`."
-- "Dequeue reads at `read` pointer, clears node value, and moves `read = read.next`."
+============================================================
+2. INTUITION (What I am thinking to tell interviewer)
+============================================================
+- "Pre-allocate N nodes in constructor and close loop:
+   `last.next = first`."
+- "Track two pointers: `write` (free slot) and `read`
+   (oldest item)."
+- "Track `count`: CRITICAL! When full and empty, `read === write`.
+   `count` breaks the tie."
+- "Enqueue writes at `write`, `write = write.next`."
+- "Dequeue reads at `read`, clears value, `read = read.next`."
 
-================================================================
+============================================================
 3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
-================================================================
+============================================================
 - constructor(capacity):
-    1. Allocate `capacity` nodes.
-    2. Link `last.next = first`.
-    3. Initialize `read = write = first`, `count = 0`.
+    1. Allocate `capacity` nodes. `last.next = first`.
+    2. `read = write = first`, `count = 0`.
 - enqueue(value):
-    1. If `isFull()`, throw "Queue is full".
-    2. `write.value = value`.
-    3. `write = write.next`.
-    4. count++.
+    1. If `isFull()`, throw error.
+    2. `write.value = value; write = write.next; count++`.
 - dequeue():
-    1. If `isEmpty()`, throw "Queue is empty".
-    2. Read `value = read.value`.
-    3. Clear `read.value = null` (prevent object retention/leaks).
-    4. `read = read.next`.
-    5. count--. Return value.
+    1. If `isEmpty()`, throw error.
+    2. `val = read.value; read.value = null; read = read.next`.
+    3. `count--`. Return val.
 - peek(): If `isEmpty()`, throw. Return `read.value`.
 - isEmpty(): `count === 0`.
 - isFull(): `count === capacity`.
 
 SHORT SYNTAX TRICKS:
-  last = last.next = { value: null } as RingNode<T> // Chain and move in 1 step
-  read = write = first                              // Initialize pointers together
+  last = last.next = { value: null } as RingNode<T> // Chain
+  read = write = first                              // Pointers
 
-================================================================
+============================================================
 4. TIME & SPACE COMPLEXITY
-================================================================
+============================================================
 - TIME COMPLEXITY:
-    - enqueue(x) : O(1) always (zero array shifts, zero runtime GC allocation).
+    - enqueue(x) : O(1) always (zero shifting/allocations).
     - dequeue()  : O(1) always.
     - peek()     : O(1).
-- SPACE COMPLEXITY: O(Capacity) fixed memory (allocated once during initialization).
+- SPACE COMPLEXITY:
+    - O(Capacity) fixed memory (allocated once).
 
-================================================================
+============================================================
 5. VISUAL DIAGRAM
-================================================================
-Capacity = 3. Ring: n0 -> n1 -> n2 -> back to n0:
-R = read pointer, W = write pointer
+============================================================
+Capacity = 3. Ring: n0 -> n1 -> n2 -> n0. (R=read, W=write)
 
   n0      n1      n2
-[  _  ] [  _  ] [  _  ]  count = 0  (R = n0, W = n0)  <-- EMPTY
-[  a  ] [  _  ] [  _  ]  count = 1  (R = n0, W = n1)  enqueue("a")
-[  a  ] [  b  ] [  _  ]  count = 2  (R = n0, W = n2)  enqueue("b")
-[  a  ] [  b  ] [  c  ]  count = 3  (R = n0, W = n0)  enqueue("c") <-- FULL! (R === W!)
+[  _  ] [  _  ] [  _  ]  count = 0 (R=n0, W=n0) EMPTY
+[  a  ] [  _  ] [  _  ]  count = 1 (R=n0, W=n1) enqueue("a")
+[  a  ] [  b  ] [  _  ]  count = 2 (R=n0, W=n2) enqueue("b")
+[  a  ] [  b  ] [  c  ]  count = 3 (R=n0, W=n0) FULL (R===W!)
 
   dequeue() returns "a":
-[  _  ] [  b  ] [  c  ]  count = 2  (R = n1, W = n0)
+[  _  ] [  b  ] [  c  ]  count = 2 (R=n1, W=n0)
 
   enqueue("d") REUSES slot n0 (Zero allocation!):
-[  d  ] [  b  ] [  c  ]  count = 3  (R = n1, W = n1)
+[  d  ] [  b  ] [  c  ]  count = 3 (R=n1, W=n1)
 
-================================================================
+============================================================
 6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
-================================================================
-- `count` IS MANDATORY: Full and Empty both produce `read === write`. Counter or 1-slot gap is required to distinguish.
-- CLOSE THE LOOP IN CONSTRUCTOR: Make sure `last.next = first`.
-- CLEAR NODE VALUE ON DEQUEUE: `read.value = null` prevents stale reference memory leaks.
-- HIGH PERFORMANCE APPLICATIONS: Ring buffers are used in audio streaming, logging systems, and network buffers because memory is fixed with zero GC churn.
+============================================================
+- `count` IS MANDATORY: Full and Empty both produce
+  `read === write`. Counter breaks the ambiguity.
+- CLOSE THE LOOP: Ensure `last.next = first`.
+- CLEAR VALUE ON DEQUEUE: `read.value = null` prevents
+  stale reference memory leaks.
+- HIGH PERFORMANCE USES: Audio streaming, logging, and
+  network buffers use ring buffers due to 0 GC churn.
 */
-
 
 type RingNode<T> = { value: T | null; next: RingNode<T> };
 
@@ -142,21 +145,3 @@ console.log(queue.dequeue()); // b
 console.log(queue.dequeue()); // c
 console.log(queue.dequeue(), queue.isEmpty()); // d true
 
-/*
-================================================================
-5. SAY OUT LOUD
-================================================================
-- "enqueue, dequeue and peek are O(1). Memory is fixed and
-   allocated once, so there is no GC churn."
-- "The count is what separates full from empty."
-- "The other trick is to always leave one slot empty. Then
-   write.next === read means full. Costs a slot, saves the
-   counter."
-- "A useful variant: instead of throwing when full,
-   overwrite the oldest and move read on. That is how you
-   keep the last N log lines."
-- "The same idea on an array with (i + 1) % capacity is
-   usually faster, because the memory is contiguous."
-- "With one producer and one consumer this needs no lock.
-   That is why ring buffers live in hot paths."
-*/

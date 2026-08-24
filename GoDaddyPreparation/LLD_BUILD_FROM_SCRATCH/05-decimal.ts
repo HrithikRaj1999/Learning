@@ -1,62 +1,73 @@
 /*
-Q3.5  Decimal Class from Scratch (Exact Money Math without Floats)
+Q3.5  Decimal Class from Scratch (Exact Money Math)
 
-================================================================
+============================================================
 1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
-================================================================
-- DATA STRUCTURE: Pair of `(unscaled: bigint, scale: number)`.
-- WHY: Floating point numbers (`0.1 + 0.2 = 0.30000000000000004`) lose precision because binary cannot represent decimal fractions exactly.
-  Money math must NEVER drift! Storing integer digits (`unscaled`) + decimal places (`scale`) allows exact integer arithmetic.
+============================================================
+- DATA STRUCTURE:
+    Pair of `(unscaled: bigint, scale: number)`.
+- WHY WE NEED IT:
+    Floating point numbers (`0.1 + 0.2 = 0.30000000000000004`)
+    lose precision because binary cannot represent decimal
+    fractions exactly. Money math must NEVER drift!
+    Storing integer digits + decimal count enables exact
+    BigInt integer arithmetic.
 
-================================================================
-2. INTUITION (What I am thinking to tell to interviewer)
-================================================================
-- "Floating point representation drifts. Financial applications require fixed-precision integer representation."
-- "E.g., $12.34 is stored as `unscaled = 1234n`, `scale = 2` ($1234 / 10^2$)."
-- "Addition / Subtraction: Align both numbers to the maximum scale first, then add/subtract BigInts."
-- "Multiplication: Multiply unscaled BigInts, add scales (`scale1 + scale2`)."
-- "Division: Floating division non-terminating (e.g. 10/3). Caller passes target scale; perform BigInt division with Round Half-Up."
-- "Immutability: Every operation returns a NEW `Decimal` instance (thread-safe, safe from side effects)."
+============================================================
+2. INTUITION (What I am thinking to tell interviewer)
+============================================================
+- "Floating point binary representation drifts."
+- "$12.34 is stored as `unscaled = 1234n`, `scale = 2`
+   ($1234 / 10^2$)."
+- "Add/Subtract: Align both to max scale first, then add."
+- "Multiply: Multiply unscaled BigInts, add scales."
+- "Divide: Non-terminating fractions (e.g. 10/3). Caller
+   gives target scale; perform BigInt division with
+   Round Half-Up."
+- "Immutable: Operations return a NEW Decimal instance."
 
-================================================================
+============================================================
 3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
-================================================================
-- static of(text): Split string on `"."`. `unscaled = BigInt(whole + fraction)`, `scale = fraction.length`.
+============================================================
+- static of(text): Split on `"."`. `unscaled = BigInt(w+f)`,
+  `scale = fraction.length`.
 - add(other) / subtract(other):
     1. `targetScale = max(this.scale, other.scale)`.
-    2. Convert both to `targetScale` using `this.at(targetScale)`.
-    3. Return `new Decimal(unscaledA +/- unscaledB, targetScale)`.
+    2. Align scales: `this.at(targetScale)`.
+    3. Return `new Decimal(unscaledA +/- unscaledB, scale)`.
 - multiply(other):
     1. Multiply digits: `this.unscaled * other.unscaled`.
     2. Add scales: `this.scale + other.scale`.
 - divide(other, targetScale):
-    1. Adjust numerator: `this.unscaled * 10^(other.scale + targetScale)`.
-    2. Adjust denominator: `other.unscaled * 10^(this.scale)`.
+    1. Adjust top: `this.unscaled * 10^(other.scale + target)`.
+    2. Adjust bottom: `other.unscaled * 10^(this.scale)`.
     3. `quotient = top / bottom`.
-    4. Round Half-Up: If `(top % bottom) * 2 >= bottom`, increment quotient by 1.
-- toString(): Pad left with zeros (`padStart(scale + 1, "0")`), insert decimal point at `-scale`.
+    4. Round Half-Up: If `(top % bottom) * 2 >= bottom`,
+       `quotient++`.
+- toString(): Pad left (`padStart(scale + 1, "0")`), insert
+  point at `-scale`.
 
 SHORT SYNTAX TRICKS:
-  10n ** BigInt(power)     // Clean power of 10 in BigInt
-  (top % bottom) * 2n >= bottom // Integer check for Round Half-Up (>= 0.5)
+  10n ** BigInt(p)              // Power of 10 in BigInt
+  (top % bottom) * 2n >= bottom // Half-up integer check
 
-================================================================
+============================================================
 4. TIME & SPACE COMPLEXITY
-================================================================
+============================================================
 - TIME COMPLEXITY:
-    - add() / subtract() / multiply() : O(1) BigInt arithmetic.
-    - divide() : O(1) BigInt division + 1 remainder check.
-- SPACE COMPLEXITY: O(1) immutable instances.
+    - add / subtract / multiply : O(1) BigInt math.
+    - divide                   : O(1) BigInt division.
+- SPACE COMPLEXITY:
+    - O(1) immutable instances.
 
-================================================================
+============================================================
 5. VISUAL DIAGRAM
-================================================================
+============================================================
 Representation & Operations:
 
   Value      Unscaled    Scale    Formula
   12.34      1234n       2        1234 / 10^2
   1.25       125n        2        125  / 10^2
-  0.5        5n          1        5    / 10^1
 
   ADD (12.5 + 1.25):
   Align scales to 2:
@@ -64,19 +75,18 @@ Representation & Operations:
   1.25  ->  125n (scale 2)
   Sum = 1375n at scale 2 -> "13.75"
 
-  MULTIPLY (1.5 * 1.5):
-  15n * 15n = 225n
-  Scale = 1 + 1 = 2 -> "2.25"
-
-================================================================
+============================================================
 6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
-================================================================
-- ALIGN SCALES BEFORE ADDING/SUBTRACTING: Adding $1234$ (scale 2) and $5$ (scale 1) without alignment adds cents to dimes!
-- IMMUTABLE DESIGN: Class constructor is private; instances built exclusively via `Decimal.of()`.
-- EQUALS VS COMPARE: $1.50$ and $1.5$ have different scales but EQUAL numerical values. `equals()` should call `compareTo() === 0`.
-- DATABASE STORAGE: In SQL DBs, store money as `DECIMAL(19,4)` or `BIGINT` in smallest unit (e.g. cents), NEVER `FLOAT` or `DOUBLE`.
+============================================================
+- ALIGN SCALES BEFORE ADD/SUBTRACT: Adding 1234 (scale 2)
+  and 5 (scale 1) without alignment adds cents to dimes!
+- IMMUTABLE DESIGN: Class constructor is private; built
+  only via `Decimal.of()`.
+- EQUALS VS COMPARE: 1.50 and 1.5 have different scales
+  but equal numeric value. `equals` calls `compareTo === 0`.
+- DATABASE STORAGE: Use `DECIMAL(19,4)` or `BIGINT` in cents.
+  NEVER `FLOAT` or `DOUBLE` in financial DB schemas.
 */
-
 
 const abs = (v: bigint): bigint => (v < 0n ? -v : v);
 // bigint has a real power operator, so no loop is needed
@@ -168,20 +178,3 @@ console.log(d("10").divide(d("3"), 4).toString());   // 3.3333
 console.log(d("1.005").divide(d("1"), 2).toString()); // 1.01
 console.log(d("1.50").equals(d("1.5")));             // true
 
-/*
-================================================================
-5. SAY OUT LOUD
-================================================================
-- "Floats are binary fractions, so money must never be a
-   float or a double. Store the smallest unit as an integer,
-   paise or cents, or use BigDecimal."
-- "Immutable by design. Every operation returns a new
-   Decimal, so a shared amount cannot change under you."
-- "Rounding has to be an explicit choice. I used HALF_UP.
-   Finance often wants HALF_EVEN, banker's rounding, because
-   HALF_UP leans upward over millions of rows. The rounding
-   mode is a business rule, not a coding taste."
-- "bigint keeps precision past 2^53. A number loses it."
-- "In the database: DECIMAL(19,4), never FLOAT. And keep the
-   currency next to the amount."
-*/

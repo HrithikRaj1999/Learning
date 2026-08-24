@@ -1,77 +1,86 @@
 /*
-Q3.3b  LRU Cache with Generics (Map + Doubly Linked List with Guard Nodes)
+Q3.3b  LRU Cache with Generics (Map + Doubly Linked List)
 
-================================================================
+============================================================
 1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
-================================================================
-- DATA STRUCTURE: HashMap (`Map<K, Node<K,V>>`) + Doubly Linked List (`Node` with `prev` & `next`).
+============================================================
+- DATA STRUCTURE:
+    HashMap (`Map<K, Node<K,V>>`) + Doubly Linked List.
 - WHY WE NEED BOTH:
     1. HashMap gives O(1) node lookup by key.
-    2. Doubly Linked List allows O(1) removal and moving any node to front.
-  (Singly linked list CANNOT remove middle nodes in O(1) because it lacks `prev` pointer).
+    2. Doubly Linked List allows O(1) removal & re-linking.
+    (Singly linked list CANNOT remove middle nodes in O(1)
+     because it lacks `prev` pointer).
 
-================================================================
-2. INTUITION (What I am thinking to tell to interviewer)
-================================================================
+============================================================
+2. INTUITION (What I am thinking to tell interviewer)
+============================================================
 - "HashMap maps key -> Node pointer for O(1) lookup."
-- "Doubly Linked List orders nodes from Newest (at head) to Oldest (at tail)."
-- "DUMMY GUARD NODES (`head` & `tail`): Prevents all edge-case null checks during insertion/removal!"
-- "NODE STORES ITS KEY: Critical! When evicting `tail.prev` (oldest node), the node must know its key so we can `map.delete(oldest.key)` in O(1)."
+- "Doubly Linked List orders nodes from Newest (head) to
+   Oldest (tail)."
+- "DUMMY GUARD NODES (`head` & `tail`): Prevents all
+   edge-case null checks during insertion/removal!"
+- "NODE STORES ITS KEY: Critical! When evicting `tail.prev`
+   (oldest), it knows its key so `map.delete(key)` is O(1)."
 
-================================================================
+============================================================
 3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
-================================================================
-- Helper touch(node): call `remove(node)`, then `addToFront(node)`.
-- Helper remove(node): `node.prev.next = node.next; node.next.prev = node.prev;` (2 lines, zero branches!).
-- Helper addToFront(node): Link node between `head` and `head.next`.
+============================================================
+- Helper touch(node): `remove(node)`, then `addToFront(node)`.
+- Helper remove(node):
+    `node.prev.next = node.next; node.next.prev = node.prev;`
+    (2 lines, zero branches!).
+- Helper addToFront(node): Link between `head` & `head.next`.
 - get(key):
     1. Lookup node in map. If missing, return `undefined`.
-    2. Call `touch(node)` (move to front of list).
-    3. Return `node.value`.
+    2. Call `touch(node)` (move to front). Return `node.val`.
 - put(key, value):
-    1. If key exists: update `node.value`, call `touch(node)`. Return.
-    2. Create new node `{ key, value }`. Save in map, call `addToFront(node)`.
-    3. If `map.size > capacity`: evict oldest (`oldest = tail.prev`), `remove(oldest)`, `map.delete(oldest.key)`.
+    1. If key exists: update `node.val`, `touch(node)`.
+    2. Else create `{ key, value }`, save in map, `addToFront()`.
+    3. If `map.size > cap`: evict oldest (`oldest = tail.prev`),
+       `remove(oldest)`, `map.delete(oldest.key)`.
 
 SHORT SYNTAX TRICKS:
-  {} as Node<K, V>    // Dummy guard node (no fake key/value needed)
+  {} as Node<K, V>    // Dummy guard (no fake key/val)
   head.next           // Newest real node
   tail.prev           // Oldest real node
 
-================================================================
+============================================================
 4. TIME & SPACE COMPLEXITY
-================================================================
+============================================================
 - TIME COMPLEXITY:
-    - get(key) : O(1)
+    - get(key)        : O(1)
     - put(key, value) : O(1)
-- SPACE COMPLEXITY: O(Capacity) for storing map entries and linked list nodes.
+- SPACE COMPLEXITY:
+    - O(Capacity) for storing map entries & nodes.
 
-================================================================
+============================================================
 5. VISUAL DIAGRAM
-================================================================
+============================================================
 LRU Structure with Head/Tail Guard Nodes:
 
-  HEAD (dummy) <---> [ Node A (Newest) ] <---> [ Node B (Oldest) ] <---> TAIL (dummy)
-   |                                                                       |
-  head.next = Node A                                              tail.prev = Node B
+  HEAD (dummy) <---> [ Node A ] <---> [ Node B ] <---> TAIL (dummy)
+   |                                                    |
+  head.next = Node A                           tail.prev = Node B
 
   1. get("B") / touch("B"):
-     Unlink Node B from middle -> Insert Node B right after HEAD:
+     Unlink Node B -> Move after HEAD:
      HEAD <---> [ Node B ] <---> [ Node A ] <---> TAIL
 
   2. put("C") when capacity = 2:
-     Insert Node C after HEAD -> HEAD <---> [ C ] <---> [ B ] <---> [ A ] <---> TAIL
-     Capacity exceeded (3 > 2) -> Evict `tail.prev` (Node A):
-     Unlink Node A and execute `map.delete(A.key)`.
+     Insert Node C after HEAD -> Size = 3 > 2
+     Evict `tail.prev` (Node A): Unlink & `map.delete(A.key)`.
 
-================================================================
+============================================================
 6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
-================================================================
-- USE DUMMY GUARD NODES (`head`, `tail`): Eliminates 10+ lines of null checks for empty list, single element list, head/tail removal.
-- ALWAYS STORE KEY INSIDE THE NODE: Without `node.key`, evicting the tail node requires scanning the whole Map (turns O(1) into O(N)).
-- DOUBLY LINKED IS MANDATORY: Singly linked list requires iterating from head to find `prev` node during deletion.
+============================================================
+- DUMMY GUARD NODES (`head`, `tail`): Eliminates null checks
+  for empty list, single element list, head/tail removal.
+- STORE KEY INSIDE THE NODE: Without `node.key`, evicting
+  tail node requires scanning whole Map (turns O(1) to O(N)).
+- DOUBLY LINKED IS MANDATORY: Singly linked list requires
+  traversing from head to find `prev` node during delete.
 */
-
 
 type Node<K, V> = {
   key: K;
@@ -157,21 +166,3 @@ console.log(cache.get(1)); // one
 console.log(cache.get(2)); // undefined
 console.log(cache.get(3)); // three
 
-/*
-================================================================
-5. SAY OUT LOUD
-================================================================
-- "get and put are O(1). Memory is O(capacity)."
-- "Doubly linked, not singly, because removing a node needs
-   the previous pointer."
-- "The guards are pure line saving. They turn four null
-   checks into zero. With generics I build them as
-   {} as Node<K, V>, so I never invent a fake key or value."
-- "The node stores the key so eviction can clean the map
-   without scanning it."
-- "On API design: keys are <K>, and objects compare by
-   reference, so I would keep keys primitive or take a
-   keySelector."
-- "Next I would add onEvict, a TTL, a peek that does not
-   reorder, and hit / miss counters."
-*/
