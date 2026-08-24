@@ -1,86 +1,81 @@
 /*
-Q3.6  Queue using two Stacks (LC 232)
+Q3.6  Queue using Two Stacks (LC 232)
 
 ================================================================
-1. INTUITION
+1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
 ================================================================
-WHAT
-  A first in first out queue, built only from two last in
-  first out stacks.
-
-WHY THIS WORKS
-  A stack reverses order. So if I pop everything out of one
-  stack and push it into the other, the order flips. What
-  was at the bottom is now on top.
-  A flipped LIFO is exactly FIFO. That pour is the trick.
-
-HOW IT WORKS
-  1. inStack takes every enqueue. Always cheap.
-  2. outStack serves every dequeue.
-  3. outStack empty? Pour the whole inStack into it.
-  4. Never pour while outStack still has items.
-
-WHY IT IS STILL FAST
-  Each item moves at most twice in its life: in, then across.
-  So n operations cost O(n) in total. That is O(1) amortised.
-  One unlucky dequeue is O(n), but the average is O(1).
-
-COST
-  enqueue : O(1)
-  dequeue : O(1) amortised, O(n) worst single call
+- DATA STRUCTURE: Two Stacks (`inStack` and `outStack`).
+- WHY: A stack reverses order (LIFO). Popping all elements from `inStack` and pushing them into `outStack` reverses the order TWICE.
+  Double reversal yields original FIFO queue order!
 
 ================================================================
-2. VISUAL EXAMPLE
+2. INTUITION (What I am thinking to tell to interviewer)
 ================================================================
-Stacks are drawn with the TOP on the right.
-
-  enqueue(1)  in [1]     out []
-  enqueue(2)  in [1,2]   out []
-  dequeue()   out is empty -> POUR
-              pop 2 push 2, pop 1 push 1
-              in []      out [2,1]   flipped, 1 on top
-              pop out -> 1, the OLDEST item. Correct.
-              in []      out [2]
-  enqueue(3)  in [3]     out [2]
-              3 must still come out AFTER 2
-  dequeue()   out is NOT empty, so DO NOT pour
-              pop out -> 2
-              in [3]     out []
-  dequeue()   out is empty -> pour -> out [3] -> pop -> 3
-
-WHAT BREAKS IF YOU POUR EARLY
-  At the enqueue(3) step:
-      in [3]  out [2]   -> pour anyway -> out [2,3]
-  Now the top of out is 3, so dequeue gives 3 before 2.
-  The newer item jumped the queue. FIFO is broken.
+- "`inStack` receives all incoming `enqueue` calls (fast O(1))."
+- "`outStack` serves all `dequeue` and `peek` calls."
+- "LAZY POURING: Only pour `inStack` into `outStack` when `outStack` is COMPLETELY EMPTY."
+- "Amortized Analysis: Every item is pushed to `inStack` once and moved to `outStack` once. $2 \times N$ operations for $N$ pushes/pops = Amortized O(1)."
 
 ================================================================
-3. SKELETON
+3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
 ================================================================
-  enqueue(value)  push into inStack
-  dequeue()       pour if needed, then pop outStack
-  peek()          pour if needed, then read top of outStack
-  size()          both stacks added together
-  isEmpty()       size() === 0
-  pour()          private. Only runs when outStack is empty.
+- enqueue(value): Push value into `inStack`.
+- pour(): Helper method.
+    1. If `outStack` is NOT empty, return immediately (do nothing!).
+    2. While `inStack` has elements: `outStack.push(inStack.pop()!)`.
+- dequeue():
+    1. Call `pour()`.
+    2. If `outStack` is still empty, throw "Queue is empty".
+    3. Return `outStack.pop()!`.
+- peek():
+    1. Call `pour()`.
+    2. If `outStack` is still empty, throw "Queue is empty".
+    3. Return `outStack.at(-1)!`.
+- size(): Return `inStack.length + outStack.length`.
+- isEmpty(): Return `size() === 0`.
 
-  SHORT SYNTAX
-    if (!stack.length)      empty check, no compare to 0
-    while (inStack.length)  drain a stack
-    stack.at(-1)            top, without length - 1
-    stack.pop()!            already checked it is not empty
+SHORT SYNTAX TRICKS:
+  while (inStack.length) outStack.push(inStack.pop()!) // Drain & flip stack in 1 line
+  outStack.at(-1)!                                    // Safe peek top element
 
 ================================================================
-4. GOTCHAS
+4. TIME & SPACE COMPLEXITY
 ================================================================
-- POUR ONLY WHEN outStack IS EMPTY. Pouring on top of what
-  is left puts newer items above older ones. See above.
-- POUR THE WHOLE STACK when you do pour, not one item.
-- CHECK EMPTY AFTER POURING, not before. The queue is empty
-  only when BOTH stacks are empty.
-- size() IS BOTH STACKS, not just one.
-- Say amortised, not worst case. One dequeue can be O(n).
+- TIME COMPLEXITY:
+    - enqueue(x) : O(1) always.
+    - dequeue()  : Amortized O(1) [Worst-case O(N) only when `outStack` is empty].
+    - peek()     : Amortized O(1).
+- SPACE COMPLEXITY: O(N) across both stacks.
+
+================================================================
+5. VISUAL DIAGRAM
+================================================================
+Top of stack shown on right:
+
+  enqueue(1), enqueue(2):
+    inStack: [1, 2]     outStack: []
+
+  dequeue(): outStack is EMPTY -> Call pour()!
+    Pop 2 -> Push 2, Pop 1 -> Push 1
+    inStack: []         outStack: [2, 1]  <-- Top of outStack is 1 (Oldest item!)
+    Pop outStack -> Returns 1.
+    inStack: []         outStack: [2]
+
+  enqueue(3):
+    inStack: [3]        outStack: [2]
+
+  dequeue(): outStack is NOT empty -> DO NOT POUR!
+    Pop outStack -> Returns 2.
+    inStack: [3]        outStack: []
+
+================================================================
+6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
+================================================================
+- DO NOT POUR EARLY: If you pour when `outStack` still has items, newer elements land on top of older elements and break FIFO!
+- DRAIN ENTIRE INSTACK: When pouring, move all elements until `inStack` is empty.
+- REAL WORLD APPLICATION: Double-buffering pattern (e.g. Kafka producers, graphics rendering pipelines) where writes go to a hot buffer while reads drain a flipped cold buffer.
 */
+
 
 export class QueueFromTwoStacks<T> {
   // plain arrays used as stacks, push and pop only.

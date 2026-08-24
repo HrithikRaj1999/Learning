@@ -1,82 +1,78 @@
 /*
-Q3.1  Stack from scratch (no built-in collections)
+Q3.1  Stack from Scratch (Dynamic Array)
 
 ================================================================
-1. INTUITION
+1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
 ================================================================
-WHAT
-  A stack is last in, first out. I only ever touch the top.
-
-WHY THIS DESIGN
-  Because I only touch the top, nothing ever shifts.
-  So I need two things: one block of slots, and one number
-  that says where the top is right now.
-
-HOW IT WORKS
-  1. top starts at -1. That means empty.
-  2. push -> move top up, write there.
-  3. pop  -> read at top, clear it, move top down.
-  4. Block full? Make a block twice as big and copy over.
-
-WHY DOUBLE THE SIZE
-  The copy costs O(n). But I only copy after n cheap pushes.
-  Spread over all those pushes it works out as O(1) each.
-  That is what "amortised O(1)" means.
-  If I grew by 1 slot each time I would copy on every push,
-  and push would be O(n). Much worse.
-
-COST
-  push / pop / peek : O(1)  (push is amortised)
-  memory            : O(n)
+- DATA STRUCTURE: Dynamic Array (a contiguous block of slots) + a `top` pointer index.
+- WHY: Stack is LIFO (Last-In, First-Out). We only ever add or remove from the TOP.
+  An array lets us index directly into the top position without moving any other items.
 
 ================================================================
-2. VISUAL EXAMPLE
+2. INTUITION (What I am thinking to tell to interviewer)
 ================================================================
-capacity 4. push 10, 20, 30, 40, then 50.
+- "A stack only operates at the top. I track an array of fixed capacity and a `top` index."
+- "`top` starts at -1 (empty state)."
+- "Push increases `top` by 1 and writes the value."
+- "Pop reads value at `top`, clears the slot to prevent memory leaks, and decreases `top` by 1."
+- "When full (`top + 1 === capacity`), I double array capacity and copy items over. Doubling keeps insertion amortized O(1)."
 
-  push(10)  [10,  _,  _,  _]   top 0
-  push(20)  [10, 20,  _,  _]   top 1
-  push(30)  [10, 20, 30,  _]   top 2
-  push(40)  [10, 20, 30, 40]   top 3   <- FULL
+================================================================
+3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
+================================================================
+- push(value):
+    1. If `top + 1 === slots.length`, call grow() (create new array of 2x size, copy items).
+    2. Write value at ++top.
+- pop():
+    1. If empty (`top === -1`), throw error.
+    2. Read value at `slots[top]`.
+    3. Clear `slots[top--] = undefined`.
+    4. Return saved value.
+- peek():
+    1. If empty, throw error. Return `slots[top]`.
+- size(): Return `top + 1`.
+- isEmpty(): Return `top === -1`.
 
-  push(50)  full, so grow first.
-            copy into a block of 8:
+SHORT SYNTAX TRICKS:
+  slots[++top] = value        // Move up and write in 1 step
+  slots[top--] = undefined    // Clear and move down in 1 step
+
+================================================================
+4. TIME & SPACE COMPLEXITY
+================================================================
+- TIME COMPLEXITY:
+    - push(x) : Amortized O(1) [O(N) only during double resize]
+    - pop()   : O(1)
+    - peek()  : O(1)
+- SPACE COMPLEXITY: O(N) where N is the total items stored.
+
+================================================================
+5. VISUAL DIAGRAM
+================================================================
+Capacity 4. push 10, 20, 30, 40, then push 50 (triggers grow):
+
+  push(10)  [10,  _,  _,  _]   top = 0
+  push(20)  [10, 20,  _,  _]   top = 1
+  push(30)  [10, 20, 30,  _]   top = 2
+  push(40)  [10, 20, 30, 40]   top = 3  <-- FULL!
+
+  push(50)  Full! Grow to 8 slots:
             [10, 20, 30, 40,  _,  _,  _,  _]
-            now write:
-            [10, 20, 30, 40, 50,  _,  _,  _]   top 4
+            Write 50 at index 4:
+            [10, 20, 30, 40, 50,  _,  _,  _]   top = 4
 
-  pop()     read 50, clear the slot, top back to 3
-            [10, 20, 30, 40,  _,  _,  _,  _]
-
-Count the work: 5 writes + 4 copies = 9 steps for 5 pushes.
-Not 5 x O(n). That is what amortised means.
+  pop()     Read 50, clear slot 4, top back to 3:
+            [10, 20, 30, 40,  _,  _,  _,  _]   top = 3
 
 ================================================================
-3. SKELETON
+6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
 ================================================================
-  push(value)  grow if full, then write at ++top
-  pop()        read at top, clear it, top--
-  peek()       read at top
-  size()       top + 1
-  isEmpty()    top === -1
-  grow()       copy into a block twice as big
-
-  SHORT SYNTAX
-    slots[++top] = value      write and move up in one step
-    slots[top--] = undefined  clear and move down in one step
-    slots.length              is the capacity. No extra field.
-
-================================================================
-4. GOTCHAS
-================================================================
-- TOP STARTS AT -1, not 0. Size is top + 1.
-  This off-by-one is how people fail this question.
-- GROW BEFORE YOU WRITE. Check full first, then write.
-- DOUBLE the size. Do not add a fixed amount.
-- CLEAR THE SLOT ON POP. If you skip this, the block still
-  holds the object and it is never freed. A real leak.
-- POP ON EMPTY THROWS. Returning null hides a caller bug.
+- `top` starts at -1, NOT 0. Size is always `top + 1`.
+- ALWAYS CLEAR SLOT ON POP (`slots[top] = undefined`) to avoid memory leak in garbage-collected languages.
+- Doubling capacity is crucial. Growing by +1 slot each time turns push into O(N).
+- Linked list alternative gives true O(1) with no copying, but array gives far better CPU cache locality.
 */
+
 
 export class Stack<T> {
   // my own block of slots. I only index into it.

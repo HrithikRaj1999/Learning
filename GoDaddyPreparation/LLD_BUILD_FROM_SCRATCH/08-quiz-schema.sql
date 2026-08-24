@@ -1,80 +1,70 @@
--- Q3.8  Quiz product: schema plus queries
+-- Q3.8  Quiz Product: Schema Design & Advanced SQL Queries
 --
 -- ==============================================================
--- 1. INTUITION
+-- 1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
 -- ==============================================================
--- WHAT
---   Tables for a quiz app, then queries on my own schema.
---
--- HOW I FIND THE TABLES
---   I name the nouns in the product. Each noun is a table.
---     a user creates a quiz
---     a quiz has questions
---     a question has options, one of them is correct
---     a user takes an attempt at a quiz
---     an attempt records one chosen option per question
---   Six nouns, six tables. The links between them become
---   the foreign keys.
---
--- TWO DECISIONS I WOULD DEFEND
---   1. is_correct sits on the OPTION row, not on the
---      question as correct_option_id. Then a question can
---      have two correct options later, with no migration.
---   2. "one answer per question per attempt" is a COMPOSITE
---      PRIMARY KEY, not a check in code. Let the database
---      enforce what must never happen.
+-- - DATA STRUCTURE: Relational Database Schema (PostgreSQL 3NF).
+-- - WHY: Entity-Relationship modeling for quizzes requires exact relational constraints:
+--   Nouns: Users, Quizzes, Questions, Options, Attempts, Answers (6 Tables).
+--   FK constraints enforce integrity; composite PKs prevent duplicate submissions.
 --
 -- ==============================================================
--- 2. VISUAL EXAMPLE
+-- 2. INTUITION (What I am thinking to tell to interviewer)
 -- ==============================================================
---   app_user 1--* quiz 1--* question 1--* question_option
---       |                       |            (is_correct)
---       |                       |                  ^
---       *                       *                  |
---   quiz_attempt 1--------* attempt_answer *-------+
---   (score, submitted_at)   PK (attempt_id, question_id)
---
--- SCORING ONE ATTEMPT
---   walk attempt_answer -> question_option -> is_correct
---   and add up question.points where that was true.
---
---   attempt 91, quiz 5
---     q1 (2 pts)  chose option 3  correct    -> +2
---     q2 (1 pt)   chose option 7  wrong      -> +0
---     q3 (1 pt)   not answered               -> +0
---     score = 2
+-- - "Decompose product into 6 core tables in Third Normal Form (3NF)."
+-- - "`is_correct` belongs on `question_option`, NOT `question`. (Allows multiple correct options in future)."
+-- - "Composite PK `(attempt_id, question_id)` on `attempt_answer` guarantees exactly one answer per question per attempt."
+-- - "Partial Unique Index `WHERE submitted_at IS NULL` guarantees at most ONE active/open attempt per user per quiz!"
+-- - "Denormalized `score` on `quiz_attempt` avoids calculating O(N) scoring JOINs for every leaderboard query."
 --
 -- ==============================================================
--- 3. SKELETON
+-- 3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
 -- ==============================================================
---   tables   app_user, quiz, question, question_option,
---            quiz_attempt, attempt_answer
---   indexes  only for what my queries filter and sort on
---   queries  1. score one attempt
---            2. leaderboard for a quiz
---            3. hardest questions
---            4. one user's history
+-- - Tables:
+--     1. app_user (user_id PK)
+--     2. quiz (quiz_id PK, created_by FK)
+--     3. question (question_id PK, quiz_id FK, position UNIQUE(quiz_id, position))
+--     4. question_option (option_id PK, question_id FK, is_correct BOOL)
+--     5. quiz_attempt (attempt_id PK, user_id FK, quiz_id FK, score INT)
+--     6. attempt_answer (PRIMARY KEY(attempt_id, question_id), option_id FK)
+-- - Indexes:
+--     - Foreign keys: `idx_question_quiz`, `idx_option_question`.
+--     - Leaderboard: `idx_attempt_quiz_score ON quiz_attempt(quiz_id, score DESC)`.
+--     - Partial Index: `idx_one_open_attempt ON quiz_attempt(user_id, quiz_id) WHERE submitted_at IS NULL`.
+-- - Core Queries:
+--     1. Score single attempt (JOIN attempt_answer -> question_option, SUM points).
+--     2. Leaderboard Top 10 (`MAX(score) GROUP BY user_id ORDER BY best_score DESC`).
+--     3. Hardest Questions (AVG percentage correct per question).
+--     4. User History with unanswered question count subquery.
 --
 -- ==============================================================
--- 4. GOTCHAS
+-- 4. TIME & SPACE COMPLEXITY
 -- ==============================================================
--- - POSTGRES DOES NOT INDEX FOREIGN KEYS for you. Every FK I
---   join on gets an index, or the leaderboard does a full
---   table scan.
--- - UNIQUE (quiz_id, position), so two questions cannot both
---   claim slot 3.
--- - PARTIAL UNIQUE INDEX for "one OPEN attempt per user per
---   quiz". Unique only WHERE submitted_at IS NULL, because
---   finished attempts are allowed to repeat.
--- - MAX(score) in the leaderboard. A user can attempt a quiz
---   many times.
--- - COALESCE the score, or an attempt with no correct answer
---   returns NULL instead of 0.
--- - ON DELETE CASCADE from quiz down to questions and
---   options, but NOT to attempts. Those are history, so I
---   soft delete the quiz instead.
+-- - TIME COMPLEXITY:
+--     - Score Calculation: O(Q) where Q = number of questions in attempt.
+--     - Leaderboard Query: O(log N + K) with Index `(quiz_id, score DESC)`.
+-- - SPACE COMPLEXITY: O(U * Q) growth on `attempt_answer` (Partition candidate).
 --
--- Written for PostgreSQL.
+-- ==============================================================
+-- 5. VISUAL DIAGRAM
+-- ==============================================================
+-- Entity-Relationship Diagram:
+--
+--   app_user 1------* quiz 1------* question 1------* question_option
+--       |                                |                (is_correct)
+--       |                                |                      ^
+--       *                                *                      |
+--   quiz_attempt 1------------* attempt_answer *----------------+
+--   (score, submitted_at)      PK (attempt_id, question_id)
+--
+-- ==============================================================
+-- 6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
+-- ==============================================================
+-- - POSTGRES DOES NOT INDEX FOREIGN KEYS AUTOMATICALLY: You must add explicit B-Tree indexes on FK columns to prevent FULL TABLE SCANS during JOINs!
+-- - PARTIAL INDEX FOR OPEN ATTEMPTS: `WHERE submitted_at IS NULL` ensures only ONE active quiz attempt per user while allowing multiple completed historical attempts.
+-- - COALESCE IN SCORING QUERY: `COALESCE(SUM(...), 0)` avoids returning `NULL` for attempts with 0 correct answers.
+-- - LEADERBOARD SCALING: For high traffic, store Top-100 Leaderboards in Redis Sorted Sets (`ZADD`), updated asynchronously on submit.
+
 
 CREATE TABLE app_user (
     user_id      BIGSERIAL PRIMARY KEY,

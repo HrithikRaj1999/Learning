@@ -1,94 +1,78 @@
 /*
-Q3.2  HashMap from scratch (get, put, delete, own hash)
+Q3.2  HashMap from Scratch (Chaining & Custom Hash)
 
 ================================================================
-1. INTUITION
+1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
 ================================================================
-WHAT
-  Put a key in, get a value back, in O(1).
-
-WHY THIS DESIGN
-  Only one thing is truly O(1): reading an array by index.
-  So my whole job is turning a key into an index.
-
-HOW IT WORKS
-  1. hash(key) turns the key into a number.
-  2. number % bucketCount turns it into an index.
-  3. Two keys can give the same index. That is a collision.
-     So each bucket holds a small chain of entries.
-  4. To find a key I walk that chain and compare keys.
-
-TWO THINGS KEEP IT O(1)
-  a. The hash must spread keys evenly.
-     A bad hash drops everything into one bucket. Then the
-     map is just a linked list and every call is O(n).
-  b. The table must not get full.
-     Once entries / buckets goes past 0.75, I double the
-     buckets and rehash everything.
-
-COST
-  get / put / delete : O(1) average, O(n) worst case
-  resize             : O(n), but only on a doubling
+- DATA STRUCTURE: Array of Bucket Chains (Array of Linked Lists).
+- WHY: Reading an array slot by numeric index is true O(1).
+  We convert key -> hash code -> array index.
+  Because multiple keys can land on the same index (collision), each slot holds a Linked List chain.
 
 ================================================================
-2. VISUAL EXAMPLE
+2. INTUITION (What I am thinking to tell to interviewer)
 ================================================================
-4 buckets. Say the hashes land like this:
-  "cat" -> 2    "dog" -> 0    "act" -> 2
+- "To get O(1) Key-Value lookup, I convert the key to an integer using a hashing function (djb2)."
+- "Index = hash(key) % bucketCount."
+- "Collisions are handled by Separate Chaining (linked list per bucket slot)."
+- "To keep chains short and avoid O(N) degradation, I track Load Factor = (count / buckets)."
+- "When Load Factor > 0.75, I double the bucket array size and REHASH all keys."
 
-  [0] -> ("dog",2) -> null
+================================================================
+3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
+================================================================
+- hash(key): djb2 algorithm (start 5381, `(h * 33) ^ charCode`). Returns positive int.
+- indexOf(key): `hash(key) % buckets.length`.
+- put(key, value):
+    1. Walk bucket chain at `indexOf(key)`. If key already exists, overwrite value and return.
+    2. If key is new, create entry `{ key, value, next: head }` and set as new head (O(1) insert).
+    3. count++. If `count / capacity > 0.75`, call resize().
+- get(key):
+    1. Walk chain at `indexOf(key)`. If key matches, return `node.value`.
+    2. If chain ends, return `undefined`.
+- delete(key):
+    1. Walk chain at `indexOf(key)` keeping a `previous` node reference.
+    2. If found, unlink node (`prev.next = node.next` or `buckets[i] = node.next`). Return true.
+- resize():
+    1. Double array capacity: `newBuckets = new Array(old.length * 2)`.
+    2. REHASH: Walk every existing node and recompute `indexOf(key)` using NEW capacity.
+
+SHORT SYNTAX TRICKS:
+  for (let node = buckets[i]; node; node = node.next) // Clean chain traversal
+  buckets[i] = { key, value, next: buckets[i] }        // Prepend to head in 1 line
+
+================================================================
+4. TIME & SPACE COMPLEXITY
+================================================================
+- TIME COMPLEXITY:
+    - get(k) / put(k, v) / delete(k): Average O(1), Worst-Case O(N) [if all keys hash to 1 bucket].
+    - resize(): O(N) rehash (amortized O(1) over all puts).
+- SPACE COMPLEXITY: O(N) for stored entries + O(B) bucket slots.
+
+================================================================
+5. VISUAL DIAGRAM
+================================================================
+4 Buckets with Separate Chaining:
+  "cat" -> bucket 2, "dog" -> bucket 0, "act" -> bucket 2 (collision!)
+
+  [0] -> ("dog", 2) -> null
   [1] -> null
-  [2] -> ("act",3) -> ("cat",1) -> null   <- COLLISION
-  [3] -> null        new entries go in at the head
+  [2] -> ("act", 3) -> ("cat", 1) -> null   <-- COLLISION (Chained)
+  [3] -> null
 
-  get("cat")  bucket 2. "act"? no. "cat"? yes -> 1
-  get("cow")  bucket 2. "act"? no. "cat"? no  -> undefined
-
-RESIZE
-  At load factor 0.75, 4 buckets hold 3 entries.
-  Add a 4th: 4 / 4 = 1.0 > 0.75. Double to 8 and rehash.
-  "cat" may now sit in bucket 6, not 2. Any key can move.
-  That is why I recompute the index instead of copying.
-
-BAD HASH (this is the real test)
-  If hash always returned 1, every key lands in one bucket:
-  [1] -> k9 -> k8 -> k7 -> k6 -> k5 -> ... -> null
-  The map is now a linked list. get() is O(n).
+  RESIZE (Load Factor > 0.75):
+  4 buckets with 3 items = 0.75. Adding 4th item triggers double to 8 buckets.
+  Keys rehash against new modulo 8: "cat" may move from index 2 to index 6!
 
 ================================================================
-3. SKELETON
+6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
 ================================================================
-  hash(key)      key -> a number (djb2)
-  indexOf(key)   hash % bucket count
-  put(k, v)      walk chain. overwrite if found, else add
-                 at the head
-  get(k)         walk chain, return value or undefined
-  delete(k)      walk chain with a previous pointer, unlink
-  resize()       double the buckets, rehash every entry
-  size()
-
-  SHORT SYNTAX
-    for (let node = bucket; node; node = node.next)
-        walks a chain with no while loop (get and put)
-    new Array(n).fill(null)    bucket array, no init loop
-    { key, value, next: buckets[i] }
-        shorthand fields, and inserts at the head
-
-================================================================
-4. GOTCHAS
-================================================================
-- PUT MUST WALK THE CHAIN FIRST. If you just insert, a
-  repeated key is stored twice and get may return the old
-  one. Overwrite, do not append.
-- DELETE NEEDS THE PREVIOUS NODE. Deleting the head is the
-  special case: point the bucket at node.next.
-- RESIZE MUST REHASH, NOT COPY. The index is
-  hash % bucketCount, and bucketCount just changed.
-- SAVE node.next BEFORE RELINKING in resize, or you lose
-  the rest of the chain.
-- A BAD HASH IS NOT A SMALL PROBLEM. It turns O(1) into
-  O(n) and nothing warns you.
+- PUT MUST OVERWRITE FIRST: Always walk chain to check if key exists before inserting, otherwise key duplicates exist!
+- RESIZE REQUIRES REHASHING, NOT COPYING: Modulo changes when bucket length doubles (`hash % newLength`).
+- UNLINKING HEAD IN DELETE: Special case where `previous` is null, update `buckets[i] = node.next`.
+- JAVA 8 OPTIMIZATION: Java converts long chains (> 8 nodes) into Balanced Red-Black Trees (reduces worst-case from O(N) to O(log N)).
 */
+
 
 const INITIAL_BUCKETS = 8;
 const LOAD_FACTOR = 0.75;

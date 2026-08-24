@@ -1,101 +1,82 @@
 /*
-Q3.5  Decimal class, no wrapper classes
+Q3.5  Decimal Class from Scratch (Exact Money Math without Floats)
 
 ================================================================
-1. INTUITION
+1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
 ================================================================
-WHAT
-  A money type that never drifts.
-
-WHY NOT A FLOAT
-  0.1 + 0.2 gives 0.30000000000000004.
-  A float stores numbers in binary. 0.1 has no exact binary
-  form, the same way 1/3 has no exact decimal form.
-  Every step drifts a little. Money cannot drift.
-
-HOW IT WORKS
-  Money has a fixed number of decimal places. So I store a
-  whole number of the smallest unit, plus how far the point
-  moved.
-      12.34  ->  unscaled 1234, scale 2
-  Now + and - are plain integer maths. Nothing drifts.
-  multiply : multiply the digits, add the scales.
-  divide   : 10 / 3 never ends, so the caller gives me a
-             scale and I round half up.
-
-WHY BIGINT
-  A plain number loses precision past 2^53. bigint does not.
-  Also every method returns a NEW Decimal, so an amount can
-  never be changed behind someone's back.
-
-COST
-  add / subtract / multiply : O(1) on the digits
-  divide                    : O(1), plus one rounding check
+- DATA STRUCTURE: Pair of `(unscaled: bigint, scale: number)`.
+- WHY: Floating point numbers (`0.1 + 0.2 = 0.30000000000000004`) lose precision because binary cannot represent decimal fractions exactly.
+  Money math must NEVER drift! Storing integer digits (`unscaled`) + decimal places (`scale`) allows exact integer arithmetic.
 
 ================================================================
-2. VISUAL EXAMPLE
+2. INTUITION (What I am thinking to tell to interviewer)
 ================================================================
-  value    unscaled  scale     meaning
-  12.34      1234      2       1234 / 10^2
-  0.05          5      2          5 / 10^2
-  -1.5        -15      1        -15 / 10^1
-  100         100      0        100 / 10^0
-
-ADD 12.5 + 1.25
-  scales differ, so line them up on the bigger one
-  12.5  -> 125 at scale 1 -> 1250 at scale 2
-  1.25  -> 125 at scale 2 ->  125
-  1250 + 125 = 1375 at scale 2  ->  13.75
-
-MULTIPLY 1.5 * 1.5
-  15 * 15 = 225, and 1 + 1 = 2  ->  2.25
-
-DIVIDE 10 / 3 at scale 4
-  top    = 10 * 10^4 = 100000
-  bottom = 3
-  100000 / 3 = 33333, remainder 1
-  round? 1 * 2 = 2 >= 3 ? no  ->  33333  ->  3.3333
-
-ROUND HALF UP, 1.005 / 1 at scale 2
-  top = 100500, bottom = 1000
-  quotient 100, remainder 500
-  round? 500 * 2 = 1000 >= 1000 ? yes -> 101 -> 1.01
+- "Floating point representation drifts. Financial applications require fixed-precision integer representation."
+- "E.g., $12.34 is stored as `unscaled = 1234n`, `scale = 2` ($1234 / 10^2$)."
+- "Addition / Subtraction: Align both numbers to the maximum scale first, then add/subtract BigInts."
+- "Multiplication: Multiply unscaled BigInts, add scales (`scale1 + scale2`)."
+- "Division: Floating division non-terminating (e.g. 10/3). Caller passes target scale; perform BigInt division with Round Half-Up."
+- "Immutability: Every operation returns a NEW `Decimal` instance (thread-safe, safe from side effects)."
 
 ================================================================
-3. SKELETON
+3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
 ================================================================
-  of(text)         "12.34" -> unscaled 1234, scale 2
-  add / subtract   line up the scales, then integer + or -
-  multiply         multiply digits, add scales
-  divide(o, s)     caller gives the scale, round half up
-  compareTo        compare at a common scale
-  equals           compareTo === 0
-  toString         put the point back in
-  at(scale)        the same amount at a bigger scale
+- static of(text): Split string on `"."`. `unscaled = BigInt(whole + fraction)`, `scale = fraction.length`.
+- add(other) / subtract(other):
+    1. `targetScale = max(this.scale, other.scale)`.
+    2. Convert both to `targetScale` using `this.at(targetScale)`.
+    3. Return `new Decimal(unscaledA +/- unscaledB, targetScale)`.
+- multiply(other):
+    1. Multiply digits: `this.unscaled * other.unscaled`.
+    2. Add scales: `this.scale + other.scale`.
+- divide(other, targetScale):
+    1. Adjust numerator: `this.unscaled * 10^(other.scale + targetScale)`.
+    2. Adjust denominator: `other.unscaled * 10^(this.scale)`.
+    3. `quotient = top / bottom`.
+    4. Round Half-Up: If `(top % bottom) * 2 >= bottom`, increment quotient by 1.
+- toString(): Pad left with zeros (`padStart(scale + 1, "0")`), insert decimal point at `-scale`.
 
-  SHORT SYNTAX
-    10n ** BigInt(n)     powers of ten, no loop
-    text.split(".")      with [whole, fraction = ""]
-    padStart(s + 1,"0")  keeps a digit before the point
-    a < 0n !== b < 0n    sign of a division, no branching
+SHORT SYNTAX TRICKS:
+  10n ** BigInt(power)     // Clean power of 10 in BigInt
+  (top % bottom) * 2n >= bottom // Integer check for Round Half-Up (>= 0.5)
 
 ================================================================
-4. GOTCHAS
+4. TIME & SPACE COMPLEXITY
 ================================================================
-- LINE UP THE SCALES BEFORE ADDING, or you add paise to
-  rupees.
-- DIVIDE MUST TAKE A SCALE. 10 / 3 never ends, so there is
-  no safe default.
-- ROUND ON POSITIVE NUMBERS and put the sign back after, or
-  negative values round the wrong way.
-- toString MUST PAD. Unscaled 5 at scale 2 is "0.05", not
-  "5.00" and not ".5".
-- equals COMPARES VALUE, so 1.50 equals 1.5. In Java,
-  BigDecimal.equals does NOT do that. It checks scale too,
-  so you need compareTo. Nice detail to drop.
-- THE CONSTRUCTOR IS PRIVATE, so a Decimal is built only
-  through of() and is always valid.
+- TIME COMPLEXITY:
+    - add() / subtract() / multiply() : O(1) BigInt arithmetic.
+    - divide() : O(1) BigInt division + 1 remainder check.
+- SPACE COMPLEXITY: O(1) immutable instances.
+
+================================================================
+5. VISUAL DIAGRAM
+================================================================
+Representation & Operations:
+
+  Value      Unscaled    Scale    Formula
+  12.34      1234n       2        1234 / 10^2
+  1.25       125n        2        125  / 10^2
+  0.5        5n          1        5    / 10^1
+
+  ADD (12.5 + 1.25):
+  Align scales to 2:
+  12.5  -> 1250n (scale 2)
+  1.25  ->  125n (scale 2)
+  Sum = 1375n at scale 2 -> "13.75"
+
+  MULTIPLY (1.5 * 1.5):
+  15n * 15n = 225n
+  Scale = 1 + 1 = 2 -> "2.25"
+
+================================================================
+6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
+================================================================
+- ALIGN SCALES BEFORE ADDING/SUBTRACTING: Adding $1234$ (scale 2) and $5$ (scale 1) without alignment adds cents to dimes!
+- IMMUTABLE DESIGN: Class constructor is private; instances built exclusively via `Decimal.of()`.
+- EQUALS VS COMPARE: $1.50$ and $1.5$ have different scales but EQUAL numerical values. `equals()` should call `compareTo() === 0`.
+- DATABASE STORAGE: In SQL DBs, store money as `DECIMAL(19,4)` or `BIGINT` in smallest unit (e.g. cents), NEVER `FLOAT` or `DOUBLE`.
 */
+
 
 const abs = (v: bigint): bigint => (v < 0n ? -v : v);
 // bigint has a real power operator, so no loop is needed

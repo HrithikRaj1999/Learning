@@ -1,73 +1,72 @@
 /*
-Q3.3  LRU Cache in JavaScript (LC 146)
+Q3.3  LRU Cache in JavaScript (Map Built-in Insertion Order)
 
 ================================================================
-1. INTUITION
+1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
 ================================================================
-WHAT
-  A cache that holds N items. When it is full, it throws out
-  the item used longest ago.
-
-WHY THIS DESIGN
-  I need two things at the same time:
-    find a key fast, and know which key is the oldest.
-  A plain object gives me the first one only.
-  A JS Map gives me both, because it keeps insertion order.
-
-HOW IT WORKS
-  1. The first key from map.keys() is the oldest one.
-     That is my victim when the cache is full.
-  2. To mark a key as just used: delete it, then set it
-     again. Setting it again puts it at the newest end.
-  3. Over capacity? Delete that first key.
-
-COST
-  get / put : O(1)        memory : O(capacity)
+- DATA STRUCTURE: JavaScript `Map`.
+- WHY: LRU needs O(1) key lookup AND ordering from oldest (Least Recently Used) to newest.
+  In JS, `Map` naturally preserves insertion order!
+  The first key in `map.keys()` is always the oldest (least recently used).
 
 ================================================================
-2. VISUAL EXAMPLE
+2. INTUITION (What I am thinking to tell to interviewer)
 ================================================================
-capacity 2. The Map is drawn oldest -> newest.
-
-  put("a",1)   a=1
-  put("b",2)   a=1, b=2
-  get("a")     hit. delete "a", then set "a" again:
-               b=2, a=1     <- "a" is newest, "b" is oldest
-  put("c",3)   b=2, a=1, c=3   size 3 > 2, so evict
-               first key is "b", so delete "b"
-               a=1, c=3
-  get("b")     undefined, it was evicted
-
-Take the delete + set out of get() and "a" stays at the
-front. Then put("c") would evict "a" instead of "b".
-That one line IS the LRU.
+- "JS Map maintains insertion order under the hood."
+- "To mark a key as recently used: `delete(key)` then `set(key, value)`. This moves the key to the back (newest end)."
+- "When cache size exceeds capacity, the first key returned by `map.keys().next().value` is the oldest."
+- "Evicting the oldest key is as simple as deleting `map.keys().next().value`."
 
 ================================================================
-3. SKELETON
+3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
 ================================================================
-  get(key)     miss -> undefined
-               hit  -> delete, set again, return value
-  put(k, v)    delete, set, then evict oldest if too big
-  size()
+- constructor(capacity): Validate capacity > 0. Store `entries = new Map()`.
+- get(key):
+    1. If `!entries.has(key)`, return `undefined`.
+    2. Read value.
+    3. `entries.delete(key)` and `entries.set(key, value)` (re-insert at newest position).
+    4. Return value.
+- put(key, value):
+    1. `entries.delete(key)` (no-op if key is absent; moves key to back if present).
+    2. `entries.set(key, value)`.
+    3. If `entries.size > capacity`, evict oldest: `entries.delete(entries.keys().next().value!)`.
 
-  SHORT SYNTAX
-    map.delete(key)     a miss is a no-op, so put needs
-                        no has() check
-    map.keys().next().value   the oldest key. One iterator
-                              step, not a scan.
+SHORT SYNTAX TRICKS:
+  entries.keys().next().value! // Gives the oldest key in O(1) iterator step
+  delete + set                 // Re-orders key to newest position in 2 calls
 
 ================================================================
-4. GOTCHAS
+4. TIME & SPACE COMPLEXITY
 ================================================================
-- PUT MUST RE-INSERT AN EXISTING KEY TOO. A plain set() on
-  a key already there keeps its OLD position, so it never
-  counts as used.
-- EVICT AFTER INSERTING, and test size > capacity, not >=.
-  With >= the cache holds one item fewer than asked.
-- ONE INSERT CAN ONLY OVERFLOW BY ONE, so one eviction is
-  enough. No loop needed.
-- Capacity 0 makes no sense. Check it in the constructor.
+- TIME COMPLEXITY:
+    - get(key) : O(1)
+    - put(key, value) : O(1)
+- SPACE COMPLEXITY: O(Capacity) items stored.
+
+================================================================
+5. VISUAL DIAGRAM
+================================================================
+Capacity = 2. Map stores items [Oldest ... Newest]:
+
+  put("a", 1)   -> Map: { "a": 1 }
+  put("b", 2)   -> Map: { "a": 1, "b": 2 }
+  get("a")      -> Read 1, delete "a", re-set "a":
+                   Map: { "b": 2, "a": 1 }   <-- "a" is now newest, "b" is oldest!
+
+  put("c", 3)   -> Map: { "b": 2, "a": 1, "c": 3 }  (Size 3 > 2)
+                   Evict oldest key ("b"):
+                   Map: { "a": 1, "c": 3 }
+
+  get("b")      -> returns undefined (was evicted!)
+
+================================================================
+6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
+================================================================
+- PUT MUST RE-INSERT EXISTING KEYS TOO: Plain `map.set()` on an existing key keeps its OLD position! You must delete first!
+- EVICT AFTER INSERTING: Always check `size > capacity` (NOT `>=`).
+- UNDER THE HOOD IN V8: V8 engine implements Map order using a Doubly Linked List internally. So this IS the HashMap + DLL solution built into JS!
 */
+
 
 export class LRUCache<K, V> {
   // a Map keeps insertion order, so keys() gives oldest first

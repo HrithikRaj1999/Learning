@@ -2,80 +2,74 @@
 Q3.7  Min Stack (O(1) getMin - LC 155)
 
 ================================================================
-1. INTUITION
+1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
 ================================================================
-WHAT
-  A stack where push, pop, top and getMin are all O(1).
-
-WHY ONE VARIABLE IS NOT ENOUGH
-  Scanning for the smallest value is O(n).
-  Keeping one `min` variable breaks the moment that minimum
-  is popped, because I do not know the second smallest.
-  So I need history, not one value.
-
-THE TRICK
-  The minimum is a property of everything from the bottom up
-  to a point. And a stack only ever changes at the top.
-  So next to every item I store the smallest value seen from
-  the bottom up to that item.
-  Push writes both. Pop drops both. getMin is a peek.
-  Nothing is ever recomputed.
-
-COST
-  push / pop / top / getMin : O(1)
-  memory : O(n), one extra number per item
+- DATA STRUCTURE: Two Parallel Stacks (`values` stack + `minimums` stack).
+- WHY: Single `min` variable fails when the minimum item is popped because we lose history of the previous minimum!
+  Storing a parallel history stack of minimums guarantees `getMin()` is a simple O(1) peek.
 
 ================================================================
-2. VISUAL EXAMPLE
+2. INTUITION (What I am thinking to tell to interviewer)
 ================================================================
-push(5), push(2), push(7), then pop twice
-
-  push(5)    values [5]      minimums [5]           min 5
-  push(2)    values [5,2]    minimums [5,2]         min 2
-                             because min(2,5) = 2
-  push(7)    values [5,2,7]  minimums [5,2,2]       min 2
-                             7 is not smaller, so CARRY 2
-  pop() -> 7 values [5,2]    minimums [5,2]         min 2
-  pop() -> 2 values [5]      minimums [5]           min 5
-                             the old min came back on its
-                             own, the history was under it
-
-The two stacks are ALWAYS the same height. That is what
-makes getMin a plain peek instead of a search.
+- "A single variable cannot remember past minimums when the current minimum is popped."
+- "Maintain a parallel `minimums` stack that is ALWAYS the exact same height as `values` stack."
+- "For every `push(x)`: write `x` to `values`, and write `min(x, currentMin)` to `minimums`."
+- "For every `pop()`: pop from BOTH stacks in sync."
+- "`getMin()` simply returns the top of `minimums` stack in O(1) time."
 
 ================================================================
-3. SKELETON
+3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
 ================================================================
-  push(value)  push to values
-               push min(value, current min) to minimums
-  pop()        pop BOTH, return the value
-  top()        top of values
-  getMin()     top of minimums
-  isEmpty()
+- push(value):
+    1. `values.push(value)`.
+    2. `best = minimums.at(-1) ?? value` (gets current minimum or `value` if first push).
+    3. `minimums.push(Math.min(value, best))`.
+- pop():
+    1. If `isEmpty()`, throw "Stack is empty".
+    2. `minimums.pop()`.
+    3. Return `values.pop()!`.
+- top(): If `isEmpty()`, throw. Return `values.at(-1)!`.
+- getMin(): If `isEmpty()`, throw. Return `minimums.at(-1)!`.
+- isEmpty(): Return `values.length === 0`.
 
-  SHORT SYNTAX
-    minimums.at(-1) ?? value
-        the current best, and the first push, in one go
-    Math.min(value, best)
-        replaces the whole if / else carry forward
-    values.pop()!    emptiness is checked just above
+SHORT SYNTAX TRICKS:
+  const best = minimums.at(-1) ?? value // Handles empty stack on 1st push cleanly
+  Math.min(value, best)                 // Calculates running minimum in 1 line
 
 ================================================================
-4. GOTCHAS
+4. TIME & SPACE COMPLEXITY
 ================================================================
-- BOTH STACKS MOVE TOGETHER. Same height, always. Pop one,
-  pop the other.
-- CARRY THE OLD MIN FORWARD when the new value is not
-  smaller. Do not push the new value. minimums holds "best
-  so far", it is not a copy of values.
-- FIRST PUSH is the special case. minimums is empty, so the
-  value itself is the minimum.
-- SPACE SAVING VERSION: push to minimums only when
-  value <= currentMin, and pop it only when the popped value
-  equals the top of minimums. It must be <= and not <, or
-  duplicate minimums pop one too early.
-- EVERY METHOD CHECKS EMPTY. getMin on empty has no answer.
+- TIME COMPLEXITY:
+    - push(x)  : O(1)
+    - pop()    : O(1)
+    - top()    : O(1)
+    - getMin() : O(1)
+- SPACE COMPLEXITY: O(N) auxiliary space for `minimums` stack.
+
+================================================================
+5. VISUAL DIAGRAM
+================================================================
+Push 5, Push 2, Push 7, then Pop twice:
+
+  Operation      values Stack      minimums Stack      getMin()
+  push(5)        [5]               [5]                 5
+  push(2)        [5, 2]            [5, 2]              2  (min of 2, 5 is 2)
+  push(7)        [5, 2, 7]         [5, 2, 2]           2  (7 >= 2, carry 2 forward!)
+
+  pop() -> 7     [5, 2]            [5, 2]              2
+  pop() -> 2     [5]               [5]                 5  (5 automatically restored!)
+
+Both stacks move together in exact lockstep!
+
+================================================================
+6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
+================================================================
+- BOTH STACKS MUST STAY SAME HEIGHT: Pop from both `values` and `minimums` together on every `pop()`.
+- CARRY OLD MIN FORWARD: If new value > current min, push current min AGAIN to `minimums` stack!
+- SPACE OPTIMIZATION VARIANT: Only push to `minimums` when `val <= currentMin`. Requires `val === minStack.top()` check on pop. (Be careful with duplicates: MUST use `<=`, not `<`).
+- QUEUE VARIANT: Monotonic Deque (Sliding Window Maximum / Minimum problem).
 */
+
 
 export class MinStack {
   private values: number[] = [];
