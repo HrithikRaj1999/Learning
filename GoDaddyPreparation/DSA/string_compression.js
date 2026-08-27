@@ -1,109 +1,157 @@
 /*
 String Compression (LC 443)
 
-============================================================
-1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
-============================================================
-- DATA STRUCTURE:
-    Two Pointers (`read` and `write`) in-place on `chars`.
-- WHY WE NEED IT:
-    O(1) extra space is required. Overwriting in-place is safe
-    because `write` pointer never overtakes `read` pointer
-    (`write <= read`).
+Compress `chars` IN PLACE: for every run of equal characters write
+the character, and if the run is longer than 1 also write its length
+as digits. Return the new length. O(1) extra space.
 
-============================================================
-2. INTUITION (What I am thinking to tell interviewer)
-============================================================
-- "Two-pointer in-place rewrite: `read` scans consecutive
-   matching characters, `write` places compressed output."
-- "Inner loop counts sequence length: `count = readEnd - readStart`."
-- "Write character at `chars[write++] = char`."
-- "If `count > 1`, convert count to string and write each
-   digit sequentially (`chars[write++] = digit`)."
-- "Return `write` as the new compressed array length."
+  ["a","a","b","b","c","c","c"] -> a2b2c3 -> return 6
+*/
 
-============================================================
-3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
-============================================================
-- Initialize `write = 0`, `read = 0`.
-- Outer loop while `read < chars.length`:
-    1. Save `char = chars[read]`, `start = read`.
-    2. Inner loop: advance `read++` while `chars[read] === char`.
-    3. Write character: `chars[write++] = char`.
-    4. Calculate `count = read - start`.
-    5. If `count > 1`, convert `count.toString()` and iterate
-       through digits, writing `chars[write++] = digit`.
-- Return `write`.
+// ============================================================
+// 1) INTUITION
+// ============================================================
+/*
+- Run = block of same chars together. "aaabb" = a x3, b x2.
 
-SHORT SYNTAX TRICKS:
-  for (const c of String(count)) chars[write++] = c // Write digits
-  const count = read - start                       // Group size
+- TWO POINTERS on one array:
+      readIndex  = fast. scans the input.
+      writeIndex = slow. next empty slot for the output.
 
-============================================================
-4. TIME & SPACE COMPLEXITY
-============================================================
-- TIME COMPLEXITY:
-    - O(N) where N is array length (`read` pointer visits
-      each character exactly once).
-- SPACE COMPLEXITY:
-    - O(1) auxiliary space (modifies input array in-place).
+- Slow is always behind fast, so writing never eats unread data.
+  A run of size L costs 1 + digits(L) cells, always <= L.
+  So it always fits. That is why in place works, space O(1).
 
-============================================================
-5. VISUAL DIAGRAM
-============================================================
+- For one run:
+      1. save the char
+      2. move readIndex while the char repeats
+      3. runLength = how far it moved
+      4. write the char
+      5. runLength > 1 -> write its digits too
+
+- Array holds CHARACTERS, count is a NUMBER.
+  String(12) = "12" = 2 cells.
+
+- runLength 1 -> write no number. "a1" is wrong.
+
+- Return writeIndex. That is the new length.
+*/
+
+// ============================================================
+// 2) VISUAL EXAMPLE
+// ============================================================
+/*
 chars = ["a","a","b","b","c","c","c"]
+         0   1   2   3   4   5   6
 
-  Group "a" (count 2): write 'a', '2' -> ["a","2", ...]
-  Group "b" (count 2): write 'b', '2' -> ["a","2","b","2", ...]
-  Group "c" (count 3): write 'c', '3' -> ["a","2","b","2","c","3"]
+read=0  run 'a' x2   write 'a' then '2'
+        [a, 2, b, b, c, c, c]
+         w->2            r->2
 
-  Returns write index = 6.
+read=2  run 'b' x2   write 'b' then '2'
+        [a, 2, b, 2, c, c, c]
+               w->4     r->4
 
-============================================================
-6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
-============================================================
-- COUNT = 1 CASE: Do NOT write "1" for single chars ("a" -> "a").
-- MULTI-DIGIT COUNTS: Count >= 10 takes multiple slots (e.g. 12 -> '1', '2').
-- IN-PLACE SAFETY: Safe because compressed length <= original length.
+read=4  run 'c' x3   write 'c' then '3'
+        [a, 2, b, 2, c, 3, c]
+                     w->6     r->7
+
+return 6, and chars[0..5] = a 2 b 2 c 3   (index 6 is junk, ignored)
+
+Single-char run, chars = ["a","b"]:
+        [a, b]   'a' x1 -> write 'a' only, NO "1"
+                 'b' x1 -> write 'b' only
+        return 2
+
+Two-digit run, chars = 12 x "a":
+        write 'a', then '1', then '2'  -> length 3, not 2
+*/
+
+// ============================================================
+// 3) SKELETON
+// ============================================================
+/*
+compress(chars)
+  writeIndex = 0
+  readIndex  = 0
+  while readIndex < chars.length
+     currentChar = chars[readIndex]
+     runStart    = readIndex
+     advance readIndex while char stays the same
+     runLength   = readIndex - runStart
+     write currentChar
+     if runLength > 1 -> write each digit of runLength
+  return writeIndex
 */
 
 function compress(chars) {
-  let write = 0;
-  let read = 0;
+  // next free slot in the compressed output
+  let writeIndex = 0;
+  // scanning position in the original array
+  let readIndex = 0;
 
-  while (read < chars.length) {
-    const char = chars[read];
-    const start = read;
+  while (readIndex < chars.length) {
+    const currentChar = chars[readIndex];
+    const runStart = readIndex;
 
-    // Advance read to end of current repeated character sequence
-    while (read < chars.length && chars[read] === char) {
-      read++;
+    while (readIndex < chars.length && chars[readIndex] === currentChar) {
+      readIndex++;
     }
 
-    // Write character
-    chars[write++] = char;
-    const count = read - start;
+    const runLength = readIndex - runStart;
 
-    // Write digits if count > 1
-    if (count > 1) {
-      for (const digit of String(count)) {
-        chars[write++] = digit;
+    // the character itself is always written
+    chars[writeIndex] = currentChar;
+    writeIndex++;
+
+    // length 1 writes nothing ("a1" would be wrong AND longer)
+    if (runLength > 1) {
+      // 12 must become '1','2' - one cell per digit
+      const digits = String(runLength);
+      for (let i = 0; i < digits.length; i++) {
+        chars[writeIndex] = digits[i];
+        writeIndex++;
       }
     }
   }
 
-  return write;
+  return writeIndex;
 }
 
-// Quick check
-const chars1 = ["a", "a", "b", "b", "c", "c", "c"];
-const len1 = compress(chars1);
-console.log(len1, chars1.slice(0, len1)); // 6, ['a', '2', 'b', '2', 'c', '3']
+// ============================================================
+// QUICK CHECK
+// ============================================================
+function run(input) {
+  const chars = input.slice();
+  const length = compress(chars);
+  return chars.slice(0, length).join("");
+}
 
-const chars2 = ["a"];
-const len2 = compress(chars2);
-console.log(len2, chars2.slice(0, len2)); // 1, ['a']
+console.log(run(["a", "a", "b", "b", "c", "c", "c"])); // "a2b2c3"
+console.log(run(["a"])); // "a"
+console.log(run(["a", "b", "c"])); // "abc"
+console.log(run(Array(12).fill("a"))); // "a12"
+console.log(run(["a", "a", "a", "b", "b", "a", "a"])); // "a3b2a2"
+console.log(run([])); // ""
 
-const chars3 = ["a", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"];
-const len3 = compress(chars3);
-console.log(len3, chars3.slice(0, len3)); // 4, ['a', 'b', '1', '2']
+/*
+============================================================
+4) SAY OUT LOUD
+============================================================
+- COMPLEXITY:
+    Time  : O(n) - every index is read once and written at most once.
+    Space : O(1) - only pointers and a tiny digit string.
+- WHY IN PLACE IS SAFE:
+    A run of length L costs 1 + digits(L) cells, which is <= L for
+    every L >= 1. So write can never overtake read.
+- THE TWO TRAPS:
+    1. Counts >= 10 take multiple cells - convert to string.
+    2. A run of length 1 writes no number at all.
+- EDGE CASES:
+    Empty array -> 0. All distinct -> nothing shrinks, return n.
+    Same char repeating far apart ("aaabbaa") counts as two runs.
+- FOLLOW-UPS:
+    Decompress it back, compress a string instead of an array
+    (then a result array is fine and the in-place trick is moot),
+    or run-length encode with counts always written.
+*/
