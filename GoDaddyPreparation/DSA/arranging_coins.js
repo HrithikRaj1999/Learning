@@ -107,7 +107,7 @@ function arrangeCoinsBinary(n) {
     const cost = (mid * (mid + 1)) / 2;
 
     if (cost <= n) {
-      // mid rows fit - remember it and try for more
+      // mid rows fit - store it and try for more
       answer = mid;
       low = mid + 1;
     } else {
@@ -134,7 +134,7 @@ function arrangeCoins(n) {
   let k = Math.floor((Math.sqrt(1 + 8 * n) - 1) / 2);
 
   // floating point safety net: step up if k+1 actually fits...
-  while ((k + 1) * (k + 2) / 2 <= n) k++;
+  while (((k + 1) * (k + 2)) / 2 <= n) k++;
   // ...and step down if k itself does not
   while (k > 0 && (k * (k + 1)) / 2 > n) k--;
 

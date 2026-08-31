@@ -22,6 +22,14 @@ gaps allowed) so that the picked characters spell s2?
       skip this char  -> move only s1
 - NO MATCH -> only one choice: skip the s1 char.
 
+- What the pointers mean:
+      i = where I am in s1 (the pile I pick from)
+      j = the next slot of s2 I still have to fill
+
+      use  the char : i moves, j moves  (slot j got filled)
+      skip the char : i moves, j STAYS  (slot j still empty)
+  i always moves. j moves only when a slot got filled.
+
 - Base cases (order matters):
       s2 finished  -> 1  (found one full way)
       s1 finished  -> 0  (s2 still left, impossible)
@@ -34,13 +42,18 @@ gaps allowed) so that the picked characters spell s2?
 // ============================================================
 /*
 s1 = "babgbag", s2 = "bag"  -> answer 5
-The 5 ways (capital = picked):
 
-  BAbgbAG      B A ... G
-  BAbgBAg
-  BabgBAG
-  bABgbAG   (wait - only 'b','a','g' in order matter)
-  ... easier to trust the table below.
+  index :  0 1 2 3 4 5 6
+  s1    :  b a b g b a g
+
+'b' can come from 0, 2, 4 -- 'a' from 1, 5 -- 'g' from 3, 6.
+The 5 valid orders (capital = picked):
+
+  0,1,3  ->  BAbGbag
+  0,1,6  ->  BAbgbaG
+  0,5,6  ->  BabgbAG
+  2,5,6  ->  baBgbAG
+  4,5,6  ->  babgBAG
 
 DP table, dp[i][j] = ways to build first j chars of s2
 using first i chars of s1.
@@ -70,9 +83,18 @@ Cell dp[7][3] = 5 : match 'g' -> dp[6][2] (=4, use it)
 // 3) BRUTE FORCE - PLAIN RECURSION
 // ============================================================
 /*
-- Try both choices on every match, count the leaves that finished s2.
-    Time  : O(2^n) - branching on every match.
-    Space : O(n) recursion stack.
+PSEUDO STEPS
+  1. Start at the END of both strings: i = last of s1, j = last of s2.
+  2. If j went past the start -> s2 is done  -> return 1.
+  3. If i went past the start -> s1 is over  -> return 0.
+  4. If s1[i] === s2[j]:
+         return solve(i-1, j-1)      // use this char
+              + solve(i-1, j)        // skip this char
+  5. Else:
+         return solve(i-1, j)        // can only skip
+
+Time  : O(2^n) - two branches on every match.
+Space : O(n) recursion stack.
 */
 function numDistinctBrute(s1, s2) {
   function recurse(i, j) {
@@ -97,9 +119,14 @@ function numDistinctBrute(s1, s2) {
 // 4) BETTER - MEMOISATION (TOP DOWN)
 // ============================================================
 /*
-- Only n*m distinct (i, j) states exist, so cache each one.
-- Fill the memo with -1, because 0 is a REAL answer here.
-    Time  : O(n*m)   Space : O(n*m) + O(n) stack.
+PSEUDO STEPS
+  1. Same 5 steps as the brute force.
+  2. Make a table memo[n][m], fill it with -1.
+     (-1 = "not solved yet". Never use 0, because 0 is a real answer.)
+  3. At the top of the function: if memo[i][j] !== -1, return it.
+  4. Before returning, store the answer in memo[i][j].
+
+Time  : O(n*m)   Space : O(n*m) + O(n) stack.
 */
 function numDistinctMemo(s1, s2) {
   const n = s1.length;
@@ -131,16 +158,18 @@ function numDistinctMemo(s1, s2) {
 // 5) OPTIMAL - TABULATION (BOTTOM UP, WHAT THEY ASK FOR)
 // ============================================================
 /*
-- STEP 1: shift indexes by 1 so index 0 can mean "empty string".
-    Consequence: dp[i][j] compares s1[i-1] with s2[j-1].
-- STEP 2: dp[i][0] = 1 for every i - empty s2 needs one way
-    (pick nothing). dp[0][j] = 0 for j > 0 - empty s1 cannot
-    build a non-empty s2.
-- STEP 3: grow i and j, copy the recurrence:
-      match    -> dp[i][j] = dp[i-1][j-1] + dp[i-1][j]
-      mismatch -> dp[i][j] = dp[i-1][j]
-- STEP 4: answer is dp[n][m].
-    Time  : O(n*m)   Space : O(n*m), no recursion stack.
+PSEUDO STEPS
+  1. Build a grid dp of size (n+1) x (m+1), all zeros.
+  2. Shift by 1 so row 0 / column 0 can mean "empty string".
+     So inside the loop compare s1[i-1] with s2[j-1].
+  3. Fill column 0 with 1  -> empty s2 needs one way: pick nothing.
+     Row 0 stays 0         -> empty s1 cannot build a non-empty s2.
+  4. Loop i from 1 to n, inside loop j from 1 to m:
+         match    -> dp[i][j] = dp[i-1][j-1] + dp[i-1][j]
+         no match -> dp[i][j] = dp[i-1][j]
+  5. Answer is dp[n][m] (bottom-right cell).
+
+Time  : O(n*m)   Space : O(n*m), no recursion stack.
 */
 function numDistinct(s1, s2) {
   const n = s1.length;
@@ -170,13 +199,22 @@ function numDistinct(s1, s2) {
 }
 
 // ============================================================
-// 6) SPACE OPTIMAL - ONE ROW, RIGHT TO LEFT
+// 6) BEST - ONE ROW, RIGHT TO LEFT
 // ============================================================
 /*
-- Row i reads only row i-1, so one row is enough.
-- Walk j BACKWARDS. Going forward would overwrite row[j-1] before
-  it is used as the "previous row" diagonal value.
-    Time  : O(n*m)   Space : O(m).
+PSEUDO STEPS
+  1. Notice row i only ever reads row i-1. So keep ONE row, not a grid.
+  2. row = array of size m+1, all zeros, then row[0] = 1.
+  3. For each character of s1 (i from 1 to n):
+         loop j from m DOWN to 1:
+             match    -> row[j] = row[j-1] + row[j]
+             no match -> do nothing (row[j] already holds the old value)
+  4. Answer is row[m].
+
+  Why backwards? row[j] needs row[j-1] from the OLD row.
+  Going forward would have already overwritten it.
+
+Time  : O(n*m)   Space : O(m).
 */
 function numDistinctOneRow(s1, s2) {
   const n = s1.length;
