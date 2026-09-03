@@ -8,6 +8,7 @@ export function useProducts() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // cancels the in-flight HTTP request,
     const controller = new AbortController();
     const loadProducts = async () => {
       try {
