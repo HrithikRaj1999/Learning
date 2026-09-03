@@ -1,56 +1,57 @@
-import { Stars } from './components/Stars.jsx'
-import { useRating } from './hooks/useRating.js'
-import styles from './main.module.css'
+import { useState } from "react";
+import styles from "./main.module.css";
 
 export const meta = {
-  title: 'Star Rating',
-  brief: 'Hover preview, keyboard, a11y roles',
-}
+  title: "Star Rating",
+  brief: "Click to rate, hover to preview",
+};
 
-const LABELS = ['Not rated', 'Awful', 'Poor', 'Fine', 'Good', 'Excellent']
+const MAX = 5;
+const LABELS = ["Not rated", "Awful", "Poor", "Fine", "Good", "Excellent"];
 
 export default function StarRating() {
-  const rating = useRating({ max: 5 })
+  const [rating, setRating] = useState(0); // what the user clicked
+  const [hover, setHover] = useState(0); // 0 means the mouse is away
+  const handleOnClick = (e) => {
+    e.preventDefault();
+    setRating(star);
+  };
+  const shown = hover || rating;
 
   return (
-    /* Deliberately a completely different visual language to FetchApiCard —
-       neo-brutalist, heavy borders, no shared tokens. Proof that one exercise's
-       styling has no reach into another's. */
     <div className={styles.root}>
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>Exercise 02</p>
-        <h1 className={styles.title}>Star Rating</h1>
-        <p className={styles.lede}>
-          Same class names as exercise 01 (<code>.root</code>, <code>.card</code>
-          , <code>.grid</code>, <code>.title</code>) and a totally different
-          look. Nothing bleeds either way.
-        </p>
-      </header>
+      <h1 className={styles.title}>Star Rating</h1>
 
-      <div className={styles.card}>
-        <Stars
-          max={rating.max}
-          shown={rating.shown}
-          onRate={rating.rate}
-          onPreview={rating.preview}
-          onClearPreview={rating.clearPreview}
-        />
-
-        <output className={styles.readout}>
-          <span className={styles.score}>
-            {rating.shown}
-            <span className={styles.outOf}>/{rating.max}</span>
-          </span>
-          <span className={styles.label}>
-            {LABELS[rating.shown]}
-            {rating.isPreviewing && <em className={styles.hint}> — preview</em>}
-          </span>
-        </output>
+      <div className={styles.stars} onMouseLeave={() => setHover(0)}>
+        {Array.from({ length: MAX }, (_, i) => i + 1).map((star) => (
+          <button
+            key={star}
+            type="button"
+            aria-label={`${star} of ${MAX}`}
+            className={
+              star <= shown ? `${styles.star} ${styles.on}` : styles.star
+            }
+            onClick={handleOnClick}
+            onMouseEnter={() => setHover(star)}
+            onFocus={() => setHover(star)}
+            // onBlur={() => setHover(0)}
+          >
+            ★
+          </button>
+        ))}
       </div>
 
-      <button type="button" className={styles.reset} onClick={rating.reset}>
+      <p className={styles.label}>
+        {shown}/{MAX} {LABELS[shown]}
+      </p>
+
+      <button
+        type="button"
+        className={styles.reset}
+        onClick={() => setRating(0)}
+      >
         Reset
       </button>
     </div>
-  )
+  );
 }

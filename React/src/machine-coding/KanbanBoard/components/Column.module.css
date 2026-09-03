@@ -1,0 +1,14 @@
+.column {
+  flex: 1;
+  min-width: 12rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #f1f2f4;
+}
+
+.columnTitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #555;
+}

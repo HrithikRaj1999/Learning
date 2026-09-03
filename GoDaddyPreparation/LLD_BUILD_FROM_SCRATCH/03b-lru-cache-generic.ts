@@ -1,85 +1,32 @@
 /*
-Q3.3b  LRU Cache with Generics (Map + Doubly Linked List)
+LRU CACHE (Map + Doubly Linked List)
 
-============================================================
-1. DATA STRUCTURE NEEDED & WHY (Simple Explanation)
-============================================================
-- DATA STRUCTURE:
-    HashMap (`Map<K, Node<K,V>>`) + Doubly Linked List.
-- WHY WE NEED BOTH:
-    1. HashMap gives O(1) node lookup by key.
-    2. Doubly Linked List allows O(1) removal & re-linking.
-    (Singly linked list CANNOT remove middle nodes in O(1)
-     because it lacks `prev` pointer).
+INTUITION
+1. Cache must do get/put in O(1) AND know which key is least recently used.
+2. A Map alone gives O(1) lookup but no order; a list alone gives order but O(N) search.
+3. So use both: Map<K, Node> for lookup + Doubly Linked List for order.
+4. List order = newest at the front (head.next), oldest at the back (tail.prev).
+5. Doubly linked (not singly) because deleting a middle node needs `prev` -> O(1) unlink.
+6. head and tail are dummy guard nodes that kill every null check: list is never truly empty.
+7. Each Node stores its own key, so evicting the oldest node can do map.delete(key) in O(1).
+8. get(key): 
+    miss -> undefined; 
+    hit -> moveToFront(node) and return its value.
+9. put(key,v): 
+     exists -> update value + moveToFront;
+     new -> add to map + addToFront;
+     then if size > cap, 
+            evict oldest.
+10. One insert overflows by at most one, so one eviction per put is enough.
 
-============================================================
-2. INTUITION (What I am thinking to tell interviewer)
-============================================================
-- "HashMap maps key -> Node pointer for O(1) lookup."
-- "Doubly Linked List orders nodes from Newest (head) to
-   Oldest (tail)."
-- "DUMMY GUARD NODES (`head` & `tail`): Prevents all
-   edge-case null checks during insertion/removal!"
-- "NODE STORES ITS KEY: Critical! When evicting `tail.prev`
-   (oldest), it knows its key so `map.delete(key)` is O(1)."
+SKELETON
+  moveToFront(n)     = removeNode(n); addToFront(n)
+  removeNode(n)      = n.prev.next = n.next; n.next.prev = n.prev
+  addToFront(n)      = link n between head and head.next
+  get(k)             = map.get -> moveToFront -> value
+  put(k,v)           = update+moveToFront | insert+addToFront -> evict if size > cap
 
-============================================================
-3. STEPS TO SOLVE & ALGORITHM SKELETON (In Words)
-============================================================
-- Helper touch(node): `remove(node)`, then `addToFront(node)`.
-- Helper remove(node):
-    `node.prev.next = node.next; node.next.prev = node.prev;`
-    (2 lines, zero branches!).
-- Helper addToFront(node): Link between `head` & `head.next`.
-- get(key):
-    1. Lookup node in map. If missing, return `undefined`.
-    2. Call `touch(node)` (move to front). Return `node.val`.
-- put(key, value):
-    1. If key exists: update `node.val`, `touch(node)`.
-    2. Else create `{ key, value }`, save in map, `addToFront()`.
-    3. If `map.size > cap`: evict oldest (`oldest = tail.prev`),
-       `remove(oldest)`, `map.delete(oldest.key)`.
-
-SHORT SYNTAX TRICKS:
-  {} as Node<K, V>    // Dummy guard (no fake key/val)
-  head.next           // Newest real node
-  tail.prev           // Oldest real node
-
-============================================================
-4. TIME & SPACE COMPLEXITY
-============================================================
-- TIME COMPLEXITY:
-    - get(key)        : O(1)
-    - put(key, value) : O(1)
-- SPACE COMPLEXITY:
-    - O(Capacity) for storing map entries & nodes.
-
-============================================================
-5. VISUAL DIAGRAM
-============================================================
-LRU Structure with Head/Tail Guard Nodes:
-
-  HEAD (dummy) <---> [ Node A ] <---> [ Node B ] <---> TAIL (dummy)
-   |                                                    |
-  head.next = Node A                           tail.prev = Node B
-
-  1. get("B") / touch("B"):
-     Unlink Node B -> Move after HEAD:
-     HEAD <---> [ Node B ] <---> [ Node A ] <---> TAIL
-
-  2. put("C") when capacity = 2:
-     Insert Node C after HEAD -> Size = 3 > 2
-     Evict `tail.prev` (Node A): Unlink & `map.delete(A.key)`.
-
-============================================================
-6. KEY GOTCHAS & THINGS TO SAY OUT LOUD
-============================================================
-- DUMMY GUARD NODES (`head`, `tail`): Eliminates null checks
-  for empty list, single element list, head/tail removal.
-- STORE KEY INSIDE THE NODE: Without `node.key`, evicting
-  tail node requires scanning whole Map (turns O(1) to O(N)).
-- DOUBLY LINKED IS MANDATORY: Singly linked list requires
-  traversing from head to find `prev` node during delete.
+COMPLEXITY:  get O(1), put O(1), space O(capacity)
 */
 
 type Node<K, V> = {
@@ -90,79 +37,72 @@ type Node<K, V> = {
 };
 
 export class LRUCache<K, V> {
-  private nodes = new Map<K, Node<K, V>>();
+  private cap: number;
+  private map = new Map<K, Node<K, V>>();
   // two guards that never hold data.
-  // head.next is the newest node, tail.prev is the oldest.
-  private head = {} as Node<K, V>;
-  private tail = {} as Node<K, V>;
-  private capacity: number;
+
+  private head = {} as Node<K, V>; //head.next is the newest node,
+  private tail = {} as Node<K, V>;  //  tail.prev is the oldest.
 
   constructor(capacity: number) {
     if (capacity <= 0) throw new Error("capacity must be > 0");
-    this.capacity = capacity;
+    this.cap = capacity;
     this.head.next = this.tail;
     this.tail.prev = this.head;
   }
 
-  get(key: K): V | undefined {
-    const node = this.nodes.get(key);
-    if (!node) return undefined;
-    this.touch(node);
-    return node.value;
-  }
-
-  put(key: K, value: V): void {
-    const existing = this.nodes.get(key);
-    // updating a key still counts as using it
-    if (existing) {
-      existing.value = value;
-      this.touch(existing);
-      return;
-    }
-    const node = { key, value } as Node<K, V>;
-    this.nodes.set(key, node);
-    this.addToFront(node);
-    // one insert can overflow by one, so one eviction is enough
-    if (this.nodes.size > this.capacity) {
-      const oldest = this.tail.prev;
-      this.remove(oldest);
-      // the node carries its key, so this stays O(1)
-      this.nodes.delete(oldest.key);
-    }
-  }
-
-  has(key: K): boolean { return this.nodes.has(key); }
-
-  size(): number { return this.nodes.size; }
-
-  // just used, so move it to the front
-  private touch(node: Node<K, V>): void {
-    this.remove(node);
-    this.addToFront(node);
-  }
-
-  // the guards mean no head or tail special case here
-  private remove(node: Node<K, V>): void {
+  private removeNode(node: Node<K, V>): void {
     node.prev.next = node.next;
     node.next.prev = node.prev;
   }
 
   private addToFront(node: Node<K, V>): void {
     node.prev = this.head;
-    // read the old first node before overwriting head.next
     node.next = this.head.next;
     this.head.next.prev = node;
     this.head.next = node;
   }
+
+  private moveToFront(node: Node<K, V>): void {
+    this.removeNode(node);
+    this.addToFront(node);
+  }
+
+  get(key: K): V | undefined {
+    const node = this.map.get(key);
+    if (!node) return undefined;
+    this.moveToFront(node);
+    return node.value;
+  }
+
+  put(key: K, value: V): void {
+    const node = this.map.get(key);
+    if (node) {
+      node.value = value;
+      this.moveToFront(node);
+      return;
+    }
+    const fresh = { key, value } as Node<K, V>;
+    this.map.set(key, fresh);
+    this.addToFront(fresh);
+    if (this.map.size > this.cap) {
+      const oldest = this.tail.prev;
+      this.removeNode(oldest);
+      this.map.delete(oldest.key);
+    }
+  }
+
+  has(key: K): boolean { return this.map.has(key); }
+
+  size(): number { return this.map.size; }
 }
 
-// quick check
-const cache = new LRUCache<number, string>(2);
-cache.put(1, "one");
-cache.put(2, "two");
-cache.get(1);          // 1 becomes newest
-cache.put(3, "three"); // evicts 2
-console.log(cache.get(1)); // one
-console.log(cache.get(2)); // undefined
-console.log(cache.get(3)); // three
-
+// // quick check
+// const cache = new LRUCache<number, string>(2);
+// cache.put(1, "one");
+// cache.put(2, "two");
+// cache.get(1);          // 1 becomes newest
+// cache.put(3, "three"); // evicts 2
+// console.log(cache.get(1)); // one
+// console.log(cache.get(2)); // undefined
+// console.log(cache.get(3)); // three
