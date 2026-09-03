@@ -17,8 +17,8 @@
 }
 
 :root {
-  /* Lets the UA pick sane defaults (form controls, scrollbars) per theme. */
-  color-scheme: light dark;
+  /* Light only: form controls and scrollbars stay light even if the OS is dark. */
+  color-scheme: light;
 }
 
 html {
@@ -29,7 +29,11 @@ body {
   min-height: 100dvh;
   /* A neutral inherited default so unstyled text is not Times New Roman.
      Every exercise sets its own font on its root, overriding this. */
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
