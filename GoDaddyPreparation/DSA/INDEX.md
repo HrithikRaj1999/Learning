@@ -77,6 +77,12 @@ SAY OUT LOUD (complexity, traps, follow-ups).
 | DP + sieve of Eratosthenes (LC 204, smallest prime factor) | [sieve_and_dp.js](sieve_and_dp.js) |
 | Recurrence relations + master theorem (DAA) | [master_theorem.js](master_theorem.js) |
 
+## 2.9 Trie / Prefix
+
+| Q | Question | File |
+|---|----------|------|
+| 2.9.1 | Trie autocomplete for domain names (LC 208 / 1268) | [AutoComplete.js](AutoComplete.js) |
+
 ## Not covered here (different part of the list)
 
 - **Q2.1.3** — the OA pair is "a string DP + an array greedy", i.e. the
