@@ -92,29 +92,81 @@ function autocompleteBruteForce(domains, prefix) {
 // 4) BETTER - TRIE + DFS
 // ============================================================
 /*
-STEPS (say it exactly like this)
-  BUILD (once, at startup)
-    1. we will take a MAP at every node: key = letter, value = next node
-       (a map, because I have to SEARCH the letter the user typed in O(1))
-    2. to insert a domain we will iterate its letters one by one
-    3. for each letter we will ask the map "do you already have this child"
-       - no  -> we create a fresh node and put it in the map
-       - yes -> we just move down to it, the prefix is already stored
-    4. on the LAST node we will mark isEnd = true and save its score
+WHAT ONE NODE ACTUALLY IS
+    node = {
+      children : Map { 'o' -> node, 'p' -> node },  // where I can go next
+      isEnd    : false,                             // no word stops here
+      score    : 0
+    }
+  The letter is NOT stored inside the node. The letter is the KEY that
+  POINTS to the node. So "where do I go after g" = one map lookup, O(1).
+  That is the only reason a map is there.
 
-  QUERY (on each keystroke)
-    5. we will start at the root and walk the typed prefix letter by letter
-    6. if any letter is missing from the map -> nobody matches -> return []
-    7. otherwise we land on ONE node = "everything below me starts with go"
-    8. we will DFS from that node and collect every node with isEnd
-    9. we will sort those by score and cut to the top k
+--- BUILD ---------------------------------------------------
 
-WHY IT IS BETTER
-  - step 5 costs only the length of the prefix, NOT the size of the registry
-  - step 8 visits only the matches, never an unrelated domain
-    insert / search / startsWith : O(L)
+INSERT "go" (score 30). Start at root, root.children is empty.
+    'g' : root.children.has('g')? NO  -> make node A, root.children = {g:A}
+                                          move down, node = A
+    'o' : A.children.has('o')?    NO  -> make node B, A.children = {o:B}
+                                          move down, node = B
+    string finished -> B.isEnd = true, B.score = 30
+
+    root --g--> A --o--> B*
+
+INSERT "gopro" (score 60). Start at the root AGAIN.
+    'g' : root.children HAS 'g'  -> create nothing, reuse A   <-- the saving
+    'o' : A.children HAS 'o'     -> create nothing, reuse B
+    'p' : B.children has 'p'? NO -> make C
+    'r' : make D
+    'o' : make E, E.isEnd = true, E.score = 60
+
+    root --g--> A --o--> B* --p--> C --r--> D --o--> E*
+
+  "go" is written ONCE and both domains walk through it. n domains with
+  the same prefix cost the prefix once, not n times. That is the trie.
+
+--- QUERY, on every keystroke --------------------------------
+
+TYPE "gop"
+    node = root
+    'g' -> A        'o' -> B        'p' -> C          three map lookups
+    Done. I am standing on C, and I never looked at amazon.com at all.
+    C means: "every word below me starts with gop".
+
+TYPE "gz"
+    'g' -> A, then A.children.has('z') is FALSE
+    -> no domain can possibly start with gz -> return [] on the spot.
+    The dead end is the cheap case, not the expensive one.
+
+--- COLLECT, DFS below the landing node ----------------------
+
+  A node does NOT know its own word (nobody stored "gopro" anywhere),
+  so I carry the string down with me. The stack holds PAIRS:
+
+    stack = [ (C, "gop") ]
+    pop (C,"gop")    isEnd? no.  children {r:D} -> push (D, "gop"+"r")
+    pop (D,"gopr")   isEnd? no.  children {o:E} -> push (E, "gopr"+"o")
+    pop (E,"gopro")  isEnd? YES  -> collect { word:"gopro", score:60 }
+    stack empty -> results = ["gopro"]
+
+  If C had two children I would push both and the loop drains them one
+  branch at a time - that is all DFS means here.
+  Recursion does the exact same thing; I use an explicit stack so a very
+  long domain cannot overflow the call stack.
+
+  Last step: sort the collected words by score (popularity first,
+  alphabetical to break ties) and slice the top k for the dropdown.
+
+--- WHY IT BEATS THE BRUTE FORCE -----------------------------
+  - the walk costs the PREFIX LENGTH, not the registry size:
+      brute force "go" -> 100,000 startsWith calls
+      trie       "go" -> 2 map lookups
+  - the DFS visits ONLY matches; an unrelated domain is never touched
+  - a miss ("gz") stops at the first missing letter instead of scanning
+
+    insert / search / startsWith : O(L)          L = word length
     autocomplete                 : O(p + matches)
-    space                        : O(total characters)
+    space                        : O(total characters stored)
 */
 class TrieNode {
   constructor() {
