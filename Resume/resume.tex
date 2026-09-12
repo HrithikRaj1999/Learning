@@ -1,0 +1,229 @@
+%-------------------------
+% Resume in LaTeX
+% Author: Hrithik Raj
+% Version: ATS-Optimized, Impact-First (Node.js / Express ~60%, Python / FastAPI ~40%, React / Next.js)
+% License: MIT
+%-------------------------
+
+\documentclass[letterpaper,10pt]{extarticle}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{microtype}
+\input{glyphtounicode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\footskip}{4.08003pt}
+
+% Margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.6in}
+\addtolength{\textwidth}{1.2in}
+\addtolength{\topmargin}{-0.7in}
+\addtolength{\textheight}{1.4in}
+
+\urlstyle{same}
+\raggedbottom
+\setlength{\tabcolsep}{0in}
+
+% Section format
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\normalsize
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{\item\small{#1}}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+  \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    \textbf{#1} & \small #2 \\
+    \textit{\small #3} & \textit{\small #4} \\
+  \end{tabular*}\vspace{-6pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+  \item
+  \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+    \small #1 & \small #2 \\
+  \end{tabular*}\vspace{-6pt}
+}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.10in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.15in, itemsep=1pt, topsep=2pt, parsep=0pt]}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{2pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% ---------- Heading ----------
+\begin{center}
+  {\LARGE \textbf{Hrithik Raj}} \\ \vspace{2pt}
+  \small Senior Software Engineer \textbar{} Full-Stack Developer \textbar{} Solution Architect \\ \vspace{3pt}
+  \footnotesize
+  \href{mailto:hrithik.raj@techieraj.online}{hrithik.raj@techieraj.online} \textbar{}
+  +91-7903305088 \textbar{}
+  \href{https://www.linkedin.com/in/hrithik-raj-734a0b1aa}{LinkedIn} \textbar{}
+  \href{https://github.com/HrithikRaj1999}{GitHub} \textbar{}
+  \href{https://www.techieraj.online/}{Portfolio} \textbar{}
+  Pune, India
+\end{center}
+
+% ---------- Summary ----------
+\section{Professional Summary}
+
+\small{
+Senior Software Engineer and AWS-certified Solution Architect with \textbf{6 years} delivering enterprise platforms, PLM integrations, accessibility systems, and cloud-backed web applications in production.
+Strongest in \textbf{React}, \textbf{Next.js}, \textbf{TypeScript}, \textbf{Node.js}, and \textbf{Express.js}, with deep backend delivery across \textbf{Python}, \textbf{FastAPI}, REST/GraphQL APIs, Kafka workflows, SQL/NoSQL databases, and AWS/GCP infrastructure.
+Known for improving latency, reliability, developer velocity, and data integrity across complex enterprise integrations, with practical AI/RAG work used for onboarding, search, and developer-facing automation.
+\par}
+
+% ---------- Technical Skills ----------
+\section{Technical Skills}
+\vspace{2pt}
+{\small
+\noindent\textbf{Languages:} TypeScript, JavaScript, Python (3.11/3.12), SQL \\[2pt]
+\textbf{Frontend:} React, Next.js (SSR/SSG/ISR), TypeScript, Redux Toolkit, Redux Saga, React Query, React Hook Form, Zod \\[2pt]
+\textbf{Node Backend:} Node.js, Express.js, NestJS, REST, GraphQL, gRPC, Joi, Socket.io, Node Streams, worker threads \\[2pt]
+\textbf{Python Backend:} FastAPI, Flask, Django, SQLAlchemy, Pydantic, Celery, Alembic, Uvicorn, Gunicorn \\[2pt]
+\textbf{Architecture:} Microservices, Event-Driven Architecture, Kafka, CQRS, Saga, System Design, Caching, JWT, OAuth 2.0, RBAC \\[2pt]
+\textbf{Databases:} PostgreSQL, MongoDB, Redis, DynamoDB, Elasticsearch, pgvector \\[2pt]
+\textbf{Cloud \& DevOps:} Linux, AWS, GCP, Docker, Kubernetes, Terraform, SQS, CloudWatch, OpenTelemetry, CI/CD, Grafana, Prometheus \\[2pt]
+\textbf{AI \& Search:} OpenAI API, Azure OpenAI, LangChain, pgvector, ChromaDB, Elasticsearch, RAG \\[2pt]
+\textbf{Testing:} Pytest, unittest, Testcontainers, Jest, Playwright, k6 \\[2pt]
+\textbf{Engineering Practices:} System Design, Low-Level Design, Domain-Driven Design, Clean Architecture, TDD, SOLID, Design Patterns
+\par}
+
+% ---------- Certifications ----------
+\section{Certifications}
+\vspace{2pt}
+\resumeSubHeadingListStart
+  \resumeProjectHeading
+    {\textbf{AWS Certified Solutions Architect -- Associate (SAA-C03)}, Score: \textbf{856/1000} \textbar{} \href{https://cp.certmetrics.com/amazon/en/public/verify/credential/5f3fb78e66b744618e580b11bb01bdaa}{Verify}}{Mar 2026}
+  \resumeProjectHeading
+    {\textbf{AWS Certified Developer -- Associate (DVA-C02)}, Score: \textbf{908/1000} \textbar{} \href{https://cp.certmetrics.com/amazon/en/public/verify/credential/beb59ede67a24c84aa64cae05f567a6e}{Verify}}{Nov 2025}
+\resumeSubHeadingListEnd
+
+% ---------- Professional Experience ----------
+\section{Professional Experience}
+
+\resumeSubHeadingListStart
+
+% ===== SIEMENS =====
+\resumeSubheading
+{Siemens AG}{Apr 2025 -- Present}
+{Senior Software Engineer / Solution Architect}{Pune, India}
+\vspace{2pt}
+\resumeItemListStart
+  \resumeItem{Led module design and delivery across \textbf{4 enterprise PLM/lab systems} (RiffynX, Teamcenter, Polarion, NX), owning requirements, design reviews, implementation, and release with \textbf{React}, \textbf{TypeScript}, \textbf{MeteorJS}, \textbf{Node.js}, \textbf{Express.js}, Python, and FastAPI.}
+  \resumeItem{Reduced search response time by \textbf{35\%} for \textbf{1,000+ users} by designing an \textbf{Elasticsearch microservice} for Experiment and Process Library pages, with optimized payloads, filters, and shard routing that earned direct Siemens leadership recognition.}
+  \resumeItem{Reduced \textbf{Amazon DocumentDB} index size by \textbf{40\%} and cut storage spend by auditing and purging multiple TBs of duplicate path indexes, also improving write throughput across production clusters.}
+  \resumeItem{Cut initial page load time by \textbf{35\%} and frontend round trips from \textbf{6 to 2} by combining a \textbf{Node.js/Express BFF}, route-level code splitting, lazy loading, stable selectors, \textbf{React.memo}, \textbf{useMemo}, and \textbf{useCallback}.}
+  \resumeItem{Standardized frontend delivery with a shared \textbf{React/TypeScript component library} (tables, async dropdowns, filters, modal forms) reused across \textbf{12+ pages}, plus custom hooks for debounced search, infinite scroll, polling, abortable fetch, and render control.}
+  \resumeItem{Reduced engineer onboarding from \textbf{3 weeks to 8 days} by building an internal \textbf{RAG knowledge assistant} with OpenAI API, LangChain, and pgvector, letting engineers query process documentation in natural language.}
+  \resumeItem{Delivered a \textbf{Dotmatics Luma to Teamcenter} integration for a major pharma client using \textbf{Apache Spark SQL} pipelines, replacing manual lab-to-PLM entry with an automated workflow validated on a Paracetamol release and saving \textbf{20+ engineer hours per batch}.}
+  \resumeItem{Decomposed monolithic search and integration logic into independent \textbf{microservices} for validation, query building, access control, and response shaping, improving fault isolation while powering server-side search APIs with pagination, multi-field sorting, reusable filters, stable ordering, and query-level RBAC.}
+  \resumeItem{Standardized API delivery across teams to cut integration defects and debugging time, defining shared DTOs, \textbf{Express middleware}, Zod validation, correlation IDs, retry/backoff rules, and SQS dead-letter queues, backed by OpenTelemetry traces, CloudWatch dashboards, Kubernetes tuning, and stream-based \textbf{100MB+ CSV exports}.}
+  \resumeItem{Migrated services from \textbf{AWS SDK v2 to v3}, modularizing client imports to cut Lambda bundle size by \textbf{25\%} and improve cold-start performance.}
+\resumeItemListEnd
+\vspace{3pt}
+
+% ===== NIIT =====
+\resumeSubheading
+{NIIT Limited}{May 2024 -- Apr 2025}
+{Software Engineer}{Gurugram, India}
+\resumeItemListStart
+  \resumeItem{Delivered a \textbf{WCAG 2.2 accessibility platform} with \textbf{React}, \textbf{Next.js}, \textbf{TypeScript}, \textbf{Node.js}, Express, FastAPI, Puppeteer, Cheerio, \textbf{axe-core}, and Franc language detection, secured with \textbf{Okta}/\textbf{Auth0} SSO, cutting scan-to-report time \textbf{45\%} at \textbf{99\%+ uptime} on AWS EKS.}
+  \resumeItem{Improved \textbf{Lighthouse} score from \textbf{62 to 91} and rendered \textbf{10K+} violations per page without UI freeze through React memoization, lazy loading, react-window virtualization, Redux Toolkit/Saga/Persist, and Socket.io live logs.}
+  \resumeItem{Reduced average accessibility fix time by \textbf{30\%} by building an \textbf{AI suggestion engine} with OpenAI API that converted technical scan findings into developer-friendly fixes.}
+  \resumeItem{Split scan, report, notification, and dashboard workloads into \textbf{microservices}; queued Puppeteer workers through Redis, streamed progress over Socket.io with Slack/Teams/email alerts, and generated restart-safe PDF/JSON/Excel (XLSX) reports for \textbf{100K+} violations and \textbf{500MB+} downloads.}
+  \resumeItem{Automated Jira Cloud migration reporting for \textbf{500+ users} with Due Date Tracker, Data Miner, React, Node.js, PostgreSQL, and Metabase, becoming the go-to engineer for Jira automation and training PMs to build dashboards independently.}
+  \resumeItem{Delivered \textbf{Color Contrast} and \textbf{OCR} analysis for EPUBs, images, GIFs, and HTML with TypeScript and PyTesseract, adopted by \textbf{6+ internal teams} for quarterly audits.}
+  \resumeItem{Stabilized API and form delivery with versioned \textbf{Express.js} routes, Joi validation, consistent JSON envelopes, centralized errors, React Hook Form, and Zod schemas, reducing new-form setup from \textbf{1 day to under 1 hour} for 4 frontend teams.}
+\resumeItemListEnd
+\vspace{3pt}
+% ===== TRIDIAGONAL =====
+\resumeSubheading
+{Tridiagonal Software}{Sep 2022 -- May 2024}
+{Software Engineer}{Pune, India}
+\resumeItemListStart
+  \resumeItem{Developed major parts of \textbf{MixIT}, a process-engineering platform for industrial mixing analysis, covering React/TypeScript forms, dashboards, an admin panel for user management and licensing with \textbf{MUI X Charts}, \textbf{Node.js/Express} APIs, MongoDB data models, and engineering workflows.}
+  \resumeItem{Improved P95 latency from \textbf{800ms to 480ms} with JWT refresh-token rotation, RBAC, rate limiting, MongoDB replica sets, Nginx health checks, compound indexes, Redis caching, and safer connection pooling.}
+  \resumeItem{Reduced simulation workflow time by \textbf{60\%}, repeated dashboard calls by \textbf{70\%}, and preprocessing from \textbf{12s to 3s} through RTK Query caching, throttling/debouncing, Node worker threads, FastAPI async endpoints, Pydantic v2, and Celery.}
+  \resumeItem{Connected the web app to \textbf{OpenFOAM C++} libraries so engineers could submit simulations, track status, and view outputs in the browser instead of editing backend files manually.}
+  \resumeItem{Designed the simulation lifecycle with queue execution, polling, cancel/retry states, audit trails, Node cluster/PM2 scaling, Express route modules, and Multer/S3 multipart uploads with MIME validation and virus-scan hooks for mesh files up to \textbf{2GB}.}
+  \resumeItem{Delivered reusable \textbf{React/TypeScript} form, wizard, localization, and unit-conversion modules across \textbf{15+ simulation modules}, supporting \textbf{8 languages}, \textbf{3 unit systems}, draft persistence, undo/redo, and fewer runtime type errors.}
+  \resumeItem{Powered live reactor dashboards at \textbf{10K+ data points/sec} with Redux Toolkit, WebSockets, WebRTC, CanvasJS, and D3.js, and added Azure OpenAI/ChromaDB search so engineers could query historical results in natural language.}
+  \resumeItem{Mentored \textbf{2 engineers}, set shared ESLint/Prettier standards, and lifted test coverage past \textbf{80\%} with CI, integration tests, and end-to-end tests.}
+\resumeItemListEnd
+\vspace{3pt}
+
+% ===== LOFT LIFE =====
+\resumeSubheading
+{Loft Life Growing Services Pvt. Ltd.}{Apr 2020 -- May 2022}
+{Software Engineer}{Remote}
+\resumeItemListStart
+  \resumeItem{Improved organic traffic \textbf{3x} and client engagement \textbf{40\%} by developing an SEO-focused platform with \textbf{Next.js SSR/SSG}, getStaticProps/getStaticPaths, dynamic routes, service pages, blog posts, case studies, and a protected customer portal.}
+  \resumeItem{Reduced average page load time by \textbf{55\%} and repeated client-side API calls by \textbf{50\%} through MongoDB aggregation tuning, TTL caching, React Query, Context API caching, and Cloudflare CDN/WAF/SSL setup.}
+  \resumeItem{Designed the customer portal API with \textbf{Node.js/Express} and Python/FastAPI services, covering JWT/OAuth 2.0 auth, request logging, role-based guards, centralized errors, invoices, weekly summaries, retention emails, database cleanup, and node-cron jobs.}
+  \resumeItem{Raised form submission success by \textbf{25\%} with reusable \textbf{React} forms for lead capture, contact, and onboarding, adding client-side validation, ReCAPTCHA, graceful errors, analytics, event tracking, staging, and automated database backups. \textbar{} Live: \href{https://loftlife.in/}{Loft Life}, \href{https://www.focuslabacademy.in/}{FocusLab Academy}.}
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+% ---------- Personal Projects ----------
+\section{Personal Projects}
+\vspace{2pt}
+\resumeSubHeadingListStart
+
+\resumeProjectHeading
+{\textbf{DocSense -- RAG Document Assistant} \textbar{} Python, FastAPI, LangChain, pgvector, Next.js \textbar{} \href{https://github.com/HrithikRaj1999}{GitHub}}{2025}
+\resumeItemListStart
+  \resumeItem{Built a private-document assistant that streams grounded, source-cited answers and reduced wrong answers through hybrid search, re-ranking, and cached retrieval over PostgreSQL and Redis.}
+\resumeItemListEnd
+
+\resumeProjectHeading
+{\textbf{OrderFlow -- Event-Driven Order Platform} \textbar{} Node.js, NestJS, Kafka, Kubernetes \textbar{} \href{https://github.com/HrithikRaj1999}{GitHub}}{2024}
+\resumeItemListStart
+  \resumeItem{Built an event-driven order platform that keeps distributed workflows consistent during failures using CQRS and saga orchestration, deployed with autoscaling, zero-downtime rolling updates, and load-tested observability on Kubernetes.}
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+% ---------- Awards ----------
+\section{Awards \& Recognition}
+\vspace{2pt}
+{\small
+\noindent\textbf{Client \& Leadership Appreciation} (Siemens, 2025) \textbar{} \textbf{Team of the Quarter} (NIIT, Dec 2024) \textbar{} \textbf{Best Debut Award} (NIIT, Nov 2024) \textbar{} \textbf{Outstanding Performance} (Tridiagonal, Mar 2024)
+\par}
+
+% ---------- Education ----------
+\section{Education}
+\vspace{2pt}
+\resumeSubHeadingListStart
+\resumeSubheading
+{Sinhgad Institute of Technology and Science}{Pune, India}
+{Bachelor of Engineering in Computer Science / Cybersecurity \textbar{} CGPA: 9.16/10}{}
+\resumeSubHeadingListEnd
+
+\end{document}

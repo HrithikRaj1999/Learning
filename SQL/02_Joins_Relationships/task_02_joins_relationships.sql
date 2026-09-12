@@ -17,7 +17,16 @@ SET search_path TO sql_mastery;
 -- status, channel for every order.
 -- ==================================================
 
+SELECT 
+    c.full_name,
+    c.email,
+    o.order_date,
+    o.status,
+    o.channel
 
+FROM orders o
+INNER JOIN customers c ON c.customer_id=o.customer_id
+ORDER BY o.order_date;
 
 -- ==================================================
 -- 02.02 - Order Items with Product Details  [BASIC]
@@ -28,6 +37,15 @@ SET search_path TO sql_mastery;
 -- category, quantity, unit_price, and line gross (quantity * unit_price).
 -- ==================================================
 
+SELECT
+    oi.order_id,
+    p.product_name,
+    p.category,
+    oi.quantity,
+    oi.unit_price,
+    (oi.quantity * oi.unit_price) AS line_gross
+FROM order_items oi
+INNER JOIN products p ON oi.product_id = p.product_id;
 
 
 -- ==================================================
@@ -38,7 +56,14 @@ SET search_path TO sql_mastery;
 -- YOUR TASK: LEFT JOIN customers to orders, keeping customers with zero orders.
 -- ==================================================
 
-
+Select 
+    cus.email,
+    o.order_id
+    (SUM(AGGREATE ALL orders ofcus.customer_id)) AS "Total orders"
+From orders o
+LEFT JOIN customer cus cus.customer_id=o.customer_id
+ 
+  
 
 -- ==================================================
 -- 02.04 - Customers Who Never Ordered (Anti-Join)  [INTERMEDIATE]
@@ -47,8 +72,10 @@ SET search_path TO sql_mastery;
 --
 -- YOUR TASK: LEFT JOIN + WHERE orders.order_id IS NULL to find them.
 -- ==================================================
-
-
+SELECT cus.customer_id, cus.full_name, cus.email
+FROM customers cus
+LEFT JOIN orders o ON o.customer_id=cus.customer_id
+WHERE o.order_id IS NULL;
 
 -- ==================================================
 -- 02.05 - Customers with Delivered Orders (Semi-Join)  [INTERMEDIATE]
@@ -57,9 +84,14 @@ SET search_path TO sql_mastery;
 --
 -- YOUR TASK: Use EXISTS to find customers with any status='delivered' order.
 -- ==================================================
-
-
-
+SELECT cus.customer_id, cus.full_name, cus.email
+FROM customers cus
+WHERE EXISTS (
+    SELECT 1
+    FROM orders o
+    WHERE o.customer_id = cus.customer_id
+      AND o.status = 'delivered'
+);
 -- ==================================================
 -- 02.06 - Employee Manager Names (Self-Join)  [INTERMEDIATE]
 -- ==================================================

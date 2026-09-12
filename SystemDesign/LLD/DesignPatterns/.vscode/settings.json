@@ -1,0 +1,8 @@
+{
+  "code-runner.executorMap": {
+    "typescript": "npx tsx"
+  },
+  "code-runner.runInTerminal": true,
+  "code-runner.fileDirectoryAsCwd": false,
+  "code-runner.cwd": "c:\\Learning\\SystemDesign\\LLD\\DesignPatterns"
+}

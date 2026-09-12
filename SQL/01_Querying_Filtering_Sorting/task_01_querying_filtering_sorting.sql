@@ -59,7 +59,7 @@ SET search_path TO sql_mastery;
 -- YOUR TASK: Return customer_id, full_name, and preferred_contact showing
 -- phone when available, else email (use COALESCE).
 -- ==================================================
-
+Select  customer_id, full_name, COALESCE(phone , email) AS preferred_contact  From Customers;
 
 
 -- ==================================================
@@ -70,8 +70,15 @@ SET search_path TO sql_mastery;
 -- YOUR TASK: Use CASE to add age_label: last 7 days = 'fresh', last 30 =
 -- 'recent', older = 'older'.
 -- ==================================================
-
-
+SELECT order_id,
+       customer_id,
+       order_date,
+       CASE
+           WHEN order_date >= TIMESTAMP '2026-04-01' - INTERVAL '7 days'  THEN 'fresh'
+           WHEN order_date >= TIMESTAMP '2026-04-01' - INTERVAL '30 days' THEN 'recent'
+           ELSE 'older'
+       END AS age_label
+FROM orders;
 
 -- ==================================================
 -- 01.07 - Paginated Orders (Page 3, 5 Per Page)  [INTERMEDIATE]
@@ -81,7 +88,9 @@ SET search_path TO sql_mastery;
 -- YOUR TASK: Return rows 11-15 with deterministic ORDER BY using LIMIT/OFFSET.
 -- ==================================================
 
-
+SELECT * FROM orders
+ORDER BY order_id ASC
+LIMIT 5 OFFSET 10;
 
 -- ==================================================
 -- 01.08 - All Distinct Cities (Customers + Shipping)  [INTERMEDIATE]
@@ -91,8 +100,9 @@ SET search_path TO sql_mastery;
 -- YOUR TASK: Return one column city of distinct values appearing in either
 -- customers.city OR orders.shipping_city (use UNION).
 -- ==================================================
-
-
+ SELECT city FROM customers
+ UNION 
+ SELECT order_id,shipping_city FROM orders;
 
 -- ==================================================
 -- 01.09 - Mobile Web Events (JSON Metadata)  [ADVANCED]
@@ -101,7 +111,8 @@ SET search_path TO sql_mastery;
 --
 -- YOUR TASK: Return web_events where metadata->>'device' = 'mobile'.
 -- ==================================================
-
+SELECT * FROM web_events 
+WHERE metadata -> 'device' = 'mobile';
 
 
 -- ==================================================
@@ -112,3 +123,5 @@ SET search_path TO sql_mastery;
 -- YOUR TASK: Return tickets whose subject matches a case-insensitive regex
 -- for 'refund', 'delay', or 'login'.
 -- ==================================================
+SELECT * FROM ticket_events
+WHERE note ~* 'refund|delay|login';

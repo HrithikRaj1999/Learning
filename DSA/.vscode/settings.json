@@ -1,0 +1,9 @@
+{
+  "code-runner.runInTerminal": true,
+  "code-runner.saveFileBeforeRun": true,
+  "code-runner.clearPreviousOutput": true,
+  "code-runner.runOnSave": true,
+  "code-runner.executorMap": {
+    "typescript": "npx tsc \"$fileName\" --target ES2020 --module commonjs --outDir dist && node \"dist\\$fileNameWithoutExt.js\""
+  }
+}
