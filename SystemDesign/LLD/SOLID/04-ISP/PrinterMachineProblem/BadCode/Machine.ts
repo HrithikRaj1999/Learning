@@ -1,3 +1,23 @@
+// =============================================================================
+// WHAT IS WRONG — Interface Segregation Principle (ISP) violation
+// =============================================================================
+// ISP rule: no client should be forced to depend on methods it doesn't use.
+// IMultiFunctionDevice bundles print + scan + fax + staple. A cheap printer can
+// only print, yet is forced to implement scan/fax/staple.
+//
+// REAL SCENARIO: CheapPrinter throws on scan/fax/staple. Code that accepts an
+// IMultiFunctionDevice will happily call scan() on it and crash at runtime. The
+// interface promises four capabilities the object doesn't have — a lie that
+// pushes failure to runtime and forces callers into instanceof/try-catch.
+//
+// WHY BAD: fat interface couples capabilities that don't co-occur; simple
+// devices carry throwing stubs; the contract can't be trusted.
+//
+// HOW TO FIX (no code): segregate into role interfaces — Printer (print),
+// Scanner (scan), Fax (fax), Stapler (staple). OfficeAllInOne implements all
+// four; CheapPrinter implements only Printer. A function that just prints asks
+// for a Printer, so a non-scanning device can never reach a scan() call.
+// =============================================================================
 // ❌ ISP VIOLATION — "Interface Segregation Principle"
 // No client should be forced to depend on methods it does not use.
 // One fat interface forces simple devices to stub out functions they lack.

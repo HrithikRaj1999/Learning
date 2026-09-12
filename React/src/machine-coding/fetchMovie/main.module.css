@@ -1,0 +1,42 @@
+.wrap {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+  background: #0b0b1b;
+  color: #e8e8ea;
+  min-height: 100vh;
+  font:
+    15px/1.5 system-ui,
+    sans-serif;
+}
+
+.msg {
+  color: #8b8f9a;
+}
+
+/* columns adjust on their own — no media queries */
+.grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+}
+
+.pager {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 26px;
+}
+.pager button {
+  padding: 8px 16px;
+  background: #1a1d24;
+  color: inherit;
+  border: 1px solid #2c313c;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.pager button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

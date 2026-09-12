@@ -1,0 +1,126 @@
+================================================================================
+INTERVIEW STORIES (SIMPLE ENGLISH) & DOCUMENTDB / MONGODB INDEX TOOLS
+================================================================================
+
+STORY 1: CLEANING UP HIDDEN JUNK IN THE DATABASE (DOCUMENTDB)
+--------------------------------------------------------------------------------
+SITUATION:
+At RiffynX, we store lab test data (experiments, plates, sample runs) in Amazon 
+DocumentDB. Over a few weeks, saving new data became very slow, even though the 
+number of users and request traffic stayed exactly the same.
+
+TASK:
+Find out what was slowing down the saves and fix it before scientists started 
+losing their experiment work.
+
+ACTION:
+I checked database health metrics first instead of application code:
+- The database ran out of fast memory (RAM) and was constantly reading slowly 
+  from the hard disk (BufferCacheHitRatio dropped, disk read IOPS spiked).
+- The raw document data had not grown, but the indexes (search shortcuts) were huge.
+- Different engineering teams over the years created duplicate and useless shortcuts.
+- Every time someone saved one document, the database had to update dozens of these 
+  useless shortcuts one by one.
+
+To fix this safely without breaking the live app, I built an end-to-end automation 
+script that:
+1. Scanned all collections and analyzed index usage and sizes.
+2. Flagged exact duplicates and prefix-redundant indexes (like {a:1} when {a:1, b:1} exists).
+3. Tested dropping candidate indexes on a read replica first.
+4. Ran query explain plans to confirm no important search broke into a slow full-collection scan.
+5. Safely deleted the dead indexes on the primary database during low-traffic hours.
+
+RESULT:
+We deleted 40% of the index junk. Saving data became fast again, the active working 
+set fit back into RAM, and AWS storage costs dropped. I also added a check to our code 
+review process so engineers cannot add new indexes without a clear query justification.
+
+
+================================================================================
+STORY 2: FIXING CRASHES FROM GIANT WEBSITE SCANS (EKS / NODE.JS)
+================================================================================
+SITUATION:
+At NIIT, we built a tool that checks websites to make sure people with disabilities 
+can use them (WCAG 2.2). It worked great for small 20-page websites, but enterprise 
+clients started scanning websites with thousands of pages. These scans took 4-5 minutes 
+and generated massive 500MB reports. Because our web server tried to hold the connection 
+open the whole time, the AWS load balancer timed out after 60 seconds with a 504 error, 
+and the server ran out of memory and crashed.
+
+TASK:
+Stop the timeouts and memory crashes without asking clients to change how they call us.
+
+ACTION:
+I split the job into two parts (asynchronous design):
+- When a client asks for a scan, the web server checks the input, puts the job into 
+  a background line (queue), and immediately replies with a tracking ID (HTTP 202).
+- Background worker computers pull jobs from the line and run the browser crawl quietly.
+- For the huge reports, I used data streaming so the computer writes and sends data 
+  piece-by-piece instead of loading the entire 500MB file into memory at once.
+- Because we initially used Redis (which has no built-in acknowledgment), I wrote a 
+  safe worker queue using BRPOPLPUSH and a cleanup job to recover stuck tasks if a 
+  worker crashed.
+
+RESULT:
+Timeouts dropped to zero, scan-to-report wait time dropped by 45%, and uptime reached 99%+.
+
+WHAT I WOULD DO DIFFERENTLY TODAY:
+I would use AWS SQS instead of Redis. SQS gives at-least-once message delivery, automatic 
+visibility timeouts, and dead-letter queues out of the box without needing custom code 
+to recover lost tasks.
+
+
+================================================================================
+COMMANDS, METRICS & TOOLS FOR DIAGNOSING INDEX BLOAT
+================================================================================
+
+1. INSPECTING INDEX DEFINITIONS & USAGE:
+- db.collection.getIndexes():
+  Lists all indexes on a collection, showing exact keys, order (ascending/descending), 
+  unique constraints, and names.
+- db.collection.aggregate([{ $indexStats: {} }]):
+  Shows how many times each index was actually used (accesses.ops) and the timestamp 
+  since it started tracking. If ops is 0 or near-zero, the index is dead weight.
+
+2. CHECKING SIZES & MEMORY FOOTPRINT:
+- db.collection.stats():
+  Shows total document size vs. total index size (totalIndexSize) and individual index 
+  sizes (indexSizes). Confirms if index data is larger than actual document data.
+- db.stats():
+  High-level database overview showing total storage, data size, and index size.
+
+3. QUERY EXECUTION & SAFETY CHECKS:
+- explain("executionStats"):
+  Verifies how a query runs:
+  * IXSCAN: Index scan (efficient).
+  * COLLSCAN: Full collection scan (what you want to avoid).
+  * totalDocsExamined vs nReturned: Shows index selectivity (bad if it scans 10,000 docs 
+    to return 5).
+- hint():
+  Forces the query engine to use (or skip) a specific index to simulate what happens 
+  before you drop it.
+
+4. FINDING REDUNDANCIES (AUTOMATION SCRIPT LOGIC):
+- Exact Duplicates:
+  Two indexes with different names but identical keys and order (e.g., idx_user_status 
+  vs user_1_status_1).
+- Prefix Redundancy:
+  Single-field or shorter compound index covered by a longer compound index 
+  (e.g., { a: 1 } is redundant if { a: 1, b: 1 } exists).
+
+5. SAFE DROPPING & TESTING:
+- db.collection.dropIndex("index_name"):
+  Permanently removes the redundant or unused index.
+- db.collection.hideIndex("index_name"):
+  Hides an index from the query planner without deleting it from disk to test if any 
+  query breaks. (Check DocumentDB version compatibility).
+
+6. SERVER & CLOUD METRICS:
+- CloudWatch BufferCacheHitRatio:
+  Measures percentage of requests served directly from RAM. Drops below 99% indicate 
+  working set exceeds RAM.
+- CloudWatch ReadIOPS / WriteIOPS:
+  Shows disk read/write pressure.
+- Database Profiler (db.setProfilingLevel(1, slowms)) / system.profile:
+  Logs slow-running queries exceeding a set latency threshold (e.g., > 100ms).
+================================================================================

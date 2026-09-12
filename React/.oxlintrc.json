@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "oxc"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  },
+  "overrides": [
+    {
+      "files": ["src/machine-coding/**/main.jsx"],
+      "rules": {
+        // Each exercise exports `meta` next to its component on purpose: the
+        // folder stays the single source of truth for that problem. The cost is
+        // a full reload instead of a fast refresh when main.jsx itself changes,
+        // which is fine for short practice rounds.
+        "react/only-export-components": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+.root {
+  font-family: system-ui, sans-serif;
+  padding: 2rem;
+  color: #222;
+}
+
+.title {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+}

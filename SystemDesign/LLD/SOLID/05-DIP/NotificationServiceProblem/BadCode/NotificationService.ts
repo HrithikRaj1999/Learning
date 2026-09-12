@@ -1,3 +1,26 @@
+// =============================================================================
+// WHAT IS WRONG — Dependency Inversion Principle (DIP) violation
+// =============================================================================
+// DIP rule: high-level policy should depend on ABSTRACTIONS, not on concrete
+// low-level details. Here NotificationService (the policy "notify a user") does
+// `new EmailSender()` and `new MySqlUserRepo()` inside itself — hard-wired to
+// SMTP and MySQL.
+//
+// REAL SCENARIO: product wants SMS instead of email, or moves MySQL -> Postgres.
+// You must edit NotificationService itself, even though its policy ("look up
+// address, send message") didn't change. Worse, you CANNOT unit-test notify()
+// without a real database and a real SMTP server, because it constructs them
+// internally — no way to inject a fake.
+//
+// WHY BAD: the important high-level rule is chained to swappable infrastructure
+// details. Every infra change ripples up; testing requires real I/O.
+//
+// HOW TO FIX (no code): depend on interfaces. Define MessageSender and
+// UserRepository abstractions; NotificationService receives them via its
+// constructor (dependency injection). Email/SMS senders and MySQL/Postgres repos
+// are implementation details chosen at the composition root. Swapping or mocking
+// = pass a different implementation, no edit to the service.
+// =============================================================================
 // ❌ DIP VIOLATION — "Dependency Inversion Principle"
 // High-level modules should NOT depend on low-level modules.
 // Both should depend on abstractions. Here high-level news up concretes directly.

@@ -1,0 +1,56 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.count {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #71717a;
+}
+
+.count strong {
+  color: #18181b;
+  font-variant-numeric: tabular-nums;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.button {
+  padding: 0.375rem 0.875rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  border-color: #a1a1aa;
+  background: #fafafa;
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.page {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: #52525b;
+}
