@@ -12,14 +12,14 @@
 ## Evidence Used
 
 - [Maths/Handout.md](Maths/Handout.md) defines scope and assessment.
-- `Maths/Class material/Lecture 1.pdf` through `Lecture_7.pdf` provide taught content.
+- `Maths/Class material/Lecture 1.pdf` through `Lecture_8.pdf` provide taught content.
+- [Lecture_8.pdf](Maths/Class%20material/Lecture_8.pdf) supplies continuous optimization and convexity.
 - [Lecture_2a.pdf](Maths/Class%20material/Lecture_2a.pdf) adds handwritten vector-space and span examples.
 - [Lecture_3a.pdf](Maths/Class%20material/Lecture_3a.pdf) adds a handwritten independence example.
 - [Webinar 1](Maths/Class%20material/Webinar_1_slides%28EMD%2025th%29.pdf) provides worked sessions 1–3 revision.
 - [Webinar 2](Maths/Class%20material/Webinar%202.pdf) provides worked sessions 4–6 revision.
 - `Maths/Assignment/ASSIGNMENT_1_SOLUTIONS.md` provides the preferred proof pattern.
 - `Maths/Assignment/QUIZ_1_EXAM_SHEET.md` provides short question patterns.
-- Session 8 has handout coverage only.
 
 ## Webinar Revision Map
 
@@ -417,32 +417,152 @@ $$
 
 ## Session 8: Optimization Fundamentals
 
-> Confirmed by the handout; no local session-eight lecture exists.
+> Source: `Maths/Class material/Lecture_8.pdf`, plus handout scope.
 
 ### Core Meanings
 
-- An objective function measures solution quality.
+- An objective function measures solution quality; we minimize it.
+- Continuous optimization splits into unconstrained and constrained branches.
+- Unconstrained means no equations or inequalities restrict $x$.
 - A convex set contains every segment joining its points.
 - A convex function has no misleading local minimum.
-- Gradient descent repeatedly moves downhill.
-- Regularization penalizes excessive model complexity.
+
+### Unconstrained Optimization
+
+- Assume the objective $f$ is differentiable.
+- Move along the negative gradient to decrease $f$.
+- Stop where the gradient becomes zero.
+- Such stationary points may be minima or maxima.
+
+### Analytic Minimization Example
+
+$$
+f(x)=x^4+7x^3+5x^2-17x+3
+$$
+
+$$
+f'(x)=4x^3+21x^2+10x-17,
+\qquad
+f''(x)=12x^2+42x+10
+$$
+
+1. Set $f'(x)=0$ to locate stationary points.
+2. A cubic derivative gives three such points.
+3. Use $f''$ to classify each point.
+4. Positive $f''$ means local minimum.
 
 ### Gradient Descent
 
 $$
-x_{t+1}=x_t-\eta\nabla f(x_t)
+x_{i+1}=x_i-\alpha_i\big((\nabla f)(x_i)\big)^T
 $$
 
-- $t$: current step number.
-- $\eta$: learning rate, controlling step size.
-- $\nabla f$: steepest uphill direction.
-- The minus sign moves downhill.
+- Used when no closed-form minimum exists.
+- $i$: current iteration number.
+- $\alpha_i>0$: step size, also called learning rate.
+- Small $\alpha$ guarantees $f(x_1)\le f(x_0)$.
+- The sequence $f(x_0)\ge f(x_1)\ge\cdots$ reaches a local minimum.
 
 ### Learning-Rate Effects
 
-- Too small causes slow learning.
-- Too large may jump past the minimum.
-- A suitable rate decreases loss steadily.
+| Constant rate | Behaviour |
+|---|---|
+| Large | Nears the optimum fast, then oscillates around it |
+| Small | Converges reliably but very slowly |
+| Decaying | Large strides first, slow careful finish |
+
+### Learning-Rate Decay
+
+$$
+\text{exponential decay: }\alpha_i=\alpha_0e^{-\kappa i}
+$$
+
+$$
+\text{inverse decay: }\alpha_i=\frac{\alpha_0}{1+\kappa i}
+$$
+
+- $\alpha_0$: starting learning rate.
+- $\kappa$: controls how fast the rate decays.
+- Step decay instead divides $\alpha$ every few iterations.
+
+### Gradient Descent With Momentum
+
+$$
+x_{i+1}=x_i-\alpha_i\big((\nabla f)(x_i)\big)^T+\Delta x_i
+$$
+
+$$
+\Delta x_i=\beta(x_i-x_{i-1}),
+\qquad
+\Delta x_0=0,
+\qquad
+0<\beta<1
+$$
+
+- Plain descent crawls when surface curvature is poorly scaled.
+- Momentum reuses the previous move as extra push.
+- The update mixes current and previous gradients.
+
+### Convex Set
+
+$$
+x,y\in C\implies\theta x+(1-\theta)y\in C
+$$
+
+- $\theta$ lies between zero and one.
+- The segment joining any two members stays inside.
+
+### Convex Function
+
+$$
+f(\theta x+(1-\theta)y)\le\theta f(x)+(1-\theta)f(y)
+$$
+
+- The domain of $f$ must be a convex set.
+- The chord never dips below the curve.
+
+$$
+f(y)\ge f(x)+\nabla_xf(x)(y-x)
+$$
+
+- Equivalent gradient criterion: tangent lines stay below.
+
+### Convexity Check Example
+
+Take $f(x)=x\log_2x$ for $x>0$, with $x=2$, $y=4$, $\theta=0.5$.
+
+1. Chord test: $f(3)=3\log_23\approx4.75$.
+2. Weighted value: $0.5f(2)+0.5f(4)=\log_232=5$.
+3. Since $4.75\le5$, the definition holds.
+4. Gradient test: $\nabla f=\log_2x+\dfrac{1}{\log_e2}$.
+5. Tangent estimate $f(2)+\nabla f(2)\times2\approx6.9\le f(4)=8$.
+
+### Constrained Optimization
+
+$$
+\min_x f(x)
+\quad\text{subject to}\quad
+g_i(x)\le0,\; h_j(x)=0
+$$
+
+- $f$: cost function being minimized.
+- $g_i$: $m$ inequality constraints, $i=1,\dots,m$.
+- $h_j$: $p$ equality constraints, $j=1,\dots,p$.
+- Convex $f$, $g_i$, $h_j$ give a convex optimization problem.
+- Convex problems guarantee a global optimum.
+
+### Linear Programming Example
+
+$$
+\min_{x,y}\;2x+2y
+$$
+
+$$
+x+y\le10,\quad 2x+y\ge10,\quad x\ge0,\quad y\ge0
+$$
+
+- Linear objective plus linear constraints is linear programming.
+- Every linear programme is a convex optimization problem.
 
 ### Regularization Idea
 
@@ -493,6 +613,9 @@ $$
 14. Compute one gradient and Hessian.
 15. Classify one critical point.
 16. Perform three gradient-descent updates.
+17. Repeat those updates with momentum added.
+18. Test one function for convexity both ways.
+19. Write one constrained problem in standard form.
 
 ## Recall Checklist
 
@@ -503,3 +626,6 @@ $$
 - Can I explain every factorization's purpose?
 - Can I classify critical points using the Hessian?
 - Can I explain gradient descent without notes?
+- Can I write both learning-rate decay formulas?
+- Can I state the momentum update correctly?
+- Can I test convexity by chord and gradient?

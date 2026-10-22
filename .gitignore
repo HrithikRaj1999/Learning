@@ -148,3 +148,6 @@ Cargo.lock
 pgdata/
 .docker/
 docker-compose.override.yml
+
+# Large archive (>100MB, exceeds GitHub limit)
+DataScience/Intro to Ds.zip

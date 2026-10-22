@@ -1,0 +1,42 @@
+{
+  "layout": [
+    {
+      "width": 1440,
+      "topics": 35,
+      "failures": []
+    },
+    {
+      "width": 768,
+      "topics": 35,
+      "failures": []
+    },
+    {
+      "width": 390,
+      "topics": 35,
+      "failures": []
+    },
+    {
+      "width": 320,
+      "topics": 35,
+      "failures": []
+    }
+  ],
+  "interactions": [
+    "mobile navigation",
+    "search and empty state",
+    "next and browser back",
+    "expandable notes",
+    "unique diagram IDs",
+    "keyboard escape",
+    "exam checks and calculator",
+    "print uses complete original notes"
+  ],
+  "runtimeErrors": [],
+  "content": {
+    "topics": 35,
+    "quizzes": 35,
+    "originalTopics": 35,
+    "originalFormulas": 243,
+    "failures": []
+  }
+}

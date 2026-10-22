@@ -37,10 +37,10 @@
 ### Essential Mathematics
 
 - Handout: [Maths/Handout.md](Maths/Handout.md)
-- Lectures exist for sessions 1–7.
+- Lectures exist for sessions 1–8.
 - Companion notes add handwritten span and independence examples.
 - Two webinar decks add worked revision across sessions 1–6.
-- Session 8 lacks a local lecture file.
+- Lecture 8 covers optimization, convexity, and gradient descent.
 - Solved assignments show the preferred proof style.
 - Duplicate assignment lecture files add no new content.
 

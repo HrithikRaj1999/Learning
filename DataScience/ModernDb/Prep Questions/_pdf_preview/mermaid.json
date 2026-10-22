@@ -1,0 +1,1 @@
+{"theme": "base", "themeVariables": {"fontFamily": "Calibri", "fontSize": "20px", "primaryColor": "#EFF7F3", "primaryTextColor": "#192D2B", "primaryBorderColor": "#087D70", "lineColor": "#53676A", "secondaryColor": "#EFF4FC", "tertiaryColor": "#FFF2EE"}, "flowchart": {"htmlLabels": false, "curve": "linear", "nodeSpacing": 24, "rankSpacing": 30}}

@@ -1,0 +1,1774 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maths Lectures 1–5 Revision Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
+<script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" onload="lucide.createIcons()"></script>
+<style>
+  :root{
+    --ink:#222d28; --muted:#606d65; --bg:#f5f7f4; --card:#fff; --line:#dce3dc;
+    --l4:#2d64a2; --l4s:#eef4fc; --l5:#a84060; --l5s:#fcf0f4;
+    --l1:#1c7055; --l1s:#edf6ee; --l2:#ac4e2f; --l2s:#fdf2ec; --l3:#886514; --l3s:#faf6e6;
+    --tool:#16716e; --tools:#eef7f6; --warn:#a33629; --warns:#fff2ee; --ok:#1c7055;
+    --accent:#1c7055; --accent-soft:#edf6ee; --lime:#daed95;
+  }
+  *{box-sizing:border-box;letter-spacing:0}
+  html{scroll-behavior:smooth;scroll-padding-top:28px}
+  body{margin:0;font:16px/1.65 "DM Sans","Trebuchet MS",sans-serif;color:var(--ink);background:var(--bg);background-image:radial-gradient(#cdd8ce 0.65px,transparent 0.65px);background-size:20px 20px}
+  button,input,select{font:inherit}
+  button,a,input,summary{-webkit-tap-highlight-color:transparent}
+  :focus-visible{outline:3px solid var(--l4);outline-offset:4px}
+  [hidden]{display:none!important}
+  .wrap{max-width:1320px;margin:0 auto;padding:36px 32px 72px;min-width:0}
+  header{padding-bottom:28px;border-bottom:1px solid var(--line)}
+  header h1{margin:0 0 10px;font:500 36px/1.2 "Lora",Georgia,serif}
+  .sub{color:var(--muted);margin:0;font-size:14px;max-width:850px}
+  .how{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;align-items:center;font-size:13px}
+  .how span{padding:2px 0}
+  .how .arrow{color:var(--muted)}
+  h2.sec{margin:36px 0 20px;font:500 26px/1.35 "Lora",Georgia,serif;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  h2.sec .tag{font:700 11px/1.6 "DM Sans","Trebuchet MS",sans-serif;color:#fff;border-radius:4px;padding:4px 9px;flex-shrink:0;margin-top:4px}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}
+  .card{--accent:var(--tool);--accent-soft:var(--tools);background:var(--card);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:8px;min-width:0;overflow:hidden;display:flex;flex-direction:column}
+  .card h3{margin:0;padding:20px 24px 14px;font-size:19px;font-weight:600;line-height:1.4;display:flex;flex-direction:column;align-items:flex-start;gap:6px;overflow-wrap:anywhere}
+  .card h3 small{font-weight:400;font-size:12px;color:var(--muted)}
+  .l1{--accent:var(--l1);--accent-soft:var(--l1s)} .l2{--accent:var(--l2);--accent-soft:var(--l2s)}
+  .l3{--accent:var(--l3);--accent-soft:var(--l3s)} .l4{--accent:var(--l4);--accent-soft:var(--l4s)}
+  .l5{--accent:var(--l5);--accent-soft:var(--l5s)}
+  .body{padding:0 24px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+  .body>div{min-width:0;max-width:100%;overflow-x:auto}
+  .label{font-size:11px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+  .idea{font-size:16px;line-height:1.65}
+  ol.steps{margin:0;padding-left:25px} ol.steps li{padding-left:3px;margin:8px 0}
+  ol.steps li::marker{color:var(--accent);font-weight:700}
+  .ex{border-left:3px solid var(--accent);padding:14px 16px;overflow-x:auto;background:var(--accent-soft)}
+  .trap{background:var(--warns);color:var(--warn);border-left:3px solid #da907d;padding:10px 14px;font-size:14px;line-height:1.6}
+  .fig{display:flex;justify-content:center;overflow-x:auto;padding:10px 0}
+  .fig svg{max-width:100%;height:auto;flex-shrink:0}
+  svg text{font:12px "DM Sans","Trebuchet MS",sans-serif;fill:var(--ink)}
+  .katex{font-size:1.08em}
+  .katex-display{margin:8px 0;overflow-x:auto;overflow-y:hidden;padding:4px 1px}
+  table.mat{border-collapse:separate;border-spacing:3px;margin:2px auto}
+  table.mat td{min-width:36px;height:34px;text-align:center;border-radius:4px;background:#f0f3ef;font-size:13px}
+  .hl{background:#fde68a!important;font-weight:700}
+  .skip{background:#f1f3f6!important;color:#9aa5b1}
+  .c1{background:#cfe0ff!important} .c2{background:#cdeed8!important} .c3{background:#fbd5d5!important}
+  .zero{background:#f7f8fa!important;color:#748179}
+  .checks{display:flex;gap:8px;flex-wrap:wrap}
+  .checks div{flex:1;min-width:110px;border-bottom:2px solid var(--accent);padding:8px;text-align:center;font-size:13px;background:var(--accent-soft)}
+  .checks .num{display:block;font-size:11px;color:var(--muted)}
+  .ok{color:var(--ok);font-weight:700} .bad{color:var(--warn);font-weight:700}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .keep{border-bottom:2px solid var(--l5);padding:4px 8px;background:var(--l5s)}
+  .drop{border-bottom:2px dashed #89968e;padding:4px 8px;color:var(--muted)}
+  table.t{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto}
+  table.t th,table.t td{border-bottom:1px solid var(--line);padding:11px 12px;text-align:left;vertical-align:top}
+  table.t th{background:#f2f5f0;font-size:12px;font-weight:700}
+  .panel{padding:18px 0;border-block:1px solid var(--line);overflow-x:auto}
+  .map{display:flex;flex-direction:column;gap:16px;align-items:flex-start}
+  .chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:0!important}
+  .node{border-radius:4px;padding:6px 10px;font-size:13px;background:var(--l4s);border-bottom:2px solid var(--l4)}
+  .node.p{background:var(--l5s);border-color:var(--l5)}
+  .node.o{background:var(--l1s);border-color:var(--l1)} .node.c{background:var(--l2s);border-color:var(--l2)} .node.k{background:var(--l3s);border-color:var(--l3)}
+  .arr{color:var(--muted);font-weight:700}
+  .keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px}
+  .key{background:#fff;border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0;overflow-x:auto}
+  kbd{background:#eef2eb;color:var(--ink);border:1px solid #c7d2c7;border-bottom-width:3px;border-radius:4px;padding:2px 6px;font-size:12px}
+  @media(max-width:850px){
+    .wrap{padding:24px 20px 48px}
+    .grid{grid-template-columns:minmax(0,1fr)}
+  }
+  @media(max-width:480px){
+    .wrap{padding:24px 16px 40px}
+    header h1{font-size:28px}
+    h2.sec{font-size:23px;gap:8px}
+    .card h3{padding:18px 18px 12px;font-size:18px}
+    .body{padding:0 18px 20px;gap:14px}
+    .ex{padding:10px}
+  }
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  @media print{
+    body{background:#fff;font-size:11px}
+    .wrap{max-width:none;padding:0}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .card,.panel{break-inside:avoid;border-color:#aaa}
+    .card h3{font-size:14px;padding:10px}
+    .body{padding:0 10px 10px;gap:8px}
+    .idea{font-size:12px}
+  }
+  .study-ready #reference-sheet{display:none}
+  .study-app{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+  .study-topbar{grid-column:1/-1;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;min-height:70px;padding:12px 28px;background:#fcfdfb;border-bottom:1px solid var(--line)}
+  .course-title{display:flex;align-items:center;gap:12px;min-width:0;margin-right:auto}
+  .course-mark{width:36px;height:36px;display:grid;place-items:center;background:var(--lime);border-radius:6px;color:#365025;flex-shrink:0}
+  .course-title strong{display:block;font:500 20px/1.3 "Lora",Georgia,serif}
+  .course-title small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+  .topbar-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+  .icon-button{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:6px;text-decoration:none;cursor:pointer;flex-shrink:0}
+  .icon-button:hover{background:#edf2e9;border-color:var(--line)}
+  .icon-button[aria-disabled="true"]{opacity:.3;pointer-events:none}
+  .lucide{width:19px;height:19px;stroke-width:1.8;flex-shrink:0}
+  #menu-toggle{display:none}
+  .study-sidebar{position:sticky;top:70px;align-self:start;max-height:calc(100dvh - 70px);overflow-y:auto;padding:26px 18px 30px;background:#f9fbf7;border-right:1px solid var(--line);scrollbar-width:thin}
+  .sidebar-heading{margin:0 10px 16px;font-size:11px;text-transform:uppercase;font-weight:700;color:var(--muted)}
+  .search-box{display:flex;align-items:center;gap:9px;margin:0 0 22px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:6px;color:var(--muted)}
+  .search-box input{width:100%;min-width:0;font-size:13px;border:0;background:transparent;color:var(--ink);outline-offset:5px}
+  .chapter{margin-bottom:10px}
+  .chapter summary{cursor:pointer;padding:8px 10px;font-size:14px;font-weight:600;line-height:1.5}
+  .chapter summary::marker{color:var(--muted);font-size:10px}
+  .chapter summary small{display:block;margin-left:13px;color:var(--muted);font-size:11px;font-weight:500}
+  .topic-link{display:flex;align-items:baseline;gap:10px;padding:9px 12px;margin:2px 0;border-left:2px solid transparent;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+  .topic-link:hover{color:var(--ink);background:#f0f4ed}
+  .topic-link[aria-current="page"]{border-color:var(--accent);background:#e9f2e5;color:#275b36;font-weight:600}
+  .topic-number{font-size:10px;min-width:16px;font-variant-numeric:tabular-nums;opacity:.8}
+  .sidebar-footer{margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}
+  .sidebar-footer a{align-items:center;font-size:12px}
+  .search-empty{padding:10px;color:var(--muted);font-size:13px}
+  .study-main{padding:42px 48px 54px;min-width:0;max-width:1040px;width:100%;margin:0 auto}
+  .lesson-heading{border:0;padding:0;margin:0 0 28px}
+  .lesson-meta{display:flex;align-items:center;gap:10px;font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 13px;flex-wrap:wrap}
+  .lecture-label{color:var(--accent);font-weight:700}
+  .lesson-heading h1{font-size:34px;margin:0;line-height:1.25;overflow-wrap:anywhere}
+  .lesson-position{height:3px;display:flex;gap:5px;margin-top:22px;max-width:240px}
+  .lesson-position span{height:3px;flex:1;background:var(--line)}
+  .lesson-position span.current{background:var(--accent)}
+  .lesson-content{animation:lesson-arrive .2s ease-out}
+  .definition{font-size:21px;line-height:1.55;margin:0 0 10px;max-width:700px}
+  .lesson-why{margin:0;color:var(--muted);font-size:14px;max-width:660px}
+  .lesson-why strong{color:var(--accent);font-weight:600}
+  .term-list{display:flex;flex-wrap:wrap;gap:14px 28px;margin:22px 0 0}
+  .term-list>div{flex:1;min-width:150px;max-width:310px}
+  .term-list dt{font-size:12px;font-weight:700;margin-bottom:3px;color:var(--ink)}
+  .term-list dd{font-size:13px;line-height:1.6;color:var(--muted);margin:0}
+  .lesson-section{margin-top:30px;padding-top:24px;border-top:1px solid var(--line);min-width:0}
+  .lesson-section h2{font-size:17px;font-weight:600;margin:0 0 16px;display:flex;gap:12px;align-items:baseline}
+  .section-number{font-size:11px;color:var(--accent);font-weight:700}
+  .example-question{margin:0 0 16px;font-size:15px}
+  .worked-steps{padding-left:24px;margin:0;max-width:100%}
+  .worked-steps li{padding-left:8px;margin:0 0 20px;min-width:0}
+  .worked-steps li::marker{color:var(--accent);font-size:12px;font-weight:700}
+  .worked-steps p{margin:0;font-size:14px}
+  .worked-math{max-width:100%;min-width:0;overflow-x:auto;margin-top:8px}
+  .worked-math .katex-display{text-align:left;margin:0;padding:8px 0}
+  .worked-math .katex-display>.katex{text-align:left}
+  .example-result{background:#edf4e7;border-left:3px solid var(--accent);padding:12px 16px;font-size:14px;margin:18px 0 0}
+  .example-result strong{color:var(--accent)}
+  .lesson-warning{font-size:13px;color:var(--warn);margin:16px 0 0;line-height:1.6}
+  .teaching-figure{margin:22px 0 0;max-width:500px}
+  .teaching-figure .fig{justify-content:flex-start}
+  .vector-demo{display:grid;grid-template-columns:minmax(64px,1fr) 48px 20px 48px 20px 48px;align-items:center;gap:10px;max-width:400px;padding:14px 0}
+  .vector-labels,.vector-column{display:grid;grid-template-rows:40px 40px;gap:6px;align-items:center}
+  .vector-labels{font-size:12px;color:var(--muted)}
+  .vector-column{border-inline:2px solid #6b7b6e;padding:0 5px}
+  .vector-cell{display:grid;place-items:center;height:40px;background:#e4efde;color:#315b35;font-size:23px;font-weight:500;border-radius:3px}
+  .vector-cell+span{background:#fae9df;color:#97492e}
+  .vector-operator{font-size:23px;text-align:center;color:var(--muted)}
+  .teaching-figure figcaption{font-size:12px;color:var(--muted);margin-top:8px}
+  .quiz-form{margin:0}
+  .quiz-form fieldset{padding:0;margin:0;border:0;min-width:0}
+  .quiz-form legend{font-size:15px;margin:0 0 14px;padding:0;max-width:100%}
+  .answer-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .answer-option{display:flex;align-items:flex-start;gap:9px;padding:12px 10px;border-bottom:2px solid var(--line);font-size:14px;cursor:pointer;min-width:0;overflow-wrap:anywhere}
+  .answer-option:has(:checked){border-color:var(--accent);background:#edf4e7}
+  .answer-option input{accent-color:var(--accent);margin:5px 0 0;flex-shrink:0;width:15px;height:15px}
+  .check-row{display:flex;align-items:flex-start;gap:16px;margin-top:20px;flex-wrap:wrap}
+  .command-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:10px 16px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+  .command-button:hover{background:#155d44}
+  .quiz-feedback{font-size:13px;margin:8px 0 0;min-height:42px;flex:1;min-width:180px}
+  .quiz-feedback[data-correct="true"]{color:var(--ok)}
+  .quiz-feedback[data-correct="false"]{color:var(--warn)}
+  .exam-notes{border-block:1px solid var(--line);margin-top:26px}
+  .exam-notes>summary{cursor:pointer;list-style:none;padding:18px 0;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}
+  .exam-notes>summary::-webkit-details-marker{display:none}
+  .exam-notes>summary .lucide:last-child{margin-left:auto;transition:transform .2s}
+  .exam-notes[open]>summary .lucide:last-child{transform:rotate(180deg)}
+  .exam-notes .card{border:0;border-radius:0;background:transparent}
+  .exam-notes .card h3{padding:4px 0 18px;font-size:18px}
+  .exam-notes .body{padding:0 0 24px}
+  .lesson-navigation{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:28px}
+  .previous-link{display:flex;align-items:center;gap:7px;color:var(--muted);text-decoration:none;font-size:13px;min-height:44px}
+  .previous-link[aria-disabled="true"]{visibility:hidden}
+  .source-line{font-size:11px;color:var(--muted);margin:28px 0 0;overflow-wrap:anywhere}
+  .checks-view h2{font:500 22px "Lora",Georgia,serif;margin-top:30px}
+  .checks-view .t{display:table}
+  @keyframes lesson-arrive{from{opacity:.45;transform:translateY(5px)}to{opacity:1;transform:none}}
+  @media(min-width:1501px){.study-app{border-inline:1px solid var(--line)}}
+  @media(max-width:1050px){.study-app{grid-template-columns:230px minmax(0,1fr)}.study-main{padding:34px 30px 44px}.study-sidebar{padding-inline:12px}}
+  @media(max-width:760px){
+    .study-app{grid-template-columns:minmax(0,1fr)}
+    .study-topbar{padding:10px 16px;gap:10px;min-height:66px}
+    .course-mark{display:none}
+    .course-title strong{font-size:18px}
+    .course-title small{font-size:10px}
+    #menu-toggle{display:inline-flex}
+    .study-sidebar{display:none;position:static;border-right:0;border-bottom:1px solid var(--line);max-height:65dvh;padding:22px}
+    .nav-open .study-sidebar{display:block}
+    .study-main{padding:28px 22px 40px}
+    .lesson-heading h1{font-size:28px}
+    .definition{font-size:19px}
+    .answer-options{grid-template-columns:minmax(0,1fr);gap:4px}
+    .answer-option{padding:11px 10px}
+    #print-notes{display:none}
+    .checks-view .t{display:block}
+  }
+  @media(max-width:380px){
+    .study-main{padding-inline:16px}
+    .study-topbar{padding-inline:10px;gap:5px}
+    .course-title strong{font-size:16px}
+    .icon-button{width:36px;height:40px}
+    .vector-demo{grid-template-columns:minmax(60px,1fr) 38px 14px 38px 14px 38px;gap:5px}
+    .vector-cell{font-size:20px}
+    .lesson-heading h1{font-size:26px}
+  }
+  @media(prefers-reduced-motion:reduce){.lesson-content{animation:none}.exam-notes>summary .lucide:last-child{transition:none}}
+  @media print{.study-ready .study-app{display:none}.study-ready #reference-sheet{display:block}}
+</style>
+</head>
+<body>
+<div id="study-app" class="study-app" hidden>
+  <div class="study-topbar">
+    <button id="menu-toggle" class="icon-button" type="button" aria-label="Topics" title="Topics" aria-controls="study-sidebar" aria-expanded="false"><i data-lucide="panel-left" aria-hidden="true"></i></button>
+    <div class="course-title">
+      <span class="course-mark"><i data-lucide="notebook-pen" aria-hidden="true"></i></span>
+      <div><strong>Essential Maths</strong><small>Lectures 1–5 · DSE ZC411</small></div>
+    </div>
+    <div class="topbar-actions">
+      <button id="print-notes" class="icon-button" type="button" aria-label="Print all lecture notes" title="Print all lecture notes"><i data-lucide="printer" aria-hidden="true"></i></button>
+      <a id="previous-top" class="icon-button" aria-label="Previous topic" title="Previous topic"><i data-lucide="chevron-left" aria-hidden="true"></i></a>
+      <a id="next-top" class="icon-button" aria-label="Next topic" title="Next topic"><i data-lucide="chevron-right" aria-hidden="true"></i></a>
+    </div>
+  </div>
+  <aside id="study-sidebar" class="study-sidebar">
+    <p class="sidebar-heading">Your topics</p>
+    <label class="search-box"><i data-lucide="search" aria-hidden="true"></i><input id="topic-search" type="search" placeholder="Find a topic" aria-label="Find a topic" autocomplete="off"></label>
+    <nav id="chapter-navigation" aria-label="Lecture topics"></nav>
+    <nav id="search-results" aria-label="Matching topics" hidden></nav>
+    <p id="search-empty" class="search-empty" role="status" hidden>No matching topics.</p>
+    <div class="sidebar-footer"><a class="topic-link" href="#exam-checks"><i data-lucide="list-checks" aria-hidden="true"></i>Exam checks &amp; calculator</a></div>
+  </aside>
+  <main id="lesson-main" class="study-main">
+    <header class="lesson-heading">
+      <p class="lesson-meta"><span id="lecture-label" class="lecture-label"></span><span aria-hidden="true">/</span><span id="topic-position"></span></p>
+      <h1 id="lesson-title" tabindex="-1"></h1>
+      <div id="lesson-position" class="lesson-position" aria-hidden="true"></div>
+    </header>
+    <div id="lesson-content" class="lesson-content"></div>
+    <nav class="lesson-navigation" aria-label="Lesson navigation">
+      <a id="previous-topic" class="previous-link"><i data-lucide="arrow-left" aria-hidden="true"></i>Previous</a>
+      <a id="next-topic" class="command-button">Next topic<i data-lucide="arrow-right" aria-hidden="true"></i></a>
+    </nav>
+    <p id="source-line" class="source-line"></p>
+  </main>
+</div>
+<div class="wrap" id="reference-sheet">
+
+<header>
+  <h1>Maths Lectures 1–5 Revision Sheet</h1>
+  <p class="sub">Essential Mathematics for Data Science (DSEZC411) · Sources: Lecture 1.pdf, Lecture_2.pdf, Lecture_2a.pdf, Lecture 3.pdf, Lecture_3a.pdf, Lecture_4.pdf, Lecture_5.pdf</p>
+  <div class="how">
+    <span>Read each card</span><span class="arrow">→</span>
+    <span><b>Idea</b></span><span class="arrow">→</span>
+    <span><b>Recipe</b></span><span class="arrow">→</span>
+    <span><b>Tiny example</b></span><span class="arrow">→</span>
+    <span style="color:var(--warn)"><b>Watch out</b></span>
+  </div>
+</header>
+
+<!-- ===================== MAP ===================== -->
+<h2 class="sec">How everything connects</h2>
+<div class="panel">
+  <div class="map">
+    <div class="chain">
+      <span class="node o">row operations</span><span class="arr">→</span>
+      <span class="node o">REF / RREF</span><span class="arr">→</span>
+      <span class="node o">\(Ax=b\): \(x_p+x_h\)</span><span class="arr">→</span>
+      <span class="node c">independence (pivot columns)</span><span class="arr">→</span>
+      <span class="node c">span · subspace</span><span class="arr">→</span>
+      <span class="node k">basis · dimension</span>
+    </div>
+    <div class="chain">
+      <span class="node">\(\det(A-\lambda I)=0\)</span><span class="arr">→</span>
+      <span class="node">eigenvalues</span><span class="arr">→</span>
+      <span class="node">eigenvectors</span><span class="arr">→</span>
+      <span class="node">eigenspace · basis · dim</span>
+    </div>
+    <div class="chain" style="margin-left:250px">
+      <span class="arr">↳</span><span class="node">distinct λ → independent</span><span class="arr">→</span>
+      <span class="node">\(P,\;D\)</span><span class="arr">→</span>
+      <span class="node">\(A=PDP^{-1}\)</span><span class="arr">→</span>
+      <span class="node">\(A^k\)</span>
+    </div>
+    <div class="chain" style="margin-left:250px">
+      <span class="arr">↳</span><span class="node">symmetric → orthonormal</span><span class="arr">→</span>
+      <span class="node">\(A=PDP^{\top}\)</span><span class="arr">→</span>
+      <span class="node p">SVD from \(A^{\top}A\)</span><span class="arr">→</span>
+      <span class="node p">\(\hat A(k)\)</span>
+    </div>
+    <div class="chain">
+      <span class="node p">Gram–Schmidt</span><span class="arr">→</span><span class="node p">\(A=QR\)</span>
+      <span style="width:40px"></span>
+      <span class="node">symmetric positive-definite</span><span class="arr">→</span><span class="node">Cholesky \(A=LL^{\top}\)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TOOLKIT ===================== -->
+<h2 class="sec"><span class="tag" style="background:var(--tool)">TOOLKIT</span> Skills used in every topic</h2>
+<div class="grid">
+
+  <div class="card tool">
+    <h3>Matrix × matrix</h3>
+    <div class="body">
+      <div class="idea">Each answer entry = <b>one row</b> of the left matrix · <b>one column</b> of the right matrix.</div>
+      <div class="ex">\[\begin{bmatrix}\textcolor{#2563eb}{a} & \textcolor{#2563eb}{b}\\ c & d\end{bmatrix}\begin{bmatrix}\textcolor{#2563eb}{p} & q\\ \textcolor{#2563eb}{r} & s\end{bmatrix}=\begin{bmatrix}\textcolor{#2563eb}{ap+br} & aq+bs\\ cp+dr & cq+ds\end{bmatrix}\]</div>
+      <div><div class="label">Tiny example</div>\(\begin{bmatrix}1 & 2\\ 3 & 4\end{bmatrix}\begin{bmatrix}0 & 1\\ 5 & 2\end{bmatrix}=\begin{bmatrix}10 & 5\\ 20 & 11\end{bmatrix}\) &nbsp; (row 1 · col 1 = 0 + 10)</div>
+      <div class="trap"><b>Watch out:</b> order matters, \(AB\neq BA\).</div>
+    </div>
+  </div>
+
+  <div class="card tool">
+    <h3>Matrix × vector: column trick</h3>
+    <div class="body">
+      <div class="idea">The vector's entries tell you <b>how much of each column</b> to add.</div>
+      <div class="fig">
+        <table class="mat">
+          <tr><td class="c1">2</td><td class="c2">1</td><td class="c3">0</td></tr>
+          <tr><td class="c1">0</td><td class="c2">3</td><td class="c3">1</td></tr>
+          <tr><td class="c1">0</td><td class="c2">0</td><td class="c3">4</td></tr>
+        </table>
+      </div>
+      <div class="ex">\[A\begin{bmatrix}1\\2\\2\end{bmatrix}=1\begin{bmatrix}2\\0\\0\end{bmatrix}+2\begin{bmatrix}1\\3\\0\end{bmatrix}+2\begin{bmatrix}0\\1\\4\end{bmatrix}=\begin{bmatrix}4\\8\\8\end{bmatrix}\]</div>
+      <div class="trap"><b>Watch out:</b> columns are read <b>down</b>, not across.</div>
+    </div>
+  </div>
+
+  <div class="card tool">
+    <h3>Determinant</h3>
+    <div class="body">
+      <div class="ex">\[\det\begin{bmatrix}a & b\\ c & d\end{bmatrix}=ad-bc\]</div>
+      <div><div class="label">3 × 3</div>Expand along the column with the <b>most zeros</b>. Each entry × the 2×2 left after crossing out its row and column, with signs:</div>
+      <div class="fig">
+        <table class="mat">
+          <tr><td>+</td><td>−</td><td>+</td></tr>
+          <tr><td>−</td><td>+</td><td>−</td></tr>
+          <tr><td>+</td><td>−</td><td>+</td></tr>
+        </table>
+      </div>
+      <div><div class="label">Shortcut</div>Triangular matrix → det = product of the diagonal.</div>
+    </div>
+  </div>
+
+  <div class="card tool">
+    <h3>Inverse</h3>
+    <div class="body">
+      <div class="ex">\[\begin{bmatrix}a & b\\ c & d\end{bmatrix}^{-1}=\frac{1}{ad-bc}\begin{bmatrix}d & -b\\ -c & a\end{bmatrix}\]</div>
+      <div>Swap the diagonal · flip the other two signs · divide by det.</div>
+      <div><div class="label">Any size</div>\([\,P\mid I\,]\;\xrightarrow{\text{RREF}}\;[\,I\mid P^{-1}\,]\) &nbsp;(the inverse appears on the right)</div>
+      <div><div class="label">Tiny example</div>\(\begin{bmatrix}1 & 1\\ 1 & -1\end{bmatrix}^{-1}=\frac{1}{-2}\begin{bmatrix}-1 & -1\\ -1 & 1\end{bmatrix}=\begin{bmatrix}\tfrac12 & \tfrac12\\ \tfrac12 & -\tfrac12\end{bmatrix}\)</div>
+    </div>
+  </div>
+
+  <div class="card tool">
+    <h3>Vectors: dot, length, unit</h3>
+    <div class="body">
+      <table class="t">
+        <tr><th>Tool</th><th>Formula</th><th>Example</th></tr>
+        <tr><td>Dot product</td><td>\(x\cdot y=x_1y_1+x_2y_2\)</td><td>\((2,1)\cdot(1,-2)=0\)</td></tr>
+        <tr><td>Length</td><td>\(\|x\|=\sqrt{x_1^2+x_2^2}\)</td><td>\(\|(3,4)\|=5\)</td></tr>
+        <tr><td>Unit vector</td><td>\(x/\|x\|\)</td><td>\(\tfrac15(3,4)\)</td></tr>
+        <tr><td>Perpendicular</td><td>\(x\cdot y=0\)</td><td>\((2,1)\perp(1,-2)\)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card tool">
+    <h3>Solving for λ</h3>
+    <div class="body">
+      <ol class="steps">
+        <li>Product = 0 → set <b>each bracket</b> = 0.</li>
+        <li>Square root → use <b>±</b>: \((1-\lambda)^2=1\Rightarrow 1-\lambda=\pm1\).</li>
+        <li>Never divide by λ → <b>factor</b>: \(\lambda^2-2\lambda=\lambda(\lambda-2)\).</li>
+      </ol>
+      <div class="ex"><div class="label">Loh's method: \(\lambda^2-10\lambda+16=0\)</div>
+        \(m=5\), roots \(5\pm u\), \((5-u)(5+u)=16\Rightarrow u^2=9\Rightarrow \lambda=2,\;8\)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== LECTURE 1 ===================== -->
+<h2 class="sec"><span class="tag" style="background:var(--l1)">LECTURE 1</span> Vectors, row operations, solving \(Ax=b\)</h2>
+<div class="grid">
+
+  <div class="card l1">
+    <h3>1.1 · Vectors &amp; dot product <small>slides 3–5</small></h3>
+    <div class="body">
+      <div class="idea">A vector in \(\mathbb{R}^n\) is a list of \(n\) real numbers. You can do two things with vectors: <b>add</b> them and <b>scale</b> them.</div>
+      <div class="ex">\[\begin{bmatrix}10\\20\\30\end{bmatrix}+\begin{bmatrix}5\\6\\7\end{bmatrix}=\begin{bmatrix}15\\26\\37\end{bmatrix}\qquad 3\begin{bmatrix}10\\20\\30\end{bmatrix}=\begin{bmatrix}30\\60\\90\end{bmatrix}\]</div>
+      <div><div class="label">Dot product</div>\(\langle x,y\rangle=\displaystyle\sum_{i=1}^{n}x_iy_i\) &nbsp;·&nbsp; \(\langle(1,0,1),(0,1,0)\rangle=0\)</div>
+      <div class="trap"><b>Watch out:</b> a dot product gives a <b>number</b>, not a vector.</div>
+    </div>
+  </div>
+
+  <div class="card l1">
+    <h3>1.2 · Elementary row operations <small>slides 6–11</small></h3>
+    <div class="body">
+      <div class="idea">There are three moves that <b>never change the solutions</b> of a system.</div>
+      <table class="t">
+        <tr><th>Move</th><th>Notation</th><th>Rule</th></tr>
+        <tr><td>Swap</td><td>\(R_1\leftrightarrow R_3\)</td><td>exchange two rows</td></tr>
+        <tr><td>Scale</td><td>\(R_4\leftarrow 4R_4\)</td><td>multiply by a non-zero number</td></tr>
+        <tr><td>Replace</td><td>\(R_2\leftarrow R_2-4R_1\)</td><td>add a multiple of another row</td></tr>
+      </table>
+      <div class="ex">\(\begin{bmatrix}1 & -2 & 1\\ 4 & -8 & 3\end{bmatrix}\xrightarrow{R_2\leftarrow R_2-4R_1}\begin{bmatrix}1 & -2 & 1\\ 0 & 0 & -1\end{bmatrix}\)</div>
+      <div class="trap"><b>Watch out:</b> the <b>whole row</b> changes, including every sign.</div>
+    </div>
+  </div>
+
+  <div class="card l1">
+    <h3>1.3 · REF &amp; RREF <small>slides 12–15</small></h3>
+    <div class="body">
+      <div class="idea"><b>Pivot</b> = the first non-zero entry in a row. Echelon form = pivots form a <b>staircase</b> going right, with zero rows at the bottom.</div>
+      <div class="fig">
+        <table class="mat">
+          <tr><td class="hl">■</td><td>*</td><td>*</td><td>*</td><td>*</td></tr>
+          <tr><td class="zero">0</td><td class="zero">0</td><td class="hl">■</td><td>*</td><td>*</td></tr>
+          <tr><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="hl">■</td><td>*</td></tr>
+          <tr><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td></tr>
+        </table>
+      </div>
+      <div><div class="label">RREF adds two rules</div>every pivot = 1, and each pivot is the only non-zero entry in its column.</div>
+      <div class="ex">\(\begin{bmatrix}1 & 1 & 1 & 2\\ 1 & 2 & 3 & 5\end{bmatrix}\xrightarrow{R_2\leftarrow R_2-R_1}\underbrace{\begin{bmatrix}1 & 1 & 1 & 2\\ 0 & 1 & 2 & 3\end{bmatrix}}_{\text{REF}}\xrightarrow{R_1\leftarrow R_1-R_2}\underbrace{\begin{bmatrix}1 & 0 & -1 & -1\\ 0 & 1 & 2 & 3\end{bmatrix}}_{\text{RREF}}\)</div>
+      <div class="trap"><b>Watch out:</b> two rows starting in the same column means it's <b>not</b> echelon yet.</div>
+    </div>
+  </div>
+
+  <div class="card l1">
+    <h3>1.4 · Systems: how many solutions? <small>slides 16–25</small></h3>
+    <div class="body">
+      <div class="idea">Write the equations as \(Ax=b\). Work on the <b>augmented</b> matrix \([A\mid b]\). If \(b=0\), the system is <b>homogeneous</b>.</div>
+      <div class="ex">\[\begin{cases}x_1+x_2+x_3=2\\ 2x_1+x_2+x_3=3\end{cases}\iff\begin{bmatrix}1 & 1 & 1\\ 2 & 1 & 1\end{bmatrix}\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}=\begin{bmatrix}2\\3\end{bmatrix}\]</div>
+      <div class="fig">
+        <svg viewBox="0 0 330 110" width="330" height="110" role="img" aria-label="One, infinite, or no solutions">
+          <g transform="translate(5,0)">
+            <line x1="10" y1="80" x2="95" y2="15" stroke="#c2410c" stroke-width="2.5"/>
+            <line x1="10" y1="20" x2="95" y2="80" stroke="#2563eb" stroke-width="2.5"/>
+            <circle cx="52" cy="48" r="4" fill="#15803d"/>
+            <text x="18" y="104">one solution</text>
+          </g>
+          <g transform="translate(115,0)">
+            <line x1="10" y1="80" x2="95" y2="15" stroke="#c2410c" stroke-width="6" opacity=".45"/>
+            <line x1="10" y1="80" x2="95" y2="15" stroke="#2563eb" stroke-width="2"/>
+            <text x="6" y="104">infinite (same line)</text>
+          </g>
+          <g transform="translate(225,0)">
+            <line x1="10" y1="70" x2="95" y2="15" stroke="#c2410c" stroke-width="2.5"/>
+            <line x1="10" y1="95" x2="95" y2="40" stroke="#2563eb" stroke-width="2.5"/>
+            <text x="8" y="104">none (parallel)</text>
+          </g>
+        </svg>
+      </div>
+      <div><div class="label">Read it from REF (general rule)</div>a row \([\,0\;0\;0\mid 5\,]\) → <b>none</b> · a free variable → <b>infinite</b> · pivot in every column → <b>one</b></div>
+    </div>
+  </div>
+
+  <div class="card l1">
+    <h3>1.5 · General solution \(x_p+x_h\) <small>slides 26–30</small></h3>
+    <div class="body">
+      <div class="idea">Every solution = <b>one particular solution</b> + <b>all solutions of \(Ax=0\)</b>.</div>
+      <ol class="steps">
+        <li>RREF of \([A\mid b]\); pivot columns → basic, the rest → free</li>
+        <li>\(x_p\): set all free variables = 0, then read off the basic ones</li>
+        <li>\(x_h\): solve \(Ax=0\), one vector per free variable (that one = 1, the others = 0)</li>
+        <li>\(x=x_p+\lambda_1h_1+\lambda_2h_2\), then verify</li>
+      </ol>
+      <div class="ex">\(\left[\begin{array}{ccccc|c}1 & 3 & 0 & 0 & 3 & 1\\ 0 & 0 & 1 & 0 & 9 & 2\\ 0 & 0 & 0 & 1 & -4 & 0\end{array}\right]\) &nbsp; free: \(x_2,x_5\)
+        \[x=\begin{bmatrix}1\\0\\2\\0\\0\end{bmatrix}+\lambda_1\begin{bmatrix}-3\\1\\0\\0\\0\end{bmatrix}+\lambda_2\begin{bmatrix}-3\\0\\-9\\4\\1\end{bmatrix}\]
+        Check: rank 3 + nullity 2 = 5 columns ✓</div>
+      <div class="trap"><b>Watch out:</b> \(x_p\) solves \(Ax=b\), but each \(h\) solves \(Ax=0\). Don't mix them up.</div>
+    </div>
+  </div>
+
+  <div class="card l1">
+    <h3>1.6 · Inverse by Gauss–Jordan <small>slides 31–32</small></h3>
+    <div class="body">
+      <div class="idea">A is invertible exactly when its RREF is \(I\), meaning every column has a pivot.</div>
+      <div class="ex">\[\left[\begin{array}{ccc|ccc}2 & 1 & 1 & 1 & 0 & 0\\ 0 & 1 & 1 & 0 & 1 & 0\\ 0 & 0 & 1 & 0 & 0 & 1\end{array}\right]\longrightarrow\left[\begin{array}{ccc|ccc}1 & 0 & 0 & \tfrac12 & -\tfrac12 & 0\\ 0 & 1 & 0 & 0 & 1 & -1\\ 0 & 0 & 1 & 0 & 0 & 1\end{array}\right]\]</div>
+      <div>The left half becomes \(I\) → the <b>right half is \(A^{-1}\)</b>.</div>
+      <div class="trap"><b>Watch out:</b> if a zero row appears on the left, A is <b>not</b> invertible.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== LECTURE 2 ===================== -->
+<h2 class="sec"><span class="tag" style="background:var(--l2)">LECTURE 2</span> Independence, groups, vector spaces, subspaces, span</h2>
+<div class="grid">
+
+  <div class="card l2">
+    <h3>2.1 · Linear independence <small>slides 3–7 · Lecture 3a notes</small></h3>
+    <div class="body">
+      <div class="idea"><b>Independent</b> = the only way to reach \(0\) is with all \(\lambda_i=0\). There's no third option: vectors are either independent or dependent.</div>
+      <div class="ex">\[\lambda_1x_1+\lambda_2x_2+\dots+\lambda_kx_k=0\;\Rightarrow\;\lambda_1=\dots=\lambda_k=0\;?\]</div>
+      <div><div class="label">Test</div>Vectors as <b>columns</b> → REF → pivot columns are independent. Each non-pivot column = a combination of the pivot columns to its left.</div>
+      <div class="ex">\(\begin{bmatrix}1 & 2 & 3\\ 2 & 4 & 4\end{bmatrix}\to\begin{bmatrix}\boxed{1} & 2 & 3\\ 0 & 0 & \boxed{-2}\end{bmatrix}\): column 2 = 2 × column 1 → <b>dependent</b></div>
+      <div><div class="label">Lecture 3a example</div>\(x_1=b_1-b_2,\;x_2=2b_1-2b_2\): \(\alpha x_1+\beta x_2=(\alpha+2\beta)b_1+(-\alpha-2\beta)b_2\). Taking \(\alpha=2,\beta=-1\) gives 0 → <b>dependent</b>.</div>
+      <div class="trap"><b>Watch out:</b> any set containing the zero vector is automatically dependent.</div>
+    </div>
+  </div>
+
+  <div class="card l2">
+    <h3>2.2 · Abelian group \((G,\otimes)\) <small>slides 8–9</small></h3>
+    <div class="body">
+      <div class="idea">A set with one operation that follows <b>5 rules</b>.</div>
+      <div class="checks">
+        <div><span class="num">1</span>Closure<br>\(x\otimes y\in G\)</div>
+        <div><span class="num">2</span>Associative<br>\((x\otimes y)\otimes z\)</div>
+        <div><span class="num">3</span>Identity<br>\(x\otimes e=x\)</div>
+        <div><span class="num">4</span>Inverse<br>\(x\otimes y=e\)</div>
+        <div><span class="num">5</span>Commutative<br>\(x\otimes y=y\otimes x\)</div>
+      </div>
+      <table class="t">
+        <tr><th>Example</th><th>Group?</th><th>Why</th></tr>
+        <tr><td>\((\mathbb{Z},+)\)</td><td><span class="ok">✓ Abelian</span></td><td>all 5 rules hold</td></tr>
+        <tr><td>\((\mathbb{N}_0,+)\)</td><td><span class="bad">✗</span></td><td>no inverse: \(-3\notin\mathbb{N}_0\)</td></tr>
+        <tr><td>\((\mathbb{Z},\cdot)\)</td><td><span class="bad">✗</span></td><td>2 has no integer inverse</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card l2">
+    <h3>2.3 · Vector space \((V,+,\cdot)\) <small>slides 10–13 · Lecture 2a notes</small></h3>
+    <div class="body">
+      <div class="idea">\((V,+)\) is an Abelian group (the <b>inner operation</b>, addition), plus rules for <b>scalar multiplication</b> (the <b>outer operation</b>).</div>
+      <div class="ex">\(\lambda(x+y)=\lambda x+\lambda y\) &nbsp;·&nbsp; \((\lambda+\psi)x=\lambda x+\psi x\)<br>
+        \(\lambda(\psi x)=(\lambda\psi)x\) &nbsp;·&nbsp; \(1\cdot x=x\) &nbsp;·&nbsp; zero vector \([0,\dots,0]^{\top}\)</div>
+      <div><div class="label">Examples</div>\(\mathbb{R}^n\) · matrices \(\mathbb{R}^{m\times n}\) (add and scale entry by entry) · polynomials</div>
+    </div>
+  </div>
+
+  <div class="card l2">
+    <h3>2.4 · Subspace test <small>slides 14–17</small></h3>
+    <div class="body">
+      <div class="idea">\(U\subseteq V\) is a subspace if it passes <b>three checks</b>. Every other rule is inherited from V.</div>
+      <div class="checks">
+        <div><span class="num">STEP 1</span>Non-empty<br>\(0\in U\)</div>
+        <div><span class="num">STEP 2</span>Addition<br>\(x+y\in U\)</div>
+        <div><span class="num">STEP 3</span>Scalar<br>\(\lambda x\in U\)</div>
+      </div>
+      <div class="fig">
+        <svg viewBox="0 0 300 130" width="300" height="130" role="img" aria-label="Square around origin fails scaling">
+          <defs><marker id="sq" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#b42318"/></marker></defs>
+          <rect x="45" y="25" width="80" height="80" fill="#e5f6fa" stroke="#0891b2"/>
+          <line x1="85" y1="10" x2="85" y2="120" stroke="#d6dbe1"/><line x1="30" y1="65" x2="200" y2="65" stroke="#d6dbe1"/>
+          <circle cx="115" cy="45" r="4" fill="#0891b2"/><text x="100" y="40">x</text>
+          <line x1="85" y1="65" x2="143" y2="27" stroke="#b42318" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#sq)"/>
+          <circle cx="145" cy="25" r="4" fill="#b42318"/><text x="150" y="22" fill="#b42318">2x outside ✗</text>
+          <text x="140" y="110">square: NOT a subspace</text>
+        </svg>
+      </div>
+      <table class="t">
+        <tr><th>Set</th><th>Subspace?</th></tr>
+        <tr><td>y-axis in \(\mathbb{R}^2\)</td><td><span class="ok">✓</span></td></tr>
+        <tr><td>null space \(\{x: Ax=0\}\) · \(\operatorname{span}(x_1,\dots,x_m)\)</td><td><span class="ok">✓</span></td></tr>
+        <tr><td>square \(-1\le x,y\le 1\)</td><td><span class="bad">✗</span> scaling leaves it</td></tr>
+      </table>
+      <div class="trap"><b>Quick ways to fail:</b> \(x+y=1\) (misses 0) · \(x\ge0\) (fails \(\lambda=-1\)) · \(xy=0\) (fails addition: \((1,0)+(0,1)\)).</div>
+    </div>
+  </div>
+
+  <div class="card l2">
+    <h3>2.5 · Span <small>slide 18 · Lecture 2a notes</small></h3>
+    <div class="body">
+      <div class="idea">\(\operatorname{span}(S)\) = <b>every</b> vector you can build from S: \(\alpha x+\beta y+\dots\)</div>
+      <table class="t">
+        <tr><th>\(S\)</th><th>\(\operatorname{span}(S)\)</th><th>Shape</th></tr>
+        <tr><td>\(\{(1,0)\}\)</td><td>\(\{(\alpha,0)\}\) = x-axis</td><td>line</td></tr>
+        <tr><td>\(\{(0,0)\}\)</td><td>\(\{(0,0)\}\)</td><td>point</td></tr>
+        <tr><td>\(\{(1,2),(1,1)\}\)</td><td>all of \(\mathbb{R}^2\)</td><td>plane</td></tr>
+        <tr><td>\(\{(1,1),(2,2)\}\)</td><td>line through \((1,1)\)</td><td>line</td></tr>
+      </table>
+      <div class="trap"><b>Watch out:</b> adding a dependent vector does <b>not</b> make the span any bigger.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== LECTURE 3 ===================== -->
+<h2 class="sec"><span class="tag" style="background:var(--l3)">LECTURE 3</span> Independence via coefficients, basis, dimension</h2>
+<div class="grid">
+
+  <div class="card l3">
+    <h3>3.1 · Independence through coefficients <small>slides 3–7</small></h3>
+    <div class="body">
+      <div class="idea">If each \(x_i\) is built from independent \(b\)'s, test the <b>coefficient columns</b> instead.</div>
+      <div class="ex">\(x_1=b_1-2b_2+b_3-b_4,\;\dots\) → columns of coefficients:
+        \[\begin{bmatrix}1 & -4 & 2 & 17\\ -2 & -2 & 3 & -10\\ 1 & 0 & -1 & 11\\ -1 & 4 & -3 & 1\end{bmatrix}\xrightarrow{\text{RREF}}\begin{bmatrix}1 & 0 & 0 & -7\\ 0 & 1 & 0 & -15\\ 0 & 0 & 1 & -18\\ 0 & 0 & 0 & 0\end{bmatrix}\]
+        Column 4 has no pivot → \(x_4=-7x_1-15x_2-18x_3\) → <b>not independent</b></div>
+    </div>
+  </div>
+
+  <div class="card l3">
+    <h3>3.2 · Solutions of \(Ax=0\) form a subspace <small>slides 8–11</small></h3>
+    <div class="body">
+      <div class="idea">Adding or scaling solutions of \(Ax=0\) gives another solution.</div>
+      <div class="ex">\[\begin{aligned}A(x+y)&=Ax+Ay=0+0=0\\ A(\alpha x)&=\alpha(Ax)=\alpha\,0=0\\ A\,0&=0\end{aligned}\]</div>
+      <div>So the null space is a subspace of \(\mathbb{R}^n\). The same argument works for \(U=\operatorname{span}(x_1,\dots,x_m)\).</div>
+    </div>
+  </div>
+
+  <div class="card l3">
+    <h3>3.3 · Basis &amp; dimension <small>slides 12–13</small></h3>
+    <div class="body">
+      <div class="idea">A <b>basis</b> builds the whole space with <b>no extra vectors</b>. <b>Dimension</b> = how many vectors are in it.</div>
+      <div class="checks">
+        <div style="border-color:var(--l3)"><span class="num">RULE 1</span>Spans V</div>
+        <div style="border-color:var(--l3)"><span class="num">RULE 2</span>Linearly independent</div>
+      </div>
+      <div class="ex">\(U=\{(a,b,0)\}\): basis \(\{(1,0,0),(0,1,0)\}\), &nbsp;\(\dim U=2\)<br>
+        Add \((1,1,0)\) → still spans, but now dependent → <b>not</b> a basis.</div>
+      <div><div class="label">A basis is not unique (ℝ³)</div>\(\{e_1,e_2,e_3\}\) &nbsp;or&nbsp; \(\{(1,0,0),(1,1,0),(1,1,1)\}\)</div>
+      <div class="trap"><b>Watch out:</b> dim counts basis <b>vectors</b>, not entries. Also, <b>basis ≠ basic</b> variable.</div>
+    </div>
+  </div>
+
+  <div class="card l3">
+    <h3>3.4 · Basis of \(\operatorname{span}(x_1,\dots,x_m)\) <small>slides 14–15</small></h3>
+    <div class="body">
+      <ol class="steps">
+        <li>Put the vectors in as <b>columns</b></li>
+        <li>Reduce to REF</li>
+        <li>Pivot columns → take those <b>original</b> vectors</li>
+      </ol>
+      <div class="ex">\(\mathbb{R}^5\) example (slide 15): pivots in columns 1, 2, 4
+        \[\text{basis}=\{x_1,x_2,x_4\},\qquad \dim U=3,\qquad x_3=-x_1+2x_2\]</div>
+      <div><div class="label">Rank–Nullity check</div>\(\operatorname{rank}(A)+\operatorname{nullity}(A)=n\) (number of columns)</div>
+      <div class="trap"><b>Watch out:</b> never use the reduced columns as the basis.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== LECTURE 4 ===================== -->
+<h2 class="sec"><span class="tag" style="background:var(--l4)">LECTURE 4</span> Linear maps, eigenvalues, decompositions</h2>
+<div class="grid">
+
+  <div class="card l4">
+    <h3>1 · Is T linear? <small>slide 3</small></h3>
+    <div class="body">
+      <div class="idea">Linear = T respects adding and scaling. Always run the <b>same three tests</b>.</div>
+      <div class="checks">
+        <div><span class="num">STEP 1</span>Zero<br>\(T(0)=0\)?</div>
+        <div><span class="num">STEP 2</span>Addition<br>\(T(x+y)=T(x)+T(y)\)?</div>
+        <div><span class="num">STEP 3</span>Scalar<br>\(T(\alpha x)=\alpha T(x)\)?</div>
+      </div>
+      <div class="ex"><div class="label">Tiny example: \(T(a,b,c)=(a+2b,\;bc,\;3a-c)\)</div>
+        Zero <span class="ok">✓</span> &nbsp;·&nbsp; Addition <span class="bad">✗</span> \(x=(0,1,0),y=(0,0,1)\) &nbsp;·&nbsp; Scalar <span class="bad">✗</span> \(x=(0,1,1),\alpha=2\)<br>
+        → <b>not linear</b>. Red flags: <b>+ constant, \(ab\), \(c^2\), \(|a|\)</b>.</div>
+      <div class="trap"><b>Watch out:</b> passing the zero test proves nothing. Show numbers for every ✗.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>2 · Trace <small>slide 4</small></h3>
+    <div class="body">
+      <div class="idea">Add the <b>diagonal</b> (top-left ↘ bottom-right). Square matrices only.</div>
+      <div class="fig">
+        <table class="mat">
+          <tr><td class="hl">3</td><td>−1</td><td>0</td></tr>
+          <tr><td>2</td><td class="hl">4</td><td>5</td></tr>
+          <tr><td>1</td><td>6</td><td class="hl">2</td></tr>
+        </table>
+      </div>
+      <div style="text-align:center">\(\operatorname{Tr}=3+4+2=9\)</div>
+      <div class="ex">\(\operatorname{Tr}(A+B)=\operatorname{Tr}A+\operatorname{Tr}B\) · \(\operatorname{Tr}(\alpha A)=\alpha\operatorname{Tr}A\) · \(\operatorname{Tr}(I_n)=n\) · \(\operatorname{Tr}(AB)=\operatorname{Tr}(BA)\)</div>
+      <div class="trap"><b>Watch out:</b> \(AB\neq BA\), yet their traces are equal.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>3 · Characteristic polynomial <small>slide 5</small></h3>
+    <div class="body">
+      <div class="idea">Subtract λ from the <b>diagonal only</b>, then take the determinant.</div>
+      <div class="ex">\[p_A(\lambda)=\det(A-\lambda I),\qquad A-\lambda I=\begin{bmatrix}a-\lambda & b\\ c & d-\lambda\end{bmatrix}\]</div>
+      <div><div class="label">2 × 2 shortcut</div>\(p_A(\lambda)=\lambda^2-\operatorname{Tr}(A)\,\lambda+\det(A)\)</div>
+      <div><div class="label">Tiny example</div>\(A=\begin{bmatrix}1 & 4\\ 2 & 3\end{bmatrix}\Rightarrow \lambda^2-4\lambda-5=(\lambda-5)(\lambda+1)\)</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>4 · Eigenvalues &amp; eigenvectors <small>slides 6–9</small></h3>
+    <div class="body">
+      <div class="idea">An eigenvector keeps its <b>direction</b>. A only stretches it by λ.</div>
+      <div class="fig">
+        <svg viewBox="0 0 300 150" width="300" height="150" role="img" aria-label="Eigenvector keeps direction, other vector turns">
+          <defs>
+            <marker id="mb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#2563eb"/></marker>
+            <marker id="mg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#15803d"/></marker>
+            <marker id="mk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#8a94a1"/></marker>
+            <marker id="mr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#b42318"/></marker>
+          </defs>
+          <line x1="20" y1="130" x2="290" y2="130" stroke="#d6dbe1"/>
+          <line x1="30" y1="140" x2="30" y2="10" stroke="#d6dbe1"/>
+          <line x1="30" y1="130" x2="190" y2="50" stroke="#15803d" stroke-width="6" opacity=".35" marker-end="url(#mg)"/>
+          <line x1="30" y1="130" x2="90" y2="100" stroke="#2563eb" stroke-width="2.5" marker-end="url(#mb)"/>
+          <text x="92" y="118" fill="#2563eb">x</text>
+          <text x="160" y="42" fill="#15803d">Ax = λx (same line)</text>
+          <line x1="30" y1="130" x2="45" y2="80" stroke="#8a94a1" stroke-width="2" marker-end="url(#mk)"/>
+          <text x="30" y="72" fill="#5f6b7a">y</text>
+          <line x1="30" y1="130" x2="110" y2="30" stroke="#b42318" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#mr)"/>
+          <text x="112" y="26" fill="#b42318">Ay turned → not eigen</text>
+        </svg>
+      </div>
+      <ol class="steps">
+        <li>\(\det(A-\lambda I)=0\) → the λ's</li>
+        <li>Reduce \(A-\lambda I\) → basic / free, free = \(t\)</li>
+        <li>\(x=t(\dots)\), clear fractions, \(x\neq0\)</li>
+        <li>Verify \(Ax=\lambda x\) with the <b>original</b> A</li>
+        <li>Check: Σλ = Tr A, Πλ = det A, rank + nullity = n</li>
+      </ol>
+      <div class="ex">\(A=\begin{bmatrix}1 & 4\\ 2 & 3\end{bmatrix}\): \(\lambda=5\to(1,1)\), &nbsp; \(\lambda=-1\to(-2,1)\)</div>
+      <div class="trap"><b>Watch out:</b> no zero row after reducing means λ is wrong. Moving a term across = flips its sign.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>5 · Eigenspace &amp; spectrum <small>slides 10–11</small></h3>
+    <div class="body">
+      <div class="idea">The eigenspace is <b>all</b> eigenvectors for one λ (plus 0). Its dimension = number of free variables.</div>
+      <div class="ex">\[A=\begin{bmatrix}2 & 0 & 1\\ 0 & 2 & 0\\ 0 & 0 & 3\end{bmatrix}\quad\text{spectrum}=\{2,3\}\]
+        \(E_2\): free \(a=s,\;b=t\) → basis \(\{(1,0,0),(0,1,0)\}\), <b>dim 2</b><br>
+        \(E_3\): free \(c=t\) → basis \(\{(1,0,1)\}\), <b>dim 1</b></div>
+      <div><div class="label">Transpose</div>\(A\) and \(A^{\top}\): <b>same eigenvalues</b>, eigenvectors can differ.</div>
+      <div class="trap"><b>Watch out:</b> give each free variable its own letter (s, t). Spectrum lists each value once.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>6 · Distinct λ → independent <small>slide 12</small></h3>
+    <div class="body">
+      <div class="idea">Different stretch amounts force <b>different directions</b>. n distinct λ give a basis of ℝⁿ.</div>
+      <div><div class="label">Test</div>Put the eigenvectors as <b>columns</b> of P, reduce, and look for a pivot in every column.</div>
+      <div class="ex">\[P=\begin{bmatrix}\boxed{1} & 1 & 1\\ 0 & \boxed{1} & 2\\ 0 & 0 & \boxed{2}\end{bmatrix}\;\Rightarrow\;\text{3 pivots}\Rightarrow\text{independent}\]</div>
+      <div class="trap"><b>Watch out:</b> this only works one way. A repeated λ may still have independent eigenvectors.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>7 · Spectral theorem <small>slide 13</small></h3>
+    <div class="body">
+      <div class="idea">Symmetric \(A=A^{\top}\) → real λ, <b>perpendicular</b> eigenvectors, orthonormal basis.</div>
+      <div class="fig">
+        <table class="mat">
+          <tr><td class="skip">2</td><td class="c1">0</td><td class="c2">0</td></tr>
+          <tr><td class="c1">0</td><td class="skip">3</td><td class="c3">1</td></tr>
+          <tr><td class="c2">0</td><td class="c3">1</td><td class="skip">3</td></tr>
+        </table>
+      </div>
+      <div style="text-align:center;font-size:13px">Same colour = mirror pair, must match. Grey diagonal = skip.</div>
+      <div class="ex">\(A=\begin{bmatrix}2 & 2\\ 2 & -1\end{bmatrix}\): \(\lambda=3\to(2,1)\), \(\lambda=-2\to(1,-2)\), dot = 0 ✓ → unit: \(\tfrac{1}{\sqrt5}(2,1),\;\tfrac{1}{\sqrt5}(1,-2)\)</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>8 · Diagonalization <small>slides 14–16</small></h3>
+    <div class="body">
+      <div class="idea">Diagonal matrices are easy. Seen through its eigenvectors, A <b>becomes</b> diagonal.</div>
+      <div class="ex">\[D=\begin{bmatrix}d_1 & 0\\ 0 & d_2\end{bmatrix}:\;\det=d_1d_2,\;\;D^k=\begin{bmatrix}d_1^k & 0\\ 0 & d_2^k\end{bmatrix},\;\;D^{-1}=\begin{bmatrix}\tfrac1{d_1} & 0\\ 0 & \tfrac1{d_2}\end{bmatrix}\]</div>
+      <ol class="steps">
+        <li>P = eigenvectors as <b>columns</b></li>
+        <li>D = eigenvalues in the <b>same order</b></li>
+        <li>det P ≠ 0, then verify \(AP=PD\) → \(D=P^{-1}AP\)</li>
+      </ol>
+      <div class="ex">\(A=\begin{bmatrix}4 & 1\\ 2 & 3\end{bmatrix}\): \(P=\begin{bmatrix}-1 & 1\\ 2 & 1\end{bmatrix}\), \(D=\begin{bmatrix}2 & 0\\ 0 & 5\end{bmatrix}\), det P = −3</div>
+      <div class="trap"><b>Watch out:</b> \(\begin{bmatrix}4 & 1\\ 0 & 4\end{bmatrix}\) has too few eigenvectors, so it can't be diagonalized.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>9 · Eigendecomposition &amp; powers <small>slides 17–20</small></h3>
+    <div class="body">
+      <div class="idea">Flip \(D=P^{-1}AP\) into \(A=PDP^{-1}\). For powers, the middle pieces cancel.</div>
+      <div class="ex">\[A^2=PD\underbrace{P^{-1}P}_{I}DP^{-1}=PD^2P^{-1}\qquad\Rightarrow\qquad A^k=PD^kP^{-1}\]</div>
+      <div><div class="label">Tiny example</div>\(A=\begin{bmatrix}2 & 1\\ 1 & 2\end{bmatrix}\), \(D=\begin{bmatrix}3 & 0\\ 0 & 1\end{bmatrix}\) → \(A^3=P\begin{bmatrix}27 & 0\\ 0 & 1\end{bmatrix}P^{-1}=\begin{bmatrix}14 & 13\\ 13 & 14\end{bmatrix}\)</div>
+      <div class="trap"><b>Watch out:</b> only D gets the power, not P.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>10 · Symmetric: \(A=PDP^{\top}\) <small>slide 21</small></h3>
+    <div class="body">
+      <div class="idea">Use <b>unit</b> eigenvectors. Then \(P^{\top}P=I\), so the inverse is just the transpose.</div>
+      <div class="ex">\[A=\begin{bmatrix}5 & -2\\ -2 & 2\end{bmatrix},\quad P=\frac1{\sqrt5}\begin{bmatrix}1 & -2\\ 2 & 1\end{bmatrix},\quad D=\begin{bmatrix}1 & 0\\ 0 & 6\end{bmatrix}\]</div>
+      <div>Where \(\tfrac1{\sqrt5}\) comes from: \(\|(1,2)\|=\sqrt{1+4}=\sqrt5\).</div>
+      <div class="trap"><b>Watch out:</b> without \(\tfrac1{\sqrt5}\) you get \(P^{\top}P=5I\), not I.</div>
+    </div>
+  </div>
+
+  <div class="card l4">
+    <h3>11 · Cholesky \(A=LL^{\top}\) <small>slides 22–23</small></h3>
+    <div class="body">
+      <div class="idea">A "square root" of a symmetric positive-definite matrix. Fill L <b>one entry at a time</b> in this order:</div>
+      <div class="fig">
+        <table class="mat">
+          <tr><td class="c1">① l₁₁</td><td class="zero">0</td><td class="zero">0</td></tr>
+          <tr><td class="c1">② l₂₁</td><td class="c2">④ l₂₂</td><td class="zero">0</td></tr>
+          <tr><td class="c1">③ l₃₁</td><td class="c2">⑤ l₃₂</td><td class="c3">⑥ l₃₃</td></tr>
+        </table>
+      </div>
+      <div class="ex">\(l_{11}=\sqrt{a_{11}}\) · \(l_{21}=\dfrac{a_{21}}{l_{11}}\) · \(l_{31}=\dfrac{a_{31}}{l_{11}}\)<br>
+        \(l_{22}=\sqrt{a_{22}-l_{21}^2}\) · \(l_{32}=\dfrac{a_{32}-l_{31}l_{21}}{l_{22}}\) · \(l_{33}=\sqrt{a_{33}-l_{31}^2-l_{32}^2}\)</div>
+      <div><div class="label">Tiny example</div>\(\begin{bmatrix}9 & 3 & 6\\ 3 & 5 & 10\\ 6 & 10 & 45\end{bmatrix}\Rightarrow L=\begin{bmatrix}3 & 0 & 0\\ 1 & 2 & 0\\ 2 & 4 & 5\end{bmatrix}\)</div>
+      <div class="trap"><b>Watch out:</b> in \(l_{32}\), subtract \(l_{31}l_{21}\) <b>before</b> dividing.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== LECTURE 5 ===================== -->
+<h2 class="sec"><span class="tag" style="background:var(--l5)">LECTURE 5</span> QR, SVD, approximation</h2>
+<div class="grid">
+
+  <div class="card l5">
+    <h3>12 · QR by Gram–Schmidt <small>slides 3–4</small></h3>
+    <div class="body">
+      <div class="idea">Make the columns <b>perpendicular</b>: remove the part of \(a_2\) that points along \(e_1\).</div>
+      <div class="fig">
+        <svg viewBox="0 0 300 170" width="300" height="170" role="img" aria-label="Gram-Schmidt removes the shadow of a2 on e1">
+          <defs>
+            <marker id="pb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#2563eb"/></marker>
+            <marker id="pp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#7c3aed"/></marker>
+            <marker id="po" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#c2410c"/></marker>
+            <marker id="pg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#15803d"/></marker>
+          </defs>
+          <line x1="40" y1="140" x2="190" y2="140" stroke="#c2410c" stroke-width="5" opacity=".35" marker-end="url(#po)"/>
+          <line x1="40" y1="140" x2="120" y2="140" stroke="#2563eb" stroke-width="2.5" marker-end="url(#pb)"/>
+          <text x="90" y="160" fill="#2563eb">a₁ → e₁</text>
+          <text x="150" y="160" fill="#c2410c">(a₂·e₁)e₁</text>
+          <line x1="40" y1="140" x2="190" y2="45" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#pp)"/>
+          <text x="196" y="44" fill="#7c3aed">a₂</text>
+          <line x1="190" y1="45" x2="190" y2="140" stroke="#8a94a1" stroke-dasharray="4 4"/>
+          <line x1="40" y1="140" x2="40" y2="45" stroke="#15803d" stroke-width="2.5" marker-end="url(#pg)"/>
+          <text x="48" y="40" fill="#15803d">u₂ = a₂ − (a₂·e₁)e₁</text>
+          <path d="M40,128 h12 v12" fill="none" stroke="#15803d"/>
+        </svg>
+      </div>
+      <ol class="steps">
+        <li>\(e_1=a_1/\|a_1\|\)</li>
+        <li>\(u_2=a_2-(a_2\cdot e_1)\,e_1\), then \(e_2=u_2/\|u_2\|\)</li>
+        <li>\(Q=[\,e_1\;e_2\,]\), &nbsp; \(R=Q^{\top}A\) (upper-triangular)</li>
+      </ol>
+      <div class="ex">\(A=\begin{bmatrix}3 & -1\\ 4 & 7\end{bmatrix}\Rightarrow Q=\tfrac15\begin{bmatrix}3 & -4\\ 4 & 3\end{bmatrix},\;R=\begin{bmatrix}5 & 5\\ 0 & 5\end{bmatrix}\)</div>
+      <div class="trap"><b>Watch out:</b> subtract along the <b>unit</b> vector \(e_1\), not \(u_1\).</div>
+    </div>
+  </div>
+
+  <div class="card l5">
+    <h3>13 · SVD \(A=U\Sigma V^{\top}\) <small>slides 5–14</small></h3>
+    <div class="body">
+      <div class="idea">Any matrix = <b>turn</b>, then <b>stretch</b>, then <b>turn</b>.</div>
+      <div class="fig">
+        <svg viewBox="0 0 440 120" width="100%" style="max-width:440px" role="img" aria-label="SVD turns, stretches, turns">
+          <circle cx="50" cy="60" r="32" fill="#f3ecff" stroke="#7c3aed"/>
+          <line x1="50" y1="60" x2="73" y2="37" stroke="#7c3aed" stroke-width="2"/>
+          <line x1="50" y1="60" x2="27" y2="37" stroke="#7c3aed" stroke-width="2"/>
+          <text x="30" y="110">input</text>
+          <text x="96" y="52" fill="#5f6b7a">Vᵀ turn</text><text x="100" y="66" fill="#5f6b7a">→</text>
+          <circle cx="170" cy="60" r="32" fill="#f3ecff" stroke="#7c3aed"/>
+          <line x1="170" y1="60" x2="202" y2="60" stroke="#7c3aed" stroke-width="2"/>
+          <line x1="170" y1="60" x2="170" y2="28" stroke="#7c3aed" stroke-width="2"/>
+          <text x="216" y="52" fill="#5f6b7a">Σ stretch</text><text x="222" y="66" fill="#5f6b7a">→</text>
+          <ellipse cx="300" cy="60" rx="46" ry="20" fill="#f3ecff" stroke="#7c3aed"/>
+          <text x="330" y="54" fill="#7c3aed">σ₁</text><text x="303" y="36" fill="#7c3aed">σ₂</text>
+          <text x="350" y="100" fill="#5f6b7a">U turn →</text>
+          <ellipse cx="400" cy="60" rx="34" ry="15" fill="#f3ecff" stroke="#7c3aed" transform="rotate(-30 400 60)"/>
+        </svg>
+      </div>
+      <ol class="steps">
+        <li>Compute \(A^{\top}A\) (symmetric)</li>
+        <li>Its eigenvalues, largest first → \(\sigma=\sqrt{\lambda}\)</li>
+        <li>V = unit eigenvectors (divide by ‖x‖, <b>not</b> σ)</li>
+        <li>Σ = σ's on the diagonal, <b>same size as A</b></li>
+        <li>\(u_i=\frac1{\sigma_i}Av_i\) → U</li>
+      </ol>
+      <div class="ex">\(A=\begin{bmatrix}2 & 2\\ 1 & -1\end{bmatrix}\): \(A^{\top}A=\begin{bmatrix}5 & 3\\ 3 & 5\end{bmatrix}\), \(\lambda=8,2\), \(\Sigma=\begin{bmatrix}2\sqrt2 & 0\\ 0 & \sqrt2\end{bmatrix}\), \(V=\tfrac1{\sqrt2}\begin{bmatrix}1 & 1\\ 1 & -1\end{bmatrix}\), \(U=I\)</div>
+      <div class="trap"><b>Watch out:</b> σ = √λ. For a 2×3 matrix, Σ gets an extra zero column.</div>
+    </div>
+  </div>
+
+  <div class="card l5">
+    <h3>14 · Matrix approximation <small>slide 15</small></h3>
+    <div class="body">
+      <div class="idea">A is a stack of <b>layers</b>. Keep the big ones, drop the small ones.</div>
+      <div class="ex">\[A=\sigma_1u_1v_1^{\top}+\sigma_2u_2v_2^{\top}+\dots\qquad \hat A(k)=\text{first }k\text{ layers}\]</div>
+      <div class="row">
+        <span>\(\begin{bmatrix}2 & 2\\ 1 & -1\end{bmatrix}\)</span><span>=</span>
+        <span class="keep">\(\begin{bmatrix}2 & 2\\ 0 & 0\end{bmatrix}\) <small>keep, σ₁ = 2√2</small></span><span>+</span>
+        <span class="drop">\(\begin{bmatrix}0 & 0\\ 1 & -1\end{bmatrix}\) <small>drop, σ₂ = √2</small></span>
+      </div>
+      <div><div class="label">Column × row (outer product)</div>\(\begin{bmatrix}u_1\\u_2\end{bmatrix}\begin{bmatrix}v_1 & v_2\end{bmatrix}=\begin{bmatrix}u_1v_1 & u_1v_2\\ u_2v_1 & u_2v_2\end{bmatrix}\)</div>
+      <div><div class="label">Share kept</div>\(\dfrac{\sigma_1^2}{\sigma_1^2+\sigma_2^2}=\dfrac{8}{10}=80\%\)</div>
+      <div class="trap"><b>Watch out:</b> a scalar in front multiplies <b>every</b> entry and cancels none.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== TRAPS ===================== -->
+<h2 class="sec">Your personal trap list <span style="font-size:13px;color:var(--muted);font-weight:400">(from your marked work)</span></h2>
+<div class="panel">
+  <table class="t">
+    <tr><th>Mistake you made</th><th>Fix</th></tr>
+    <tr><td>Sign slip moving a term across =</td><td>+ becomes −, − becomes +</td></tr>
+    <tr><td>Row operation on only part of a row</td><td>Every entry in the row changes</td></tr>
+    <tr><td>Rows used in the column trick</td><td>Read columns <b>down</b></td></tr>
+    <tr><td>Verified with the reduced matrix</td><td>Always use the <b>original</b> A</td></tr>
+    <tr><td>Wrote \(x=(0,0,0)\)</td><td>Put the free variable \(t\) back in</td></tr>
+    <tr><td>Factored a fraction wrongly</td><td>Choose \(t\) to clear the fraction instead</td></tr>
+    <tr><td>Dropped a \((1-\lambda)\) factor · divided by λ · only the + root</td><td>Keep every bracket · factor · use ±</td></tr>
+    <tr><td>Forgot \(1/\sqrt{k}\) when normalizing</td><td>Divide by the vector's length</td></tr>
+    <tr><td>Cancelled a scalar against matrix entries</td><td>The scalar multiplies all entries</td></tr>
+    <tr><td>Wrote "T(" around an output · swapped LHS and RHS</td><td>LHS = \(T(x+y)\), RHS = \(T(x)+T(y)\)</td></tr>
+    <tr><td>Wrote "Basis = b, c" when you meant the variables</td><td><b>Basic</b> variables are unknowns. A <b>basis</b> is a set of vectors.</td></tr>
+    <tr><td>Boxed pivots before the staircase was finished</td><td>Each pivot must sit to the right of the one above it</td></tr>
+    <tr><td>Added entries of T's output into one number</td><td>Keep the commas: the output is a vector</td></tr>
+  </table>
+</div>
+
+<!-- ===================== CALCULATOR ===================== -->
+<h2 class="sec">Calculator (Casio fx-350MS)</h2>
+<div class="keys">
+  <div class="key"><b>Vector length</b><br><kbd>Pol(</kbd> 3 <kbd>,</kbd> 4 <kbd>)</kbd> <kbd>=</kbd> → 5</div>
+  <div class="key"><b>Negative numbers</b><br>use <kbd>(−)</kbd>, not <kbd>−</kbd></div>
+  <div class="key"><b>Exact fractions</b><br><kbd>a b/c</kbd></div>
+  <div class="key"><b>Reuse last line</b><br><kbd>◀</kbd> edit numbers <kbd>=</kbd></div>
+  <div class="key"><b>Store / recall</b><br><kbd>SHIFT</kbd><kbd>RCL</kbd> A · <kbd>ALPHA</kbd> A</div>
+  <div class="key"><b>AᵀA fast</b><br>entry (i,j) = col i · col j, top half only</div>
+</div>
+
+</div>
+<script>
+const raw = String.raw;
+const beginnerLessons = {
+  'l1-1': {
+    title: 'What is a vector?',
+    meaning: 'A vector is an ordered list of numbers. Each position has its own meaning.',
+    why: 'Data science stores measurements together, such as one person’s age, height, and test score.',
+    terms: [['Entry', 'One number inside a vector.'], ['Scalar', 'A single number used to multiply a vector.']],
+    visual: 'vector',
+    example: 'One purchase has 2 notebooks and 3 pens. Another has 1 notebook and 4 pens.',
+    steps: [
+      ['Add the notebook entries.', raw`2+1=3`],
+      ['Add the pen entries.', raw`3+4=7`],
+      ['Keep the same order: notebooks first, pens second.', raw`\begin{bmatrix}2\\3\end{bmatrix}+\begin{bmatrix}1\\4\end{bmatrix}=\begin{bmatrix}3\\7\end{bmatrix}`]
+    ],
+    result: 'The total is 3 notebooks and 7 pens. The answer is another vector.',
+    warning: 'Do not add every entry into one total. The positions represent different things.',
+    quiz: {question: 'Multiply every entry of (2, 3) by 2. What do you get?', options: ['(4, 6)', '(4, 3)', '10'], answer: 0, reason: 'Multiplying a vector by 2 doubles every entry: (4, 6).'}
+  },
+  'l1-2': {
+    title: 'Change equations without changing answers',
+    meaning: 'A row operation changes how an equation looks, but preserves the system’s solutions.',
+    why: 'We turn difficult equations into easier equations with the same answers.',
+    terms: [['System', 'Several equations that must all hold.'], ['Unknowns, x and y', 'The numbers we want to find.'], ['Row operation', 'Swap rows, scale by a non-zero number, or add another row’s multiple.']],
+    example: 'Solve two equations: x + y = 5 and x − y = 1.',
+    steps: [
+      ['Add the first equation to the second. The y terms cancel.', raw`\begin{aligned}(x+y)+(x-y)&=5+1\\2x&=6\end{aligned}`],
+      ['Divide by 2 to find x.', raw`x=3`],
+      ['Put x = 3 into the first equation to find y.', raw`3+y=5\quad\Rightarrow\quad y=2`]
+    ],
+    result: 'x = 3 and y = 2. Check both original equations: 3 + 2 = 5; 3 − 2 = 1.',
+    warning: 'An operation must change the entire equation, including its right-hand side.',
+    quiz: {question: 'Which operation can lose information about the solutions?', options: ['Swap two rows', 'Multiply a row by 0', 'Add one row to another'], answer: 1, reason: 'Multiplying by 0 turns an equation into 0 = 0 and loses its information.'}
+  },
+  'l1-3': {
+    title: 'Turn a matrix into a staircase',
+    meaning: 'A pivot is the first non-zero entry in a non-zero row. Pivots step right as you move down.',
+    why: 'The staircase reveals which unknowns can be solved and which can vary.',
+    terms: [['Matrix', 'Numbers arranged in rows (across) and columns (down).'], ['REF', 'Row echelon form: staircase pivots; zero rows at the bottom.'], ['RREF', 'Reduced row echelon form: pivots are 1, with zeros elsewhere in their columns.']],
+    example: 'Start with two rows. R₁ means row 1; R₂ means row 2.',
+    steps: [
+      ['Subtract twice row 1 from row 2.', raw`\begin{bmatrix}1&2\\2&5\end{bmatrix}\xrightarrow{R_2\leftarrow R_2-2R_1}\begin{bmatrix}1&2\\0&1\end{bmatrix}`],
+      ['The pivots step right. This is row echelon form.', raw`\begin{bmatrix}\boxed{1}&2\\0&\boxed{1}\end{bmatrix}`],
+      ['Remove the 2 above the second pivot. This gives reduced row echelon form.', raw`\begin{bmatrix}1&2\\0&1\end{bmatrix}\xrightarrow{R_1\leftarrow R_1-2R_2}\begin{bmatrix}1&0\\0&1\end{bmatrix}`]
+    ],
+    result: 'REF clears below pivots. RREF also clears above pivots and makes each pivot 1.',
+    warning: 'A zero row belongs at the bottom, not between non-zero rows.',
+    quiz: {question: 'In the row (0, 0, 5, 2), which entry is the pivot?', options: ['The first 0', '5', '2'], answer: 1, reason: '5 is the first non-zero entry, so it is the pivot.'}
+  },
+  'l1-4': {
+    title: 'One answer, many answers, or none?',
+    meaning: 'A solution must satisfy every equation at the same time.',
+    why: 'Before calculating unknowns, check whether the equations agree with each other.',
+    terms: [['Consistent', 'At least one solution exists.'], ['Free variable', 'An unknown you can choose freely after reduction.']],
+    visual: 'source',
+    example: 'Compare these three pairs of equations.',
+    steps: [
+      ['Different lines meet at one point: one solution.', raw`\begin{aligned}x+y&=3\\x-y&=1\\(x,y)&=(2,1)\end{aligned}`],
+      ['The second equation repeats the first: infinitely many solutions.', raw`x+y=3,\quad 2x+2y=6`],
+      ['The left sides match, but the required totals disagree: no solution.', raw`\begin{gathered}x+y=3,\quad x+y=5\\0=5-3=2\end{gathered}`]
+    ],
+    result: 'First rule out a contradiction. Then count free variables: none means one solution; any means infinitely many.',
+    warning: 'A free variable does not guarantee solutions if another row is contradictory.',
+    quiz: {question: 'A reduced row says 0x + 0y = 4. How many solutions exist?', options: ['One', 'Infinitely many', 'None'], answer: 2, reason: 'Zero cannot equal 4. One contradictory row rules out every solution.'}
+  },
+  'l1-5': {
+    title: 'Describe every possible solution',
+    meaning: 'When a variable is free, use a parameter to describe all answers in one formula.',
+    why: 'One numerical answer would miss the infinitely many other valid answers.',
+    terms: [['Parameter', 'A number allowed to take any real value.'], ['Real numbers, ℝ', 'Numbers on the number line, including negatives, zero, fractions, and √2.'], ['Particular solution', 'One fixed answer to the original system.'], ['Homogeneous solution', 'An answer to the same system with every right-hand side set to zero.']],
+    example: 'Describe all solutions of x + y = 3.',
+    steps: [
+      ['Choose y freely and call its value t.', raw`y=t,\qquad t\in\mathbb{R}`],
+      ['Solve for x using that choice.', raw`x=3-t`],
+      ['Separate the fixed part from the part that changes.', raw`\begin{bmatrix}x\\y\end{bmatrix}=\begin{bmatrix}3-t\\t\end{bmatrix}=\begin{bmatrix}3\\0\end{bmatrix}+t\begin{bmatrix}-1\\1\end{bmatrix}`]
+    ],
+    result: 'The fixed part sums to 3. The changing part sums to 0, so every choice still sums to 3.',
+    warning: 'Keep the free parameter. Removing it leaves only one answer.',
+    quiz: {question: 'Choose t = 2. Which solution does the formula give?', options: ['(3, 2)', '(1, 2)', '(2, 1)'], answer: 1, reason: 'x = 3 − 2 = 1 and y = 2. Their sum is 3.'}
+  },
+  'l1-6': {
+    title: 'An inverse undoes a matrix',
+    meaning: 'An inverse reverses what a square matrix does, just as dividing by 2 undoes multiplying by 2.',
+    why: 'For an invertible matrix, multiplying Ax = b by its inverse gives x = A⁻¹b.',
+    terms: [['Square matrix', 'A matrix with the same number of rows and columns.'], ['Identity matrix, I', 'Ones on the diagonal and zeros elsewhere; it leaves vectors unchanged.']],
+    example: 'Find the inverse of the matrix with diagonal entries 2 and 3.',
+    steps: [
+      ['Place the identity beside the matrix. The bar separates the two halves.', raw`\left[\begin{array}{cc|cc}2&0&1&0\\0&3&0&1\end{array}\right]`],
+      ['Divide row 1 by 2 and row 2 by 3, on both sides.', raw`\begin{gathered}R_1\leftarrow\tfrac12R_1,\quad R_2\leftarrow\tfrac13R_2\\[6pt]\left[\begin{array}{cc|cc}1&0&\tfrac12&0\\0&1&0&\tfrac13\end{array}\right]\end{gathered}`],
+      ['The right half is the inverse. Multiply to check.', raw`\begin{bmatrix}2&0\\0&3\end{bmatrix}\begin{bmatrix}\tfrac12&0\\0&\tfrac13\end{bmatrix}=\begin{bmatrix}1&0\\0&1\end{bmatrix}=I`]
+    ],
+    result: 'Turn the left half into I. The same row operations turn the right half into A⁻¹.',
+    warning: 'Not every square matrix has an inverse. The left half must reach the identity.',
+    quiz: {question: 'A matrix doubles every entry. What should its inverse do?', options: ['Double again', 'Divide by 2', 'Subtract 2'], answer: 1, reason: 'Dividing by 2 reverses doubling and returns the original vector.'}
+  },
+  'l2-1': {
+    title: 'Does every vector add something new?',
+    meaning: 'Vectors are linearly independent when none can be built from the others.',
+    why: 'Repeated directions add no new possibilities. We need to recognise that redundancy.',
+    terms: [['Linear combination', 'Multiply vectors by numbers, then add them.'], ['Dependent', 'At least one vector is redundant.']],
+    example: 'Compare x₁ = (1, 2) and x₂ = (2, 4). These names refer to whole vectors.',
+    steps: [
+      ['Double the first vector.', raw`2\begin{bmatrix}1\\2\end{bmatrix}=\begin{bmatrix}2\\4\end{bmatrix}=x_2`],
+      ['Move everything to one side.', raw`2x_1-x_2=0`],
+      ['The coefficients 2 and −1 are not both zero. The vectors are dependent.', raw`2\begin{bmatrix}1\\2\end{bmatrix}-\begin{bmatrix}2\\4\end{bmatrix}=\begin{bmatrix}0\\0\end{bmatrix}`]
+    ],
+    result: 'Independence means only all-zero coefficients can make the zero vector.',
+    warning: 'Different-looking vectors can still be multiples of each other.',
+    quiz: {question: 'Which pair is linearly independent?', options: ['(1, 0) and (0, 1)', '(1, 2) and (2, 4)', '(0, 0) and (1, 0)'], answer: 0, reason: 'Neither coordinate-axis vector can be built by scaling the other.'}
+  },
+  'l2-2': {
+    title: 'What makes an Abelian group?',
+    meaning: 'An Abelian group is a set with one operation that obeys five rules, including an undo rule.',
+    why: 'These rules explain why ordinary addition behaves predictably. Vector addition uses them too.',
+    terms: [['Integer', 'A whole number: positive, negative, or zero.'], ['Identity', 'An element that leaves the input unchanged.'], ['Inverse', 'An element that undoes another element.']],
+    example: 'Use all integers, with addition as the operation.',
+    steps: [
+      ['Closure: the sum stays an integer. Associativity: regrouping does not change the answer.', raw`\begin{aligned}2+3&=5\\(2+3)+4&=2+(3+4)\\&=9\end{aligned}`],
+      ['Identity: adding 0 changes nothing. Inverse: every integer has its negative.', raw`3+0=3\qquad 3+(-3)=0`],
+      ['Commutativity: changing the order does not change the answer.', raw`2+3=3+2`]
+    ],
+    result: 'Integers under addition satisfy closure, associativity, identity, inverse, and commutativity.',
+    warning: 'The set and the operation both matter. Integers under multiplication fail the inverse rule.',
+    quiz: {question: 'Why do non-negative integers under addition fail the group test?', options: ['Addition changes order', '3 has no allowed additive inverse', 'Zero is missing'], answer: 1, reason: 'Undoing +3 requires −3, but negative numbers are outside that set.'}
+  },
+  'l2-3': {
+    title: 'A space where adding and scaling work',
+    meaning: 'A vector space allows addition and scalar multiplication, following the usual linear rules.',
+    why: 'The same mathematics can work with lists of numbers, matrices, and even polynomials.',
+    terms: [['Set', 'A collection of objects.'], ['Scalar', 'A number used to multiply a vector.'], ['ℝ²', 'The set of every ordered pair of real numbers.']],
+    example: 'Use the vector space ℝ²: all pairs of real numbers.',
+    steps: [
+      ['Choose two vectors from this space.', raw`x=\begin{bmatrix}1\\2\end{bmatrix},\qquad y=\begin{bmatrix}3\\4\end{bmatrix}`],
+      ['Adding them gives another real pair.', raw`x+y=\begin{bmatrix}4\\6\end{bmatrix}\in\mathbb{R}^2`],
+      ['Multiplying by any real scalar also gives a real pair.', raw`-2x=\begin{bmatrix}-2\\-4\end{bmatrix}\in\mathbb{R}^2`]
+    ],
+    result: 'Staying inside the set is called closure. A vector space also obeys the addition and scaling laws.',
+    warning: 'These calculations illustrate the rules; checking a few examples alone is not a general proof.',
+    quiz: {question: 'Why do strictly positive pairs fail to form a vector space?', options: ['Adding is impossible', 'Multiplying by −1 leaves the set', 'Pairs are not vectors'], answer: 1, reason: 'A vector space must allow every real scalar, including −1 and 0.'}
+  },
+  'l2-4': {
+    title: 'Does a smaller set form a subspace?',
+    meaning: 'A subspace is a subset that is itself a vector space, using the parent space’s operations.',
+    why: 'Three checks let us recognise valid smaller spaces without repeating every vector-space rule.',
+    terms: [['Subset, U ⊆ V', 'Every member of U is already in V. This alone does not prove a subspace.'], ['Closed', 'The result stays in the same set.'], ['∈', 'Means “belongs to”. Below, a, b, and c are any real numbers.']],
+    example: 'Let U be the x-axis inside ℝ²: all vectors (a, 0). The second entry is always zero.',
+    steps: [
+      ['Non-Emptiness: the zero vector belongs to U.', raw`\begin{bmatrix}0\\0\end{bmatrix}\in U`],
+      ['Closure Under Addition: adding any two members preserves the zero second entry.', raw`\begin{bmatrix}a\\0\end{bmatrix}+\begin{bmatrix}b\\0\end{bmatrix}=\begin{bmatrix}a+b\\0\end{bmatrix}\in U`],
+      ['Closure Under Scalar Multiplication: every real scalar preserves that form.', raw`c\begin{bmatrix}a\\0\end{bmatrix}=\begin{bmatrix}ca\\0\end{bmatrix}\in U`]
+    ],
+    result: 'a + b and ca are real. All three checks pass; the remaining rules are inherited from ℝ².',
+    warning: 'Containing zero is necessary, but not sufficient. Addition and scaling must also stay inside.',
+    quiz: {question: 'Is the line y = 1 a subspace of ℝ²?', options: ['Yes, every line is', 'No, it misses the zero vector', 'Yes, it contains infinitely many points'], answer: 1, reason: 'The zero vector is (0, 0), which does not satisfy y = 1.'}
+  },
+  'l2-5': {
+    title: 'What can these vectors build?',
+    meaning: 'The span of some vectors is the set of every linear combination you can make from them.',
+    why: 'Span tells us which target vectors our starting vectors can reach.',
+    terms: [['Spanning vectors', 'The fixed whole vectors we start with: x₁, x₂, and so on.'], ['Coefficient', 'An adjustable number multiplying a vector.']],
+    example: 'Start with x₁ = (1, 0) and x₂ = (0, 1). Can they build (3, 2)?',
+    steps: [
+      ['Scale the first vector to get the first coordinate.', raw`3x_1=3\begin{bmatrix}1\\0\end{bmatrix}=\begin{bmatrix}3\\0\end{bmatrix}`],
+      ['Scale the second, then add.', raw`3x_1+2x_2=\begin{bmatrix}3\\0\end{bmatrix}+\begin{bmatrix}0\\2\end{bmatrix}=\begin{bmatrix}3\\2\end{bmatrix}`],
+      ['Any real pair works in exactly the same way.', raw`a\begin{bmatrix}1\\0\end{bmatrix}+b\begin{bmatrix}0\\1\end{bmatrix}=\begin{bmatrix}a\\b\end{bmatrix}`]
+    ],
+    result: 'These two vectors span all of ℝ². Span is the entire set of possible answers.',
+    warning: 'One linear combination is one vector. The span contains all possible combinations.',
+    quiz: {question: 'What do (1, 0) and (2, 0) span?', options: ['All of ℝ²', 'Only the x-axis', 'Only two points'], answer: 1, reason: 'Every combination still has second entry 0. Negative and fractional first entries are allowed.'}
+  },
+  'l3-1': {
+    title: 'Test the coefficients, not long expressions',
+    meaning: 'When vectors use the same independent building blocks, their coefficient columns reveal dependence.',
+    why: 'We can replace long vector expressions with a small matrix of numbers.',
+    terms: [['Coefficient', 'The number multiplying a vector.'], ['Building blocks', 'Here b₁ and b₂ are known linearly independent vectors.']],
+    example: 'Let x₁ = b₁ + 2b₂ and x₂ = 2b₁ + 4b₂.',
+    steps: [
+      ['Put each vector’s coefficients in a column.', raw`x_1\longleftrightarrow\begin{bmatrix}1\\2\end{bmatrix},\qquad x_2\longleftrightarrow\begin{bmatrix}2\\4\end{bmatrix}`],
+      ['Subtract twice row 1 from row 2.', raw`\begin{bmatrix}1&2\\2&4\end{bmatrix}\xrightarrow{R_2\leftarrow R_2-2R_1}\begin{bmatrix}1&2\\0&0\end{bmatrix}`],
+      ['Column 2 is twice column 1, so the same relation holds for the original vectors.', raw`\begin{aligned}x_2&=2b_1+4b_2\\&=2(b_1+2b_2)\\&=2x_1\end{aligned}`]
+    ],
+    result: 'The second vector repeats the first direction. The pair is dependent.',
+    warning: 'The building blocks must be independent for coefficient independence to prove vector independence.',
+    quiz: {question: 'Using independent b₁ and b₂, are x₁ = b₁ and x₂ = b₂ independent?', options: ['Yes', 'No', 'Only if both are zero'], answer: 0, reason: 'Their coefficient columns are (1, 0) and (0, 1), which are independent.'}
+  },
+  'l3-2': {
+    title: 'Which inputs give zero?',
+    meaning: 'The null space of A contains every input vector that A sends to the zero vector.',
+    why: 'It identifies directions whose information is lost when we multiply by A.',
+    terms: [['Null space', 'All solutions of Ax = 0, including x = 0.'], ['Homogeneous system', 'A system with zeros on its right-hand side.']],
+    example: 'A = [1 1] adds the two entries of its input. Which pairs add to zero?',
+    steps: [
+      ['Write the equation produced by the matrix.', raw`\begin{bmatrix}1&1\end{bmatrix}\begin{bmatrix}a\\b\end{bmatrix}=a+b=0`],
+      ['Choose b = t freely. Then a = −t.', raw`\begin{bmatrix}a\\b\end{bmatrix}=\begin{bmatrix}-t\\t\end{bmatrix}=t\begin{bmatrix}-1\\1\end{bmatrix},\qquad t\in\mathbb{R}`],
+      ['Check that every choice gives zero.', raw`\begin{bmatrix}1&1\end{bmatrix}\begin{bmatrix}-t\\t\end{bmatrix}=-t+t=0`]
+    ],
+    result: 'The null space is a line here. In general, zero, sums, and scaled null-space vectors still map to zero.',
+    warning: 'Solve Ax = 0, not Ax = b with a non-zero right-hand side.',
+    quiz: {question: 'Which vector belongs to the null space of A = [1 1]?', options: ['(2, 2)', '(−2, 2)', '(1, 0)'], answer: 1, reason: '−2 + 2 = 0, so A sends (−2, 2) to zero.'}
+  },
+  'l3-3': {
+    title: 'Build a space without redundant vectors',
+    meaning: 'A basis spans the whole space and is linearly independent. Dimension counts its vectors.',
+    why: 'A basis gives enough building blocks to describe every vector, without extras.',
+    terms: [['Spans', 'Can build every vector in the space.'], ['Independent', 'No vector can be built from the others.'], ['Dimension', 'The number of vectors in a basis.']],
+    example: 'Use x₁ = (1, 0) and x₂ = (0, 1) for the plane ℝ².',
+    steps: [
+      ['They span the plane: every real pair has this form.', raw`\begin{bmatrix}a\\b\end{bmatrix}=a\begin{bmatrix}1\\0\end{bmatrix}+b\begin{bmatrix}0\\1\end{bmatrix}`],
+      ['They are independent: reaching zero forces both coefficients to be zero.', raw`\begin{gathered}a\begin{bmatrix}1\\0\end{bmatrix}+b\begin{bmatrix}0\\1\end{bmatrix}=0\\\Rightarrow\quad a=b=0\end{gathered}`],
+      ['There are two basis vectors, so the dimension is two.', raw`\dim(\mathbb{R}^2)=2`]
+    ],
+    result: 'A basis must pass both tests: spanning and independence. Different bases have the same number of vectors.',
+    warning: 'Dimension counts basis vectors, not entries inside each vector.',
+    quiz: {question: 'The xy-plane has vectors (a, b, 0). What is its dimension?', options: ['2', '3', 'Infinitely many'], answer: 0, reason: '(1, 0, 0) and (0, 1, 0) form a basis. Three entries do not mean three independent directions.'}
+  },
+  'l3-4': {
+    title: 'Keep the original pivot columns',
+    meaning: 'Row reduction identifies the columns needed for a basis. Take those columns from the original matrix.',
+    why: 'It removes redundant vectors while preserving everything the original vectors can span.',
+    terms: [['Pivot', 'The first non-zero entry in a non-zero echelon row.'], ['Rank', 'The number of pivots.'], ['Nullity', 'The number of free variables.']],
+    example: 'Start with columns x₁ = (1, 1), x₂ = (2, 2), and x₃ = (1, 0).',
+    steps: [
+      ['Put the vectors into columns.', raw`A=\begin{bmatrix}1&2&1\\1&2&0\end{bmatrix}`],
+      ['Subtract row 1 from row 2. Pivots appear in columns 1 and 3.', raw`A\xrightarrow{R_2\leftarrow R_2-R_1}\begin{bmatrix}\boxed{1}&2&1\\0&0&\boxed{-1}\end{bmatrix}`],
+      ['Return to the original columns 1 and 3.', raw`\text{Basis}=\left\{\begin{bmatrix}1\\1\end{bmatrix},\begin{bmatrix}1\\0\end{bmatrix}\right\}`]
+    ],
+    result: 'The span has dimension 2. Rank 2 + nullity 1 = 3 original columns.',
+    warning: 'The reduced third column is (1, −1). That is not the original third vector.',
+    quiz: {question: 'Which third-column vector belongs in this basis?', options: ['Original: (1, 0)', 'Reduced: (1, −1)', 'The row: (1, 2, 1)'], answer: 0, reason: 'Pivot positions come from the reduced matrix; the actual basis vectors come from the original matrix.'}
+  },
+  'l4-1': {
+    title: 'Does a rule respect adding and scaling?',
+    meaning: 'A linear transformation gives the same answer whether we combine inputs before or after applying it.',
+    why: 'Linear rules can be represented by matrices, making complicated calculations manageable.',
+    terms: [['Transformation, T', 'A rule that turns an input into an output.'], ['x and y', 'Any two whole input vectors.'], ['c', 'Any real scalar.']],
+    example: 'Let T double every vector: T(x) = 2x. For example, (1, 2) becomes (2, 4).',
+    steps: [
+      ['Zero check: a linear rule must send zero to zero.', raw`T(0)=2(0)=0`],
+      ['Addition: doubling a sum equals adding the doubled vectors.', raw`\begin{aligned}T(x+y)&=2(x+y)\\&=2x+2y\\&=T(x)+T(y)\end{aligned}`],
+      ['Scalar multiplication: the order of the two scalings does not matter.', raw`T(cx)=2(cx)=c(2x)=cT(x)`]
+    ],
+    result: 'The addition and scalar tests hold for arbitrary inputs, so this transformation is linear.',
+    warning: 'Passing T(0) = 0 alone is not enough. The other tests must hold for all inputs.',
+    quiz: {question: 'Is the real-number rule T(x) = x + 1 linear?', options: ['Yes', 'No: T(0) = 1', 'Only for positive x'], answer: 1, reason: 'A linear rule must send 0 to 0. Adding 1 fails immediately.'}
+  },
+  'l4-2': {
+    title: 'Trace: add the diagonal entries',
+    meaning: 'The trace of a square matrix is the sum of its main diagonal.',
+    why: 'Trace gives a quick check: it equals the sum of the eigenvalues, counting repetitions.',
+    terms: [['Square matrix', 'The number of rows equals the number of columns.'], ['Main diagonal', 'Entries running from top-left to bottom-right.']],
+    visual: 'source',
+    example: 'The highlighted diagonal entries are 3, 4, and 2.',
+    steps: [
+      ['Read only the main diagonal.', raw`a_{11}=3,\quad a_{22}=4,\quad a_{33}=2`],
+      ['Add those entries.', raw`\operatorname{Tr}(A)=3+4+2=9`]
+    ],
+    result: 'Trace means add the diagonal. The other entries do not contribute.',
+    warning: 'Do not multiply the diagonal. That is a determinant shortcut only for triangular matrices.',
+    quiz: {question: 'A square matrix has diagonal entries 2, −1, and 4. What is its trace?', options: ['5', '−8', '7'], answer: 0, reason: 'Add with signs: 2 − 1 + 4 = 5.'}
+  },
+  'l4-3': {
+    title: 'Build an equation for the eigenvalues',
+    meaning: 'The characteristic polynomial is a determinant expression. Setting it to zero finds eigenvalues.',
+    why: 'An eigenvalue is a scaling amount along a special direction. This equation finds possible amounts.',
+    terms: [['λ (lambda)', 'The unknown eigenvalue; it is a number.'], ['I', 'The identity matrix: diagonal ones and all other entries zero.'], ['Determinant', 'A square matrix’s signed volume scale; zero signals a lost dimension.']],
+    example: 'Use a diagonal matrix with entries 2 and 3.',
+    steps: [
+      ['Subtract λ only from the main diagonal.', raw`A-\lambda I=\begin{bmatrix}2-\lambda&0\\0&3-\lambda\end{bmatrix}`],
+      ['Take the determinant. For this diagonal matrix, multiply the diagonal entries.', raw`\begin{aligned}p_A(\lambda)&=\det(A-\lambda I)\\&=(2-\lambda)(3-\lambda)\end{aligned}`],
+      ['Set the product to zero. At least one factor must be zero.', raw`\begin{gathered}(2-\lambda)(3-\lambda)=0\\\Rightarrow\quad\lambda=2\text{ or }3\end{gathered}`]
+    ],
+    result: 'Subtract λ on the diagonal → determinant → set equal to zero → solve.',
+    warning: 'Do not subtract λ from every matrix entry.',
+    quiz: {question: 'When forming A − λI, what happens to an off-diagonal entry 7?', options: ['It becomes 7 − λ', 'It stays 7', 'It becomes 0'], answer: 1, reason: 'The off-diagonal entries of I are zero, so 7 − λ × 0 = 7.'}
+  },
+  'l4-4': {
+    title: 'Find directions a matrix does not turn',
+    meaning: 'A non-zero eigenvector stays on the same line after multiplication. Its eigenvalue tells the scaling.',
+    why: 'These directions make repeated transformations much easier to understand.',
+    terms: [['Eigenvector, x', 'A non-zero vector satisfying Ax = λx.'], ['Eigenvalue, λ', 'The scaling amount: stretching, shrinking, reversing, or collapsing to zero.']],
+    visual: 'source',
+    example: 'A doubles the first entry and triples the second: its diagonal entries are 2 and 3.',
+    steps: [
+      ['A vector on the first axis is doubled.', raw`\begin{bmatrix}2&0\\0&3\end{bmatrix}\begin{bmatrix}1\\0\end{bmatrix}=\begin{bmatrix}2\\0\end{bmatrix}=2\begin{bmatrix}1\\0\end{bmatrix}`],
+      ['A vector on the second axis is tripled.', raw`\begin{bmatrix}2&0\\0&3\end{bmatrix}\begin{bmatrix}0\\1\end{bmatrix}=\begin{bmatrix}0\\3\end{bmatrix}=3\begin{bmatrix}0\\1\end{bmatrix}`],
+      ['A mixed vector does not keep its direction here: no single scaling works.', raw`A\begin{bmatrix}1\\1\end{bmatrix}=\begin{bmatrix}2\\3\end{bmatrix}\ne\lambda\begin{bmatrix}1\\1\end{bmatrix}`]
+    ],
+    result: 'Check Ax = λx using the original A. An eigenvalue may be zero; an eigenvector may not.',
+    warning: 'A negative eigenvalue reverses direction along the same line. It does not turn away from that line.',
+    quiz: {question: 'For this matrix, what eigenvalue belongs to (0, 1)?', options: ['0', '2', '3'], answer: 2, reason: 'A(0, 1) = (0, 3) = 3(0, 1), so the eigenvalue is 3.'}
+  },
+  'l4-5': {
+    title: 'Collect vectors with the same eigenvalue',
+    meaning: 'An eigenspace contains all eigenvectors for one eigenvalue, together with the zero vector.',
+    why: 'One eigenvalue can have several independent eigenvectors. We need the whole space, not just one example.',
+    terms: [['Eigenspace, Eλ', 'All solutions of (A − λI)x = 0.'], ['Spectrum', 'The set of distinct eigenvalues.'], ['Dimension', 'The number of independent basis vectors in the eigenspace.']],
+    example: 'Let A have diagonal entries 2, 2, and 3. Find the eigenspace for λ = 2.',
+    steps: [
+      ['Subtract 2 from the diagonal and solve for zero.', raw`\begin{gathered}A-2I=\begin{bmatrix}0&0&0\\0&0&0\\0&0&1\end{bmatrix}\\[5pt](A-2I)\begin{bmatrix}a\\b\\c\end{bmatrix}=\begin{bmatrix}0\\0\\c\end{bmatrix}=0\end{gathered}`],
+      ['Only c is forced to be zero. Both a and b are free.', raw`x=\begin{bmatrix}a\\b\\0\end{bmatrix}=a\begin{bmatrix}1\\0\\0\end{bmatrix}+b\begin{bmatrix}0\\1\\0\end{bmatrix}`],
+      ['The two fixed vectors form a basis.', raw`\begin{aligned}\dim E_2&=2\\\operatorname{spectrum}(A)&=\{2,3\}\end{aligned}`]
+    ],
+    result: 'One eigenvalue, 2, has a two-dimensional eigenspace here. Spectrum lists each value once.',
+    warning: 'Zero belongs to every eigenspace, but is never itself an eigenvector.',
+    quiz: {question: 'Is (0, 1, 0) in this eigenspace E₂?', options: ['Yes', 'No', 'Only when λ = 3'], answer: 0, reason: 'A(0, 1, 0) = (0, 2, 0) = 2(0, 1, 0).'}
+  },
+  'l4-6': {
+    title: 'Different eigenvalues give independent vectors',
+    meaning: 'Eigenvectors belonging to distinct eigenvalues are linearly independent.',
+    why: 'Sometimes independence follows immediately, without another row-reduction calculation.',
+    terms: [['Distinct', 'Different from one another.'], ['Independent', 'No vector can be built from the others.']],
+    example: 'For a diagonal matrix with entries 2 and 3, use the two coordinate-axis vectors.',
+    steps: [
+      ['The first vector has eigenvalue 2.', raw`A\begin{bmatrix}1\\0\end{bmatrix}=2\begin{bmatrix}1\\0\end{bmatrix}`],
+      ['The second vector has eigenvalue 3.', raw`A\begin{bmatrix}0\\1\end{bmatrix}=3\begin{bmatrix}0\\1\end{bmatrix}`],
+      ['Because the eigenvalues differ, the two eigenvectors are independent.', raw`\begin{gathered}2\ne3\\[3pt]\left\{\begin{bmatrix}1\\0\end{bmatrix},\begin{bmatrix}0\\1\end{bmatrix}\right\}\text{ is independent}\end{gathered}`]
+    ],
+    result: 'A real n × n matrix with n distinct real eigenvalues has an eigenvector basis of ℝⁿ.',
+    warning: 'The reverse is not true: a repeated eigenvalue can still have independent eigenvectors.',
+    quiz: {question: 'Two eigenvectors have the same eigenvalue. Must they be dependent?', options: ['Yes', 'No; they may be independent', 'Repeated eigenvalues are impossible'], answer: 1, reason: 'For the identity matrix, (1, 0) and (0, 1) are independent and both have eigenvalue 1.'}
+  },
+  'l4-7': {
+    title: 'Symmetry gives an orthonormal eigenbasis',
+    meaning: 'For a real symmetric matrix, we can choose an eigenvector basis that is perpendicular and unit length.',
+    why: 'Perpendicular unit vectors simplify coordinates and replace some inverses with transposes.',
+    terms: [['Symmetric', 'Mirrored entries across the main diagonal match: A = Aᵀ.'], ['Orthogonal', 'Perpendicular; the dot product is zero.'], ['Orthonormal', 'Mutually perpendicular, with every vector having length 1.']],
+    example: 'A has rows (2, 1) and (1, 2). Its eigenvectors include x = (1, 1) and y = (1, −1).',
+    steps: [
+      ['Their eigenvalues are 3 and 1.', raw`\begin{aligned}Ax&=\begin{bmatrix}3\\3\end{bmatrix}=3x\\Ay&=\begin{bmatrix}1\\-1\end{bmatrix}=y\end{aligned}`],
+      ['Check perpendicularity using the dot product.', raw`x\cdot y=1(1)+1(-1)=0`],
+      ['Both lengths are √2. Divide each vector by its own length.', raw`\frac1{\sqrt2}\begin{bmatrix}1\\1\end{bmatrix},\qquad \frac1{\sqrt2}\begin{bmatrix}1\\-1\end{bmatrix}`]
+    ],
+    result: 'Real symmetry guarantees real eigenvalues and the existence of an orthonormal eigenbasis.',
+    warning: 'For a repeated eigenvalue, arbitrary eigenvectors need not be perpendicular; choose an orthonormal basis.',
+    quiz: {question: 'What must be true in addition to perpendicularity for an orthonormal set?', options: ['Every entry is 1', 'Every vector has length 1', 'Every eigenvalue is 1'], answer: 1, reason: '“Ortho” means perpendicular; “normal” here means normalised to unit length.'}
+  },
+  'l4-8': {
+    title: 'Make a matrix diagonal using eigenvectors',
+    meaning: 'Diagonalization describes a matrix in coordinates where it only scales separate directions.',
+    why: 'A diagonal matrix is easy to multiply, invert when allowed, and raise to powers.',
+    terms: [['P', 'A square matrix whose columns are independent eigenvectors.'], ['D', 'A diagonal matrix of matching eigenvalues, in the same order.']],
+    example: 'Again use A with rows (2, 1) and (1, 2). Its eigenvectors (1, 1) and (1, −1) have eigenvalues 3 and 1.',
+    steps: [
+      ['Place the eigenvectors in columns, not rows.', raw`P=\begin{bmatrix}1&1\\1&-1\end{bmatrix}`],
+      ['Put the matching eigenvalues in the same order.', raw`D=\begin{bmatrix}3&0\\0&1\end{bmatrix}`],
+      ['Check the original matrix against the proposed factors.', raw`AP=\begin{bmatrix}3&1\\3&-1\end{bmatrix}=PD`]
+    ],
+    result: 'P is invertible here, so AP = PD gives A = PDP⁻¹.',
+    warning: 'An n × n matrix needs n independent eigenvectors. Not every matrix can be diagonalized.',
+    quiz: {question: 'You swap the two columns of P. What else must change?', options: ['Nothing', 'Swap the matching diagonal entries of D', 'Replace A with its transpose'], answer: 1, reason: 'Each eigenvector column must stay paired with its eigenvalue.'}
+  },
+  'l4-9': {
+    title: 'Take powers without repeated multiplication',
+    meaning: 'If A = PDP⁻¹, then Aᵏ = PDᵏP⁻¹. Only the diagonal entries need powers.',
+    why: 'This avoids multiplying a large matrix by itself many times.',
+    terms: [['k', 'The number of repeated factors; here k is a positive integer.'], ['Dᵏ', 'Raise each diagonal entry to k; off-diagonal entries remain zero.']],
+    example: 'Square A with rows (2, 1) and (1, 2), using its eigenvalues 3 and 1.',
+    steps: [
+      ['Use the same eigenvector and eigenvalue matrices as before.', raw`P=\begin{bmatrix}1&1\\1&-1\end{bmatrix},\qquad D=\begin{bmatrix}3&0\\0&1\end{bmatrix}`],
+      ['Square only the entries of D.', raw`D^2=\begin{bmatrix}3^2&0\\0&1^2\end{bmatrix}=\begin{bmatrix}9&0\\0&1\end{bmatrix}`],
+      ['Reconstruct the answer, using P⁻¹ = ½P in this example.', raw`A^2=PD^2P^{-1}=\begin{bmatrix}5&4\\4&5\end{bmatrix}`]
+    ],
+    result: 'The inner P⁻¹P factors cancel to I. P and P⁻¹ stay unchanged.',
+    warning: 'Do not raise every entry of A to the power. Matrix powers are not entry-by-entry powers.',
+    quiz: {question: 'D has diagonal entries 2 and 5. What are the diagonal entries of D³?', options: ['6 and 15', '8 and 125', '2 and 5'], answer: 1, reason: 'Cube each diagonal entry: 2³ = 8 and 5³ = 125.'}
+  },
+  'l4-10': {
+    title: 'Use a transpose instead of an inverse',
+    meaning: 'For a real square matrix with orthonormal columns, the transpose is its inverse.',
+    why: 'Transposing only exchanges rows and columns. It is simpler than calculating a general inverse.',
+    terms: [['Transpose, Pᵀ', 'Exchange the rows and columns of P.'], ['Orthonormal columns', 'Each column has length 1, and different columns are perpendicular.']],
+    example: 'Use the symmetric matrix with rows (2, 1) and (1, 2), as in the previous examples.',
+    steps: [
+      ['Normalise the eigenvectors (1, 1) and (1, −1), each of length √2.', raw`P=\frac1{\sqrt2}\begin{bmatrix}1&1\\1&-1\end{bmatrix}`],
+      ['Check that the transpose really undoes P.', raw`P^{\top}P=\frac12\begin{bmatrix}2&0\\0&2\end{bmatrix}=I`],
+      ['Use the matching eigenvalues 3 and 1.', raw`A=P\begin{bmatrix}3&0\\0&1\end{bmatrix}P^{\top}`]
+    ],
+    result: 'Symmetric A → choose orthonormal eigenvectors → A = PDPᵀ.',
+    warning: 'Length 1 alone is insufficient: different columns must also be perpendicular.',
+    quiz: {question: 'Can Pᵀ replace P⁻¹ for every invertible matrix?', options: ['Yes', 'No, only when P has orthonormal columns', 'Only when all entries are positive'], answer: 1, reason: 'The required check is PᵀP = I. A general invertible matrix does not satisfy it.'}
+  },
+  'l4-11': {
+    title: 'Cholesky: split A into L and Lᵀ',
+    meaning: 'Cholesky factorization writes a real symmetric positive-definite matrix as A = LLᵀ.',
+    why: 'The triangular factor makes many equation-solving calculations faster.',
+    terms: [['Lower triangular, L', 'Every entry above the main diagonal is zero.'], ['Positive-definite', 'For every non-zero vector x, the number xᵀAx is positive.'], ['Lᵀ', 'The transpose of L: exchange rows and columns.']],
+    example: 'Use A with rows (4, 2) and (2, 5). Build L from the top-left downward.',
+    steps: [
+      ['The first diagonal entry must square to 4.', raw`l_{11}=\sqrt4=2`],
+      ['The lower-left entry must satisfy 2l₂₁ = 2.', raw`l_{21}=\frac22=1`],
+      ['The last diagonal entry accounts for the remaining part of 5.', raw`\begin{aligned}l_{22}&=\sqrt{5-1^2}=2\\L&=\begin{bmatrix}2&0\\1&2\end{bmatrix}\end{aligned}`]
+    ],
+    result: 'Check LLᵀ: its rows are (4, 2) and (2, 5), exactly the original A.',
+    warning: 'Positive entries alone do not prove positive-definiteness.',
+    quiz: {question: 'Which entry must be zero in a 2 × 2 lower-triangular L?', options: ['Top-right', 'Bottom-left', 'Both diagonal entries'], answer: 0, reason: 'Lower triangular means all entries above the main diagonal are zero.'}
+  },
+  'l5-1': {
+    title: 'QR: make columns perpendicular and unit length',
+    meaning: 'Gram–Schmidt removes overlapping directions, then normalises the remaining vectors.',
+    why: 'Perpendicular unit columns make coordinates and many equation-solving tasks easier.',
+    terms: [['Projection', 'The part of one vector pointing along another; its “shadow”.'], ['Q', 'A matrix with perpendicular unit columns.'], ['R', 'An upper-triangular matrix: zeros below the diagonal.']],
+    visual: 'source',
+    example: 'Take columns a₁ = (1, 0) and a₂ = (1, 1). Their matrix has rows (1, 1) and (0, 1).',
+    steps: [
+      ['The first column already has length 1.', raw`e_1=\begin{bmatrix}1\\0\end{bmatrix}`],
+      ['Remove the part of a₂ along e₁. The remainder also has length 1.', raw`\begin{aligned}a_2-(a_2\cdot e_1)e_1&=a_2-e_1\\&=\begin{bmatrix}1\\1\end{bmatrix}-\begin{bmatrix}1\\0\end{bmatrix}\\&=\begin{bmatrix}0\\1\end{bmatrix}=e_2\end{aligned}`],
+      ['Collect the new columns into Q, then compute R = QᵀA.', raw`\begin{aligned}Q&=\begin{bmatrix}1&0\\0&1\end{bmatrix}\\R&=\begin{bmatrix}1&1\\0&1\end{bmatrix}\\QR&=A\end{aligned}`]
+    ],
+    result: 'Remove the shadow → divide by the remaining length → collect Q → calculate R.',
+    warning: 'This basic procedure assumes independent columns. A zero remainder cannot be normalised.',
+    quiz: {question: 'What does a zero remainder during Gram–Schmidt tell you?', options: ['The new column repeats earlier directions', 'The new vector already has length 1', 'The projection must be ignored'], answer: 0, reason: 'Nothing new remains after removing earlier directions. The columns are dependent.'}
+  },
+  'l5-2': {
+    title: 'SVD: separate direction changes from stretching',
+    meaning: 'Singular value decomposition separates a real matrix into direction changes and non-negative stretching.',
+    why: 'It works for rectangular matrices too, and reveals the strongest directions in data.',
+    terms: [['SVD', 'Singular value decomposition: A = UΣVᵀ.'], ['σ (sigma)', 'A singular value: a non-negative stretching amount.'], ['U and V', 'Orthogonal matrices that turn or reflect coordinates.'], ['I', 'The identity matrix, which leaves a vector unchanged.']],
+    visual: 'source',
+    example: 'Start with A = diag(3, 2): diagonal entries 3 and 2, and zeros elsewhere.',
+    steps: [
+      ['Transpose A, then multiply by A.', raw`A^{\top}A=\begin{bmatrix}9&0\\0&4\end{bmatrix}`],
+      ['The eigenvalues are 9 and 4. Take their square roots, largest first.', raw`\sigma_1=\sqrt9=3,\qquad \sigma_2=\sqrt4=2`],
+      ['The coordinate axes already give unit eigenvectors. No direction changes are needed here.', raw`\begin{gathered}U=I,\quad V=I\\[5pt]\Sigma=\begin{bmatrix}3&0\\0&2\end{bmatrix}\end{gathered}`]
+    ],
+    result: 'In general, apply Vᵀ first, then Σ, then U. Direction changes may include reflections.',
+    warning: 'The formula uᵢ = Avᵢ/σᵢ only works for positive σᵢ. Zero values need an orthonormal completion.',
+    quiz: {question: 'An eigenvalue of AᵀA is 16. What is the corresponding singular value?', options: ['16', '4', '256'], answer: 1, reason: 'Singular values are non-negative square roots: √16 = 4.'}
+  },
+  'l5-3': {
+    title: 'Keep the strongest parts of a matrix',
+    meaning: 'A low-rank approximation keeps the largest singular-value contributions and drops smaller ones.',
+    why: 'We can store a simpler representation while keeping much of the matrix’s information.',
+    terms: [['Rank-k approximation', 'An approximation using at most k independent directions.'], ['Squared energy', 'The sum of squared singular values, measuring squared matrix size.']],
+    example: 'A has diagonal entries 3 and 1. Keep only its largest singular-value contribution.',
+    steps: [
+      ['Separate the two contributions.', raw`\begin{bmatrix}3&0\\0&1\end{bmatrix}=\begin{bmatrix}3&0\\0&0\end{bmatrix}+\begin{bmatrix}0&0\\0&1\end{bmatrix}`],
+      ['Keep the contribution with singular value 3.', raw`\hat A(1)=\begin{bmatrix}3&0\\0&0\end{bmatrix}`],
+      ['Measure the fraction of squared energy retained.', raw`\frac{3^2}{3^2+1^2}=\frac9{10}=90\%`]
+    ],
+    result: 'This rank-1 approximation retains 90% of the squared matrix size, not “90% prediction accuracy”.',
+    warning: 'Order singular values largest first. Smaller does not automatically mean meaningless noise.',
+    quiz: {question: 'The singular values are 4 and 1. Which contribution should rank-1 approximation keep?', options: ['The one with 4', 'The one with 1', 'Both, unchanged'], answer: 0, reason: 'Truncated SVD keeps the largest singular-value contribution first.'}
+  },
+  'tool-1': {
+    title: 'Multiply matrices: row meets column',
+    meaning: 'Each answer entry comes from one left-hand row and one right-hand column.',
+    why: 'Matrix multiplication combines two transformations into one.',
+    terms: [['Compatible sizes', 'Left matrix columns must equal right matrix rows.'], ['Dot product', 'Multiply matching entries, then add the products.']],
+    example: 'Multiply A with rows (1, 2), (3, 4) by B with rows (2, 0), (1, 3).',
+    steps: [
+      ['Both matrices are 2 × 2, so the answer is also 2 × 2.', raw`A=\begin{bmatrix}1&2\\3&4\end{bmatrix},\quad B=\begin{bmatrix}2&0\\1&3\end{bmatrix}`],
+      ['Use A’s first row against each column of B.', raw`\begin{aligned}1(2)+2(1)&=4\\1(0)+2(3)&=6\end{aligned}`],
+      ['Repeat with the second row and place each answer in its position.', raw`\begin{aligned}3(2)+4(1)&=10\\3(0)+4(3)&=12\\AB&=\begin{bmatrix}4&6\\10&12\end{bmatrix}\end{aligned}`]
+    ],
+    result: 'One row × one column → one answer entry. Repeat for each position.',
+    warning: 'AB and BA generally differ, and the reverse product may not even be defined.',
+    quiz: {question: 'Can a 2 × 3 matrix multiply a 3 × 4 matrix, in that order?', options: ['Yes; the answer is 2 × 4', 'Yes; the answer is 3 × 3', 'No'], answer: 0, reason: 'The inner sizes match: 3 and 3. The answer uses the outer sizes: 2 × 4.'}
+  },
+  'tool-2': {
+    title: 'A vector chooses the column weights',
+    meaning: 'Multiplying a matrix by a vector makes a weighted sum of the matrix’s columns.',
+    why: 'This connects matrix multiplication directly to linear combinations and span.',
+    terms: [['Column', 'Entries read vertically, from top to bottom.'], ['Weight', 'The number multiplying a column.']],
+    example: 'A has columns (2, 0) and (1, 3). Multiply A by the vector (1, 2).',
+    steps: [
+      ['The first input entry gives the first column’s weight.', raw`1\begin{bmatrix}2\\0\end{bmatrix}=\begin{bmatrix}2\\0\end{bmatrix}`],
+      ['The second input entry gives the second column’s weight.', raw`2\begin{bmatrix}1\\3\end{bmatrix}=\begin{bmatrix}2\\6\end{bmatrix}`],
+      ['Add the weighted columns.', raw`A\begin{bmatrix}1\\2\end{bmatrix}=\begin{bmatrix}2\\0\end{bmatrix}+\begin{bmatrix}2\\6\end{bmatrix}=\begin{bmatrix}4\\6\end{bmatrix}`]
+    ],
+    result: 'The input vector says how much of each column to use.',
+    warning: 'The weights apply to columns, not rows.',
+    quiz: {question: 'What does multiplying this A by (0, 1) return?', options: ['The first column: (2, 0)', 'The second column: (1, 3)', 'The zero vector'], answer: 1, reason: '0 × column 1 + 1 × column 2 selects the second column.'}
+  },
+  'tool-3': {
+    title: 'Determinant: does a square matrix lose dimensions?',
+    meaning: 'A determinant is a signed scale factor for area or volume. A zero determinant means collapse.',
+    why: 'For square matrices, a non-zero determinant means an inverse exists.',
+    terms: [['det(A)', 'The determinant of the square matrix A.'], ['2 × 2 rule', 'For rows (a, b) and (c, d), calculate ad − bc.']],
+    example: 'Use A with rows (3, 1) and (2, 4).',
+    steps: [
+      ['Multiply along the main diagonal.', raw`ad=3(4)=12`],
+      ['Multiply the other diagonal.', raw`bc=1(2)=2`],
+      ['Subtract the second product from the first.', raw`\det\begin{bmatrix}3&1\\2&4\end{bmatrix}=12-2=10`]
+    ],
+    result: 'The determinant is 10, not zero. This matrix is invertible.',
+    warning: 'Use ad − bc, not ad + bc. The 2 × 2 formula does not generalise by itself.',
+    quiz: {question: 'A diagonal matrix has entries 2 and 0. Does it have an inverse?', options: ['Yes', 'No: its determinant is 0', 'Only if we swap the rows'], answer: 1, reason: 'Its determinant is 2 × 0 = 0. It collapses one direction.'}
+  },
+  'tool-4': {
+    title: 'A quick inverse for a 2 × 2 matrix',
+    meaning: 'For an invertible 2 × 2 matrix: swap the diagonal entries, negate the others, then divide by the determinant.',
+    why: 'This is a quick alternative to row reduction for small matrices.',
+    terms: [['Inverse, A⁻¹', 'A matrix that undoes A, so AA⁻¹ = I.'], ['Invertible', 'An inverse exists; for a square matrix, det(A) ≠ 0.']],
+    example: 'Use the same matrix as before, with rows (3, 1) and (2, 4).',
+    steps: [
+      ['Check the determinant is not zero.', raw`\det(A)=3(4)-1(2)=10`],
+      ['Swap 3 and 4; change the signs of 1 and 2. Divide every entry by 10.', raw`A^{-1}=\frac1{10}\begin{bmatrix}4&-1\\-2&3\end{bmatrix}`],
+      ['Multiply by the original matrix to verify.', raw`AA^{-1}=\frac1{10}\begin{bmatrix}10&0\\0&10\end{bmatrix}=I`]
+    ],
+    result: 'Determinant first → swap and negate → divide → check against the original matrix.',
+    warning: 'If the determinant is zero, stop. Division by zero cannot create an inverse.',
+    quiz: {question: 'What happens when ad − bc = 0?', options: ['The inverse is the zero matrix', 'There is no inverse', 'Skip the division'], answer: 1, reason: 'A square matrix with determinant zero is not invertible.'}
+  },
+  'tool-5': {
+    title: 'Dot product, length, and unit vectors',
+    meaning: 'A dot product compares vectors. Length measures size. A unit vector has length 1.',
+    why: 'These calculations are used for perpendicularity, projections, and normalising directions.',
+    terms: [['Dot product, x · y', 'Multiply matching entries and add: the result is one number.'], ['Length, ‖x‖', 'The square root of the sum of squared entries.'], ['Unit vector', 'A non-zero vector divided by its own length.']],
+    example: 'Take x = (3, 4) and y = (4, −3).',
+    steps: [
+      ['Find their dot product. Zero means these non-zero vectors are perpendicular.', raw`\begin{aligned}x\cdot y&=3(4)+4(-3)\\&=12-12\\&=0\end{aligned}`],
+      ['Find the length of x.', raw`\|x\|=\sqrt{3^2+4^2}=\sqrt{25}=5`],
+      ['Divide every entry by that length.', raw`\begin{gathered}\frac{x}{\|x\|}=\begin{bmatrix}3/5\\4/5\end{bmatrix}\\[5pt]\sqrt{(3/5)^2+(4/5)^2}=1\end{gathered}`]
+    ],
+    result: 'Dot product → number. Length → non-negative number. Normalisation → a unit vector.',
+    warning: 'The zero vector has no unit direction: its length is zero, so division is undefined.',
+    quiz: {question: 'What is the length of (6, 8)?', options: ['14', '10', '100'], answer: 1, reason: '√(6² + 8²) = √(36 + 64) = √100 = 10.'}
+  },
+  'tool-6': {
+    title: 'Find every value of lambda',
+    meaning: 'Lambda, λ, is just an unknown number. Solving means finding every value that makes the equation true.',
+    why: 'Missing one root can mean missing an eigenvalue and its entire eigenspace.',
+    terms: [['Root', 'A value that makes an equation equal to zero.'], ['Factor', 'Rewrite an expression as a product.']],
+    example: 'Solve λ² − 5λ + 6 = 0.',
+    steps: [
+      ['Find two numbers with product 6 and sum −5: −2 and −3.', raw`\lambda^2-5\lambda+6=(\lambda-2)(\lambda-3)`],
+      ['A product is zero when at least one factor is zero.', raw`\lambda-2=0\quad\text{or}\quad\lambda-3=0`],
+      ['Keep both roots and substitute to check.', raw`\begin{aligned}\lambda=2:&\quad4-10+6=0\\\lambda=3:&\quad9-15+6=0\end{aligned}`]
+    ],
+    result: 'Factor → set each factor to zero → keep every root → substitute to check.',
+    warning: 'Dividing by λ can discard the root λ = 0. Factor instead.',
+    quiz: {question: 'What are all solutions of λ² = 4?', options: ['Only 2', '−2 and 2', 'Only −2'], answer: 1, reason: 'Both (−2)² and 2² equal 4. A square-root equation needs both signs.'}
+  }
+};
+
+const referenceSheet = document.getElementById('reference-sheet');
+const studyApp = document.getElementById('study-app');
+const lessonContent = document.getElementById('lesson-content');
+const chapterNavigation = document.getElementById('chapter-navigation');
+const searchResults = document.getElementById('search-results');
+const topicSearch = document.getElementById('topic-search');
+const menuToggle = document.getElementById('menu-toggle');
+const chapters = [
+  {id:'l1', label:'Lecture 1', title:'Vectors & equations', source:'Lecture 1.pdf'},
+  {id:'l2', label:'Lecture 2', title:'Spaces & span', source:'Lecture_2.pdf · Lecture_2a.pdf'},
+  {id:'l3', label:'Lecture 3', title:'Basis & dimension', source:'Lecture 3.pdf · Lecture_3a.pdf'},
+  {id:'l4', label:'Lecture 4', title:'Eigenvalues & matrix factors', source:'Lecture_4.pdf'},
+  {id:'l5', label:'Lecture 5', title:'QR, SVD & approximation', source:'Lecture_5.pdf'},
+  {id:'tool', label:'Toolkit', title:'Matrix & vector basics', source:'Lectures 1–5'}
+];
+const topics = chapters.flatMap(chapter => Array.from(referenceSheet.querySelectorAll(`.card.${chapter.id}`), (card, index) => {
+  const heading = card.querySelector('h3').cloneNode(true);
+  heading.querySelector('small')?.remove();
+  const id = `${chapter.id}-${index + 1}`;
+  const originalTitle = heading.textContent.trim().replace(/^\d+(?:\.\d+)?\s*·\s*/, '');
+  return {id, chapter, card, index, title:beginnerLessons[id]?.title || originalTitle};
+}));
+let activeTopic = null;
+
+function makeElement(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function renderMath(root) {
+  if (window.renderMathInElement) {
+    window.renderMathInElement(root, {delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}], throwOnError:false});
+  }
+  window.lucide?.createIcons();
+}
+
+function topicLink(topic) {
+  const link = makeElement('a', 'topic-link');
+  link.href = `#${topic.id}`;
+  link.dataset.topic = topic.id;
+  link.append(makeElement('span', 'topic-number', String(topic.index + 1).padStart(2, '0')), makeElement('span', '', topic.title));
+  if (topic === activeTopic) link.setAttribute('aria-current', 'page');
+  return link;
+}
+
+for (const chapter of chapters) {
+  const group = makeElement('details', 'chapter');
+  group.dataset.chapter = chapter.id;
+  const summary = makeElement('summary', '', chapter.label);
+  summary.append(makeElement('small', '', chapter.title));
+  group.append(summary, ...topics.filter(topic => topic.chapter === chapter).map(topicLink));
+  chapterNavigation.append(group);
+}
+
+function cloneReference(element) {
+  const clone = element.cloneNode(true);
+  for (const identified of clone.querySelectorAll('[id]')) {
+    const originalId = identified.id;
+    identified.id = `active-${originalId}`;
+    for (const marked of clone.querySelectorAll('[marker-end]')) {
+      if (marked.getAttribute('marker-end') === `url(#${originalId})`) marked.setAttribute('marker-end', `url(#active-${originalId})`);
+    }
+  }
+  return clone;
+}
+
+function makeSection(number, title) {
+  const section = makeElement('section', 'lesson-section');
+  const heading = makeElement('h2');
+  heading.append(makeElement('span', 'section-number', number), document.createTextNode(title));
+  section.append(heading);
+  return section;
+}
+
+function addTeachingFigure(lesson, topic) {
+  if (!lesson.visual) return;
+  const figure = makeElement('figure', 'teaching-figure');
+  if (lesson.visual === 'vector') {
+    figure.innerHTML = '<div class="vector-demo" role="img" aria-label="2 notebooks and 3 pens plus 1 notebook and 4 pens gives 3 notebooks and 7 pens"><div class="vector-labels"><span>Notebooks</span><span>Pens</span></div><div class="vector-column"><span class="vector-cell">2</span><span class="vector-cell">3</span></div><span class="vector-operator">+</span><div class="vector-column"><span class="vector-cell">1</span><span class="vector-cell">4</span></div><span class="vector-operator">=</span><div class="vector-column"><span class="vector-cell">3</span><span class="vector-cell">7</span></div></div><figcaption>Same position, same kind of item.</figcaption>';
+  } else {
+    const sourceFigure = topic.card.querySelector('.fig');
+    if (sourceFigure) {
+      const clone = cloneReference(sourceFigure);
+      for (const identified of clone.querySelectorAll('[id]')) {
+        const previousId = identified.id;
+        identified.id = `teaching-${previousId}`;
+        for (const marked of clone.querySelectorAll('[marker-end]')) {
+          if (marked.getAttribute('marker-end') === `url(#${previousId})`) marked.setAttribute('marker-end', `url(#teaching-${previousId})`);
+        }
+      }
+      figure.append(clone);
+    }
+  }
+  lessonContent.append(figure);
+}
+
+function addQuiz(quiz) {
+  const section = makeSection('02', 'Check your understanding');
+  const form = makeElement('form', 'quiz-form');
+  const fieldset = makeElement('fieldset');
+  fieldset.append(makeElement('legend', '', quiz.question));
+  const options = makeElement('div', 'answer-options');
+  quiz.options.forEach((option, index) => {
+    const label = makeElement('label', 'answer-option');
+    const input = makeElement('input');
+    input.type = 'radio';
+    input.name = 'lesson-answer';
+    input.value = String(index);
+    label.append(input, makeElement('span', '', option));
+    options.append(label);
+  });
+  fieldset.append(options);
+  const row = makeElement('div', 'check-row');
+  const submit = makeElement('button', 'command-button', 'Check answer');
+  submit.type = 'submit';
+  const feedback = makeElement('p', 'quiz-feedback');
+  feedback.id = 'quiz-feedback';
+  feedback.setAttribute('role', 'status');
+  fieldset.setAttribute('aria-describedby', feedback.id);
+  row.append(submit, feedback);
+  form.append(fieldset, row);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const selected = form.querySelector('input:checked');
+    if (!selected) {
+      feedback.textContent = 'Choose an answer first.';
+      return;
+    }
+    const correct = Number(selected.value) === quiz.answer;
+    feedback.dataset.correct = String(correct);
+    feedback.textContent = `${correct ? 'Correct.' : 'Not quite.'} ${quiz.reason}`;
+  });
+  form.addEventListener('change', () => {
+    feedback.textContent = '';
+    delete feedback.dataset.correct;
+  });
+  section.append(form);
+  lessonContent.append(section);
+}
+
+function setNavigationLink(id, topic) {
+  const link = document.getElementById(id);
+  link.setAttribute('aria-disabled', String(!topic));
+  if (topic) {
+    link.href = `#${topic.id}`;
+    link.removeAttribute('tabindex');
+  } else {
+    link.removeAttribute('href');
+    link.tabIndex = -1;
+  }
+}
+
+function updateNavigation(topic) {
+  const position = topics.indexOf(topic);
+  for (const id of ['previous-topic', 'previous-top']) setNavigationLink(id, topics[position - 1]);
+  for (const id of ['next-topic', 'next-top']) setNavigationLink(id, topics[position + 1]);
+  for (const link of document.querySelectorAll('[data-topic]')) {
+    if (link.dataset.topic === topic?.id) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  }
+  for (const group of chapterNavigation.querySelectorAll('.chapter')) group.open = group.dataset.chapter === topic?.chapter.id;
+}
+
+function renderLesson(topic) {
+  activeTopic = topic;
+  const lesson = beginnerLessons[topic.id];
+  const chapterTopics = topics.filter(item => item.chapter === topic.chapter);
+  document.getElementById('lecture-label').textContent = topic.chapter.label;
+  document.getElementById('topic-position').textContent = `Topic ${topic.index + 1} of ${chapterTopics.length}`;
+  document.getElementById('lesson-title').textContent = topic.title;
+  document.title = `${topic.title} · Maths Lectures 1–5`;
+  document.getElementById('lesson-position').replaceChildren(...chapterTopics.map(item => makeElement('span', item === topic ? 'current' : '')));
+  lessonContent.replaceChildren();
+  lessonContent.className = 'lesson-content';
+  if (lesson) {
+    lessonContent.append(makeElement('p', 'definition', lesson.meaning));
+    const why = makeElement('p', 'lesson-why');
+    why.append(makeElement('strong', '', 'Why it matters. '), document.createTextNode(lesson.why));
+    lessonContent.append(why);
+    if (lesson.terms?.length) {
+      const terms = makeElement('dl', 'term-list');
+      for (const [term, meaning] of lesson.terms) {
+        const entry = makeElement('div');
+        entry.append(makeElement('dt', '', term), makeElement('dd', '', meaning));
+        terms.append(entry);
+      }
+      lessonContent.append(terms);
+    }
+    addTeachingFigure(lesson, topic);
+    const example = makeSection('01', 'A tiny worked example');
+    example.append(makeElement('p', 'example-question', lesson.example));
+    const steps = makeElement('ol', 'worked-steps');
+    for (const [explanation, formula] of lesson.steps) {
+      const step = makeElement('li');
+      step.append(makeElement('p', '', explanation));
+      if (formula) step.append(makeElement('div', 'worked-math', `\\[${formula}\\]`));
+      steps.append(step);
+    }
+    const result = makeElement('p', 'example-result');
+    result.append(makeElement('strong', '', 'Remember. '), document.createTextNode(lesson.result));
+    example.append(steps, result, makeElement('p', 'lesson-warning', `Common mistake: ${lesson.warning}`));
+    lessonContent.append(example);
+    if (lesson.quiz) addQuiz(lesson.quiz);
+  }
+  const notes = makeElement('details', 'exam-notes');
+  notes.id = 'exam-notes';
+  notes.open = !lesson;
+  const summary = makeElement('summary');
+  summary.innerHTML = '<i data-lucide="book-open" aria-hidden="true"></i>Lecture notes &amp; exam example<i data-lucide="chevron-down" aria-hidden="true"></i>';
+  notes.append(summary, cloneReference(topic.card));
+  lessonContent.append(notes);
+  document.getElementById('source-line').textContent = `Course source: ${topic.chapter.source} · ${topic.card.querySelector('h3 small')?.textContent || 'Supporting calculation skills'}`;
+  updateNavigation(topic);
+  renderMath(lessonContent);
+}
+
+function renderChecks() {
+  activeTopic = null;
+  document.getElementById('lecture-label').textContent = 'Quick reference';
+  document.getElementById('topic-position').textContent = 'Exam checks';
+  document.getElementById('lesson-title').textContent = 'Before you finish an answer';
+  document.getElementById('lesson-position').replaceChildren();
+  document.title = 'Exam checks · Maths Lectures 1–5';
+  lessonContent.replaceChildren();
+  lessonContent.className = 'lesson-content checks-view';
+  const panels = referenceSheet.querySelectorAll('.panel');
+  lessonContent.append(makeElement('p', 'definition', 'Check signs, use the original matrix, and keep every free variable.'));
+  lessonContent.append(cloneReference(panels[panels.length - 1]));
+  lessonContent.append(makeElement('h2', '', 'Calculator · Casio fx-350MS'), cloneReference(referenceSheet.querySelector('.keys')));
+  document.getElementById('source-line').textContent = 'Essential Mathematics for Data Science · Lectures 1–5';
+  updateNavigation(null);
+  renderMath(lessonContent);
+}
+
+function renderRoute(focus = false) {
+  if (location.hash === '#exam-checks') renderChecks();
+  else renderLesson(topics.find(topic => `#${topic.id}` === location.hash) || topics[0]);
+  studyApp.classList.remove('nav-open');
+  menuToggle.setAttribute('aria-expanded', 'false');
+  if (focus) {
+    document.getElementById('lesson-title').focus({preventScroll:true});
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+}
+
+topicSearch.addEventListener('input', () => {
+  const query = topicSearch.value.trim().toLocaleLowerCase();
+  const matches = topics.filter(topic => `${topic.title} ${topic.card.textContent} ${beginnerLessons[topic.id]?.meaning || ''}`.toLocaleLowerCase().includes(query));
+  chapterNavigation.hidden = Boolean(query);
+  searchResults.hidden = !query;
+  searchResults.replaceChildren(...(query ? matches.map(topicLink) : []));
+  document.getElementById('search-empty').hidden = !query || matches.length > 0;
+});
+
+menuToggle.addEventListener('click', () => {
+  const open = studyApp.classList.toggle('nav-open');
+  menuToggle.setAttribute('aria-expanded', String(open));
+  if (open) topicSearch.focus();
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && studyApp.classList.contains('nav-open')) {
+    studyApp.classList.remove('nav-open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.focus();
+  }
+});
+
+document.getElementById('study-sidebar').addEventListener('click', event => {
+  const link = event.target.closest('a[href^="#"]');
+  if (link?.hash === location.hash) renderRoute(true);
+});
+document.getElementById('print-notes').addEventListener('click', () => window.print());
+window.addEventListener('hashchange', () => renderRoute(true));
+renderRoute();
+studyApp.hidden = false;
+document.body.classList.add('study-ready');
+</script>
+</body>
+</html>

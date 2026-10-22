@@ -1,0 +1,71 @@
+Connected to Redis at localhost:6379 (db 0)
+
+==========================================================
+TASK 1  Store and retrieve shopping cart data
+==========================================================
+Stored 3 items under key 'cart:1001'.
+
+Retrieved cart 'cart:1001':
+  Product ID  Product Name              Quantity
+  ----------------------------------------------
+  102         Mechanical Keyboard              1
+  104         USB-C Cable                      3
+  110         Desk Lamp                        2
+
+Number of distinct products in cart: 3
+
+==========================================================
+TASK 2  Update and delete
+==========================================================
+Quantity of product 110 before update: 2
+Updated quantity of product 110 to 5.
+
+Cart after the update:
+  Product ID  Product Name              Quantity
+  ----------------------------------------------
+  102         Mechanical Keyboard              1
+  104         USB-C Cable                      3
+  110         Desk Lamp                        5
+
+Does 'cart:1001' exist before delete? True
+DEL returned 1 (number of keys removed).
+Does 'cart:1001' exist after delete?  False
+
+Reading the deleted cart:
+  cart:1001 is empty or does not exist.
+
+==========================================================
+TASK 3  Expiration (TTL)
+==========================================================
+Rebuilt cart 'cart:1001' with 2 items.
+
+TTL before EXPIRE is set: -1 (-1 means the key never expires)
+Set an expiry of 300 seconds on the cart.
+Remaining TTL immediately after: 300 seconds
+Remaining TTL after waiting 3 seconds: 297 seconds
+
+Created 'cart:9999' with a 2 second TTL.
+  exists now:          True
+  exists after 3 sec:  False
+  TTL after expiry:    -2 (-2 means the key no longer exists)
+
+Why TTL is useful for cart and session data
+-------------------------------------------
+An abandoned cart is not useful later, but without an expiry it would stay in
+memory indefinitely. Redis keeps data in RAM, so this growth consumes memory.
+A TTL allows Redis to remove the key automatically after the specified period,
+without requiring a separate cleanup job.
+
+It is also useful for shopping carts because an abandoned cart may contain
+old information while product prices and stock can change. Expiring stale
+cart data helps prevent old data from remaining indefinitely.
+
+The same approach can be used for login sessions, where the TTL can make an
+idle session expire automatically.
+
+If the application wants an active cart to remain available for longer, it
+can explicitly refresh the TTL using the EXPIRE command when the customer
+interacts with the cart. Writing to the cart does not automatically reset
+its TTL.
+
+Done.
