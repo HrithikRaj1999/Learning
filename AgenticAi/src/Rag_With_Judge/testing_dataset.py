@@ -1,5 +1,6 @@
-from dotenv.main import load_dotenv
 from langsmith import Client
+
+from src.Rag_With_Judge.constants import DATASET_NAME
 
 examples = [
     {
@@ -77,8 +78,7 @@ examples = [
 ]
 
 
-def rag_dataset(dataset_name: str = "RAG Test Evaluation"):
-    load_dotenv()
+def rag_dataset(dataset_name: str = DATASET_NAME):
     client = Client()
     if client.has_dataset(dataset_name=dataset_name):
         return client.read_dataset(dataset_name=dataset_name)

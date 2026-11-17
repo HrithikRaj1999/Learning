@@ -1,0 +1,2181 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+<title>Distributed Logging Architecture (log ingestion: services → Fluent Bit → Kafka → Flink → Elasticsearch, TimescaleDB, S3)</title><style>
+:root { --bg:#f7f8fb; --card:#fff; --text:#1f2430; --muted:#5b6475; --line:#e3e6ee; --accent:#4f46e5;
+        --code-bg:#f2f4f9; --pre-bg:#fbfcfe; --quote:#eef0ff; }
+[data-theme=dark] { --bg:#0f1218; --card:#171b24; --text:#e4e7ee; --muted:#9aa3b5; --line:#2a3040; --accent:#8b8cff;
+        --code-bg:#222838; --pre-bg:#12161e; --quote:#1d2140; color-scheme:dark; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:64px; -webkit-text-size-adjust:100%; }
+body { margin:0; background:var(--bg); color:var(--text); font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+header { position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:8px; padding:8px 12px;
+         background:var(--card); border-bottom:1px solid var(--line); box-shadow:0 1px 6px rgba(0,0,0,.06); }
+header .title { flex:1; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+button { font:inherit; font-size:14px; min-width:40px; height:36px; padding:0 10px; border:1px solid var(--line);
+         border-radius:8px; background:var(--bg); color:var(--text); cursor:pointer; }
+#progress { position:fixed; top:0; left:0; height:3px; background:var(--accent); width:0; z-index:11; }
+nav { position:fixed; top:0; bottom:0; left:0; width:min(320px,85vw); background:var(--card); border-right:1px solid var(--line);
+      transform:translateX(-100%); transition:transform .2s; z-index:20; overflow-y:auto; padding:16px; }
+nav.open { transform:none; box-shadow:4px 0 24px rgba(0,0,0,.2); }
+nav ul { list-style:none; padding-left:12px; margin:0; } nav > div > ul { padding-left:0; }
+nav a { display:block; padding:6px 4px; color:var(--text); text-decoration:none; border-radius:6px; font-size:14px; }
+nav a:hover { background:var(--quote); color:var(--accent); }
+#shade { display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:15; } #shade.open { display:block; }
+main { margin:4px; padding:4px; }
+article { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:4px; margin:4px; }
+h1 { font-size:1.8em; line-height:1.25; margin:.2em 0 .6em; }
+h2 { font-size:1.4em; margin-top:2em; padding-bottom:.3em; border-bottom:2px solid var(--line); }
+h3 { font-size:1.15em; margin-top:1.6em; color:var(--accent); }
+h1,h2,h3,h4 { scroll-margin-top:64px; }
+a { color:var(--accent); }
+p, li { overflow-wrap:anywhere; }
+li { margin:3px 0; }
+blockquote { margin:12px 0; padding:10px 14px; background:var(--quote); border-left:4px solid var(--accent); border-radius:0 8px 8px 0; }
+blockquote p { margin:4px 0; }
+code { font-family:Consolas,"Cascadia Mono",Menlo,"DejaVu Sans Mono","Roboto Mono",monospace; font-size:.88em;
+       background:var(--code-bg); padding:1px 5px; border-radius:4px; }
+.pre-wrap { position:relative; margin:14px 0; border:1px solid var(--line); border-radius:10px; background:var(--pre-bg); }
+.pre-wrap .tools { position:sticky; left:0; display:flex; gap:6px; justify-content:flex-end; padding:6px;
+                   border-bottom:1px solid var(--line); }
+.pre-wrap .tools button { height:30px; min-width:34px; font-size:13px; }
+pre { margin:0; padding:12px; overflow:auto; max-height:80vh; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y pinch-zoom; }
+pre code { background:none; padding:0; font-size:var(--pre-size,12px); line-height:1.15; white-space:pre; display:block; }
+.table-scroll { overflow-x:auto; margin:12px 0; }
+table { border-collapse:collapse; width:100%; font-size:.95em; }
+th, td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; text-align:left; }
+th { background:var(--code-bg); }
+tr:nth-child(even) td { background:color-mix(in srgb,var(--code-bg) 40%,transparent); }
+table.cols { table-layout:fixed; }
+table.cols td { background:none !important; border:none; padding:0 16px 0 0; }
+table.cols h3 { margin-top:.6em; }
+@media (max-width:700px) {
+  body { font-size:15px; }
+  table.cols, table.cols tbody, table.cols tr, table.cols td { display:block; width:100%; }
+  table.cols td:empty { display:none; }
+}
+#top { position:fixed; right:16px; bottom:16px; border-radius:50%; width:46px; height:46px; display:none;
+       background:var(--accent); color:#fff; border:none; box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:12; font-size:20px; }
+</style></head><body>
+<div id="progress"></div>
+<header><button id="menu" title="Contents">☰</button><span class="title">Distributed Logging Architecture (log ingestion: services → Fluent Bit → Kafka → Flink → Elasticsearch, TimescaleDB, S3)</span>
+<button id="aminus" title="Smaller text">A−</button><button id="aplus" title="Bigger text">A+</button><button id="theme" title="Light / dark">◐</button></header>
+<nav><strong>Contents</strong><div class="toc">
+<ul>
+<li><a href="#requirements-minimal">Requirements (minimal)</a><ul>
+<li><a href="#functional-what-the-product-does">Functional (what the product does)</a></li>
+<li><a href="#non-functional-how-well-it-must-work">Non-functional (how well it must work)</a></li>
+</ul>
+</li>
+<li><a href="#apis">APIs</a></li>
+<li><a href="#diagram">Diagram</a></li>
+<li><a href="#schema-overview">Schema Overview</a><ul>
+<li><a href="#the-log-line-and-the-kafka-messages">The log line and the Kafka messages</a></li>
+<li><a href="#the-three-stores-search-numbers-history">The three stores (search, numbers, history)</a></li>
+<li><a href="#rules-that-move-or-drop-old-data">Rules that move or drop old data</a></li>
+</ul>
+</li>
+<li><a href="#flows-the-big-diagram-one-piece-at-a-time">Flows (the big diagram, one piece at a time)</a><ul>
+<li><a href="#flow-1-user-3s-card-declined-line-travels-from-payment-service-to-all-three-stores-api-gateway-payment-service-stdout-fluent-bit-kafka-flink-elasticsearch-timescaledb-s3">Flow 1. User 3's "card declined" line travels from payment-service to all three stores (API Gateway → payment-service stdout → Fluent Bit → Kafka → Flink → Elasticsearch + TimescaleDB + S3)</a></li>
+<li><a href="#flow-2-a-line-flink-cant-read-goes-to-the-dlq-is-fixed-and-replayed-user-service-fluent-bit-kafka-logs-raw-flink-logs-dlq-arjuns-fix-replay-job-logs-raw-flink-elasticsearch">Flow 2. A line Flink can't read goes to the DLQ, is fixed and replayed (user-service → Fluent Bit → Kafka logs-raw → Flink → logs-dlq → Arjun's fix → replay job → logs-raw → Flink → Elasticsearch)</a></li>
+<li><a href="#flow-3-payment-errors-climb-and-grafana-pages-meera-kafka-p5-flink-1-minute-windows-timescaledb-grafana-alert-rule-pagerduty-meera">Flow 3. Payment errors climb, and Grafana pages Meera (Kafka P5 → Flink 1-minute windows → TimescaleDB → Grafana alert rule → PagerDuty → Meera)</a></li>
+<li><a href="#flow-4-meera-finds-why-user-3s-payment-failed-then-answers-an-audit-question-kibana-elasticsearch-athena-s3-parquet">Flow 4. Meera finds why User 3's payment failed, then answers an audit question (Kibana → Elasticsearch; Athena → S3 Parquet)</a></li>
+<li><a href="#flow-5-a-kafka-broker-dies-and-later-elasticsearch-is-down-for-6-hours-nothing-is-lost-fluent-bit-broker-3-kraft-controller-broker-1-flink-checkpoint-elasticsearch-catch-up">Flow 5. A Kafka broker dies, and later Elasticsearch is down for 6 hours: nothing is lost (Fluent Bit → Broker 3 → KRaft controller → Broker 1 → Flink checkpoint → Elasticsearch catch-up)</a></li>
+</ul>
+</li>
+<li><a href="#key-design-choices">Key design choices</a></li>
+<li><a href="#deep-dive-with-kafka-internals">Deep Dive (with Kafka internals)</a><ul>
+<li><a href="#1-clients-api-gateway">1. Clients → API Gateway</a></li>
+<li><a href="#2-microservices-order-user-payment">2. Microservices: order / user / payment</a></li>
+<li><a href="#3-fluent-bit-daemonset">3. Fluent Bit (DaemonSet)</a></li>
+<li><a href="#4-kafka-internals-core-deep-dive">4. Kafka internals (core deep dive)</a></li>
+<li><a href="#5-flink-stream-processing">5. Flink (stream processing)</a></li>
+<li><a href="#6-dlq-dead-letter-queue">6. DLQ (Dead Letter Queue)</a></li>
+<li><a href="#7-elasticsearch-kibana">7. Elasticsearch + Kibana</a></li>
+<li><a href="#8-timescaledb-grafana">8. TimescaleDB + Grafana</a></li>
+<li><a href="#9-s3-parquet-athena-glacier">9. S3 + Parquet + Athena (+ Glacier)</a></li>
+<li><a href="#10-end-to-end-walk-through-user-3s-failed-payment">10. End-to-end walk-through: User 3's failed payment</a></li>
+<li><a href="#11-rapid-fire-interview-qa">11. Rapid-fire interview Q&amp;A</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav><div id="shade"></div>
+<main><article><h1 id="distributed-logging-architecture-log-ingestion-services-fluent-bit-kafka-flink-elasticsearch-timescaledb-s3">Distributed Logging Architecture (log ingestion: services → Fluent Bit → Kafka → Flink → Elasticsearch, TimescaleDB, S3)</h1>
+<blockquote>
+<p><strong>The one idea to remember: "Services only print. A small agent on every machine carries the lines into Kafka, and one Flink job cleans them once and feeds three stores, each built for one question: find a line (Elasticsearch), watch the numbers (TimescaleDB), keep a year cheaply (S3)."</strong>
+Picture a big office where every desk writes notes on paper. Nobody walks their notes to the archive; a courier (Fluent Bit) passes each floor, collects the notes in a bag and drops the bag in a safe, numbered mailroom (Kafka). One clerk (Flink) opens every bag, throws out copies, blacks out card numbers and files each note three ways: in a searchable card index for this week, as a tally of "how many errors per minute", and in cheap boxes in the basement for a year.
+In every flow: tenant (customer company) <strong>acme</strong>, three users and their requests <strong>c-101</strong>, <strong>c-102</strong>, <strong>c-103</strong>. User 3's card is declined, and the line <code>"card declined"</code> (logId <code>01JCXA7Q</code>) travels the whole way. <strong>Meera</strong> is the on-call engineer and <strong>Arjun</strong> is the developer of user-service.
+Deep dive: <a href="#deep-dive-with-kafka-internals">Deep Dive</a></p>
+</blockquote>
+<h2 id="requirements-minimal">Requirements (minimal)</h2>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<h3 id="functional-what-the-product-does">Functional (what the product does)</h3>
+</td>
+<td valign="top" width="50%">
+<h3 id="non-functional-how-well-it-must-work">Non-functional (how well it must work)</h3>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Collect logs from every service, with no code per service</strong><ul>
+<li>Services print JSON lines to stdout (the console). An agent on each machine ships them to Kafka.<ul>
+<li>e.g. order-, user- and payment-service logs are all collected, and none of them knows Kafka exists.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Logging never slows down or breaks a service (99.9% up)</strong><ul>
+<li>Printing is fast and local. Kafka and a disk buffer on each machine sit between the services and every store.<ul>
+<li>e.g. Kafka is down for 10 minutes: orders keep working and the lines wait on disk.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Search recent logs (7 days)</strong><ul>
+<li>Search by word, service, level and tenant in Kibana.<ul>
+<li>e.g. <code>service:payment AND level:ERROR</code> in the last 15 minutes.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>A line is searchable within ≈10 seconds</strong><ul>
+<li>Streaming the whole way, with an Elasticsearch refresh every second.<ul>
+<li>e.g. User 3's "card declined" can be found about a second after Flink writes it.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Follow one request across services</strong><ul>
+<li>The API Gateway makes one correlationId per request and every service logs it.<ul>
+<li>e.g. <code>c-103</code> shows order → user → payment "card declined".</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>No accepted line is lost, and none is stored twice</strong><ul>
+<li>3 copies in Kafka, writes confirmed by at least 2, and every store write keyed by logId.<ul>
+<li>e.g. a Kafka server dies or a batch is sent twice: User 3's error is still there, exactly once.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Metrics and alerts</strong><ul>
+<li>Error counts and slow-request times per service per minute, with alert rules.<ul>
+<li>e.g. payment errors above 5% for 5 minutes → Meera's phone rings.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>An alert arrives within ≈2 minutes of the rule becoming true</strong><ul>
+<li>Counts are made while the lines stream past, not by searching later.<ul>
+<li>e.g. the 5th bad minute ends at 09:35 and Meera is paged right after.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Keep a year of logs and query them with SQL</strong><ul>
+<li>Hourly files in S3, queried by Athena, moved to Glacier after a year.<ul>
+<li>e.g. "How many acme payment errors in June?"</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Cost stays low as the volume grows</strong><ul>
+<li>gzip on the wire, fewer DEBUG lines, 7 days in Elasticsearch only, then cheap files.<ul>
+<li>e.g. ≈1 TB a day; a year of it lives in S3 and Glacier, not on search servers.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Many tenants on one system</strong><ul>
+<li>Every line carries a tenantId; limits and quotas per tenant.<ul>
+<li>e.g. acme sees only acme's lines and can't flood the other tenants.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Personal data is masked, and tenants are kept apart</strong><ul>
+<li>PII (Personally Identifiable Information) is masked before any store; TLS on every connection; search filtered by tenant.<ul>
+<li>e.g. card <code>4111111111111111</code> is stored as <code>****1111</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Bad lines are kept and can be replayed</strong><ul>
+<li>A line Flink can't read goes to a DLQ (Dead Letter Queue) topic with the reason.<ul>
+<li>e.g. a new date format from user-service is parked, fixed and replayed.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Scale: ≈25,000 lines a second on average, ≈100,000 at peak</strong><ul>
+<li>Kafka partitions, more Flink workers and more Elasticsearch servers can be added.<ul>
+<li>e.g. a sale spike is soaked up by Kafka while the stores catch up.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h2 id="apis">APIs</h2>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Log line (every service)</td>
+<td>stdout, one JSON line: <code>{logId, tenantId, service, level, ts, correlationId, msg, durationMs}</code></td>
+</tr>
+<tr>
+<td>Pass the request id</td>
+<td>Header <code>X-Correlation-Id: c-103</code> + <code>X-Tenant-Id: acme</code> on every call; returned to the client</td>
+</tr>
+<tr>
+<td>Ship to Kafka (Fluent Bit)</td>
+<td>Produce to topic <code>logs-raw</code>, key <code>tenantId:service</code>, <code>acks=all</code>, gzip batches</td>
+</tr>
+<tr>
+<td>Park a bad line (Flink)</td>
+<td>Produce to topic <code>logs-dlq</code>: <code>{raw, error, service, failed_at}</code> + header <code>source</code></td>
+</tr>
+<tr>
+<td>Replay bad lines</td>
+<td>DLQ replay job: read <code>logs-dlq</code> → produce the <code>raw</code> line to <code>logs-raw</code> (same key)</td>
+</tr>
+</tbody>
+</table></div>
+</td>
+<td valign="top" width="50%">
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Index (Flink → Elasticsearch)</td>
+<td><code>POST /_bulk</code>: <code>{"index": {"_index": "logs-2026.11.12", "_id": "01JCXA7Q"}}</code> + the document</td>
+</tr>
+<tr>
+<td>Search (Kibana → Elasticsearch)</td>
+<td><code>POST /logs-*/_search {query: correlationId = "c-103", sort: ts}</code> → hits</td>
+</tr>
+<tr>
+<td>Metrics (Flink → TimescaleDB)</td>
+<td><code>INSERT INTO service_metrics ... ON CONFLICT (ts, tenant, service) DO UPDATE</code></td>
+</tr>
+<tr>
+<td>Graphs + alerts (Grafana)</td>
+<td>SQL on <code>service_metrics</code>; a firing alert → PagerDuty</td>
+</tr>
+<tr>
+<td>Old logs (Athena → S3)</td>
+<td><code>SELECT count(*) FROM logs WHERE tenant = 'acme' AND dt BETWEEN ...</code></td>
+</tr>
+</tbody>
+</table></div>
+</td>
+</tr>
+</table>
+<h2 id="diagram">Diagram</h2>
+<p>A quick map of all the parts and how they connect. The apps that write logs sit on the left, the people who read them on the right, and everything in the double-line frame is the logging system.</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">PRODUCERS (outside)                                                                                                                   ╔══ THE LOGGING SYSTEM: everything inside this box is ours ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗          CONSUMERS (outside)
+                                                                                                                                      ║                                                                                                                                                                                                                              ║
+                                                                                            ┌──────────────────────────────┐          ║   ┌──────────────────────────────┐                                                                                                          ┌──────────────────────────────┐              ┌──────────────────────────────┐   ║
+                                                                                    ┌─────&gt; │ order-service                │ ─────────╫─&gt; │ Fluent Bit (Node A)          │ ─────┐                                                                                           ┌─────&gt; │ Elasticsearch                │ ───────────&gt; │ Kibana                       │ ──╫──┐
+                                                                                    │       ├──────────────────────────────┤          ║   ├──────────────────────────────┤      │                                                                                           │       ├──────────────────────────────┤              ├──────────────────────────────┤   ║  │
+                                                                                    │       │ - JSON lines to stdout       │          ║   │ - tails container logs       │      │                                                                                           │       │ - full-text search, 7 days   │              │ - search the log lines       │   ║  │
+                                                                                    │       └──────────────────────────────┘          ║   │ - batch, gzip, disk buffer   │      │                                                                                           │       │ - _id = logId                │              └──────────────────────────────┘   ║  │
+                                                                                    │                                                 ║   └──────────────────────────────┘      │                                                                                           │       └──────────────────────────────┘                                                 ║  │
+                                                                                    │                                                 ║                                         │                                                                                           │                                                                                        ║  │
+                                                                                    │                                                 ║                                         │                                                                                           │                                                                                        ║  │
+                                                                                    │                                                 ║                                         │                                                                                           │                                                                                        ║  │
+┌──────────────────────────────┐              ┌──────────────────────────────┐      │       ┌──────────────────────────────┐          ║   ┌──────────────────────────────┐      │       ┌──────────────────────────────┐              ┌──────────────────────────────┐      │       ┌──────────────────────────────┐              ┌──────────────────────────────┐   ║  │       ┌──────────────────────────────┐
+│ Clients                      │ ───────────&gt; │ API Gateway                  │ ─────┼─────&gt; │ user-service                 │ ─────────╫─&gt; │ Fluent Bit (Node B)          │ ─────┼─────&gt; │ Kafka (topic logs-raw)       │ ───────────&gt; │ Flink (stream processing)    │ ─────┼─────&gt; │ TimescaleDB                  │ ───────────&gt; │ Grafana                      │ ──╫──┼─────&gt; │ Developer / on-call          │
+├──────────────────────────────┤              ├──────────────────────────────┤      │       ├──────────────────────────────┤          ║   ├──────────────────────────────┤      │       ├──────────────────────────────┤              ├──────────────────────────────┤      │       ├──────────────────────────────┤              ├──────────────────────────────┤   ║  │       ├──────────────────────────────┤
+│ - web, mobile, partner apps  │              │ - adds correlationId         │      │       │ - JSON lines to stdout       │          ║   │ - one agent per machine      │      │       │ - key tenantId:service       │              │ - checks + masks each line   │      │       │ - 1 row per service a minute │              │ - graphs + alerts            │   ║  │       │ - Meera (on-call engineer)   │
+│ - Users 1-3 of tenant acme   │              │ - adds tenantId              │      │       └──────────────────────────────┘          ║   └──────────────────────────────┘      │       │ - 3 copies, kept 7 days      │              │ - drops repeats by logId     │      │       └──────────────────────────────┘              └──────────────────────────────┘   ║  │       │ - Arjun (developer)          │
+│ - never send logs to us      │              │ - rate limit per tenant      │      │                                                 ║                                         │       └──────────────────────────────┘              │ - 1-minute counts            │      │                                                                                        ║  │       │ - debug, alerts, audits      │
+└──────────────────────────────┘              └──────────────────────────────┘      │                                                 ║                                         │                                                     │ - hourly Parquet files       │      │                                                                                        ║  │       └──────────────────────────────┘
+                                                                                    │                                                 ║                                         │                                                     └──────────────────────────────┘      │                                                                                        ║  │
+                                                                                    │                                                 ║                                         │                                                                                           │                                                                                        ║  │
+                                                                                    │                                                 ║                                         │                                                                                           │                                                                                        ║  │
+                                                                                    │                                                 ║                                         │                                                                                           │                                                                                        ║  │
+                                                                                    │       ┌──────────────────────────────┐          ║   ┌──────────────────────────────┐      │                                                                                           │       ┌──────────────────────────────┐              ┌──────────────────────────────┐   ║  │
+                                                                                    └─────&gt; │ payment-service              │ ─────────╫─&gt; │ Fluent Bit (Node C)          │ ─────┘                                                                                           ├─────&gt; │ S3 + Glacier                 │ ───────────&gt; │ Athena                       │ ──╫──┘
+                                                                                            ├──────────────────────────────┤          ║   ├──────────────────────────────┤                                                                                                  │       ├──────────────────────────────┤              ├──────────────────────────────┤   ║
+                                                                                            │ - JSON lines to stdout       │          ║   │ - the Kafka producer         │                                                                                                  │       │ - Parquet files, 1 year      │              │ - SQL on the old files       │   ║
+                                                                                            └──────────────────────────────┘          ║   └──────────────────────────────┘                                                                                                  │       │ - then Glacier               │              └──────────────────────────────┘   ║
+                                                                                                                                      ║                                                                                                                                     │       └──────────────────────────────┘                                                 ║
+                                                                                                                                      ║                                                                                                                                     │                                                                                        ║
+                                                                                                                                      ║                                                                                                                                     │                                                                                        ║
+                                                                                                                                      ║                                                                                                                                     │                                                                                        ║
+                                                                                                                                      ║                                                                                                                                     │       ┌──────────────────────────────┐                                                 ║
+                                                                                                                                      ║                                                                                                                                     └─────&gt; │ DLQ topic (logs-dlq)         │                                                 ║
+                                                                                                                                      ║                                                                                                                                             ├──────────────────────────────┤                                                 ║
+                                                                                                                                      ║                                                                                                                                             │ - bad lines + the reason     │                                                 ║
+                                                                                                                                      ║                                                                                                                                             │ - replayed after a fix       │                                                 ║
+                                                                                                                                      ║                                                                                                                                             └──────────────────────────────┘                                                 ║
+                                                                                                                                      ║                                                                                                                                                                                                                              ║
+                                                                                                                                      ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<h2 id="schema-overview">Schema Overview</h2>
+<p>What every message and store keeps, as one real example per box. Where a field can take several values, they are shown as <code>"A" or "B"</code>. Each row scrolls sideways.</p>
+<h3 id="the-log-line-and-the-kafka-messages">The log line and the Kafka messages</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">╔════════════════════════════════════════════════════╗    ╔═════════════════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════╗
+║ log line (stdout of every service)                 ║    ║ Kafka message (topic logs-raw) · key tenantId:service   ║    ║ Kafka message (topic logs-dlq)                                         ║
+╟────────────────────────────────────────────────────╢    ╟─────────────────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────╢
+║ {                                                  ║    ║ {                                                       ║    ║ {                                                                      ║
+║   &quot;logId&quot;: &quot;01JCXA7Q&quot;,                             ║    ║   &quot;topic&quot;: &quot;logs-raw&quot;,                                  ║    ║   &quot;topic&quot;: &quot;logs-dlq&quot;,                                                 ║
+║   &quot;tenantId&quot;: &quot;acme&quot;,                              ║    ║   &quot;partition&quot;: 5,                                       ║    ║   &quot;key&quot;: &quot;acme:user&quot;,                                                  ║
+║   &quot;service&quot;: &quot;order&quot; or &quot;user&quot; or &quot;payment&quot;,       ║    ║   &quot;offset&quot;: 2000418,                                    ║    ║   &quot;headers&quot;: {                                                         ║
+║   &quot;level&quot;: &quot;DEBUG&quot; or &quot;INFO&quot; or &quot;WARN&quot; or &quot;ERROR&quot;, ║    ║   &quot;key&quot;: &quot;acme:order&quot; or &quot;acme:user&quot; or &quot;acme:payment&quot;, ║    ║     &quot;error&quot;: &quot;bad_ts&quot; or &quot;bad_json&quot; or &quot;missing_field&quot;,                ║
+║   &quot;ts&quot;: &quot;2026-11-12T09:30:00.120Z&quot;,                ║    ║   &quot;headers&quot;: {                                          ║    ║     &quot;source&quot;: &quot;logs-raw/3/880112&quot;                                      ║
+║   &quot;correlationId&quot;: &quot;c-103&quot;,                        ║    ║     &quot;agent&quot;: &quot;fluent-bit/node-c&quot;                        ║    ║   },                                                                   ║
+║   &quot;userId&quot;: &quot;user-3&quot;,                              ║    ║   },                                                    ║    ║   &quot;value&quot;: {                                                           ║
+║   &quot;durationMs&quot;: 412,                               ║    ║   &quot;value&quot;: {                                            ║    ║     &quot;raw&quot;: &quot;{\&quot;logId\&quot;:\&quot;01JCXB2M\&quot;,\&quot;tenantId\&quot;:\&quot;acme\&quot;,\&quot;service\&quot;: ║
+║   &quot;msg&quot;: &quot;card declined&quot;,                          ║    ║     &quot;logId&quot;: &quot;01JCXA7Q&quot;,                                ║    ║         \&quot;user\&quot;,\&quot;level\&quot;:\&quot;INFO\&quot;,\&quot;ts\&quot;:\&quot;12/11/2026                ║
+║   &quot;card&quot;: &quot;4111111111111111&quot;                       ║    ║     &quot;tenantId&quot;: &quot;acme&quot;,                                 ║    ║         09:31:05\&quot;,\&quot;correlationId\&quot;:\&quot;c-102\&quot;,\&quot;msg\&quot;:\&quot;profile       ║
+║ }                                                  ║    ║     &quot;service&quot;: &quot;order&quot; or &quot;user&quot; or &quot;payment&quot;,          ║    ║         viewed\&quot;}&quot;,                                                    ║
+╚════════════════════════════════════════════════════╝    ║     &quot;level&quot;: &quot;DEBUG&quot; or &quot;INFO&quot; or &quot;WARN&quot; or &quot;ERROR&quot;,    ║    ║     &quot;error&quot;: &quot;bad_ts&quot; or &quot;bad_json&quot; or &quot;missing_field&quot;,                ║
+                                                          ║     &quot;ts&quot;: &quot;2026-11-12T09:30:00.120Z&quot;,                   ║    ║     &quot;service&quot;: &quot;user&quot;,                                                 ║
+                                                          ║     &quot;correlationId&quot;: &quot;c-103&quot;,                           ║    ║     &quot;failed_at&quot;: &quot;2026-11-12T09:31:06Z&quot;                                ║
+                                                          ║     &quot;userId&quot;: &quot;user-3&quot;,                                 ║    ║   }                                                                    ║
+                                                          ║     &quot;durationMs&quot;: 412,                                  ║    ║ }                                                                      ║
+                                                          ║     &quot;msg&quot;: &quot;card declined&quot;,                             ║    ╚════════════════════════════════════════════════════════════════════════╝
+                                                          ║     &quot;card&quot;: &quot;4111111111111111&quot;,                         ║
+                                                          ║     &quot;k8s&quot;: {                                            ║
+                                                          ║       &quot;pod&quot;: &quot;payment-7d9f&quot;,                            ║
+                                                          ║       &quot;namespace&quot;: &quot;prod&quot;,                              ║
+                                                          ║       &quot;node&quot;: &quot;node-c&quot;                                  ║
+                                                          ║     }                                                   ║
+                                                          ║   }                                                     ║
+                                                          ║ }                                                       ║
+                                                          ╚═════════════════════════════════════════════════════════╝
+</code></pre></div>
+<h3 id="the-three-stores-search-numbers-history">The three stores (search, numbers, history)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">╔══════════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════╗
+║ Elasticsearch document · _id = logId                 ║    ║ service_metrics (TimescaleDB) · UNIQUE ts + tenant + service ║    ║ S3 object (Parquet, hourly)                                            ║
+╟──────────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────╢
+║ {                                                    ║    ║ {                                                            ║    ║ {                                                                      ║
+║   &quot;_index&quot;: &quot;logs-2026.11.12&quot;,                       ║    ║   &quot;ts&quot;: &quot;2026-11-12T09:30:00Z&quot;,                              ║    ║   &quot;path&quot;: &quot;s3://logs/tenant=acme/service=payment/dt=2026-11-           ║
+║   &quot;_id&quot;: &quot;01JCXA7Q&quot;,                                 ║    ║   &quot;tenant&quot;: &quot;acme&quot;,                                          ║    ║       12/hour=09/part-0001.parquet&quot;,                                   ║
+║   &quot;_source&quot;: {                                       ║    ║   &quot;service&quot;: &quot;order&quot; or &quot;user&quot; or &quot;payment&quot;,                 ║    ║   &quot;format&quot;: &quot;Parquet (stored by column, compressed)&quot;,                  ║
+║     &quot;tenantId&quot;: &quot;acme&quot;,                              ║    ║   &quot;total&quot;: 1200,                                             ║    ║   &quot;size&quot;: &quot;≈400 MB&quot;,                                                   ║
+║     &quot;service&quot;: &quot;order&quot; or &quot;user&quot; or &quot;payment&quot;,       ║    ║   &quot;errors&quot;: 78,                                              ║    ║   &quot;columns&quot;: [&quot;logId&quot;, &quot;ts&quot;, &quot;level&quot;, &quot;correlationId&quot;, &quot;msg&quot;, &quot;...&quot;],  ║
+║     &quot;level&quot;: &quot;DEBUG&quot; or &quot;INFO&quot; or &quot;WARN&quot; or &quot;ERROR&quot;, ║    ║   &quot;p99_ms&quot;: 870,                                             ║    ║   &quot;storage_class&quot;: &quot;STANDARD&quot; or &quot;GLACIER&quot;                             ║
+║     &quot;ts&quot;: &quot;2026-11-12T09:30:00.120Z&quot;,                ║    ║   &quot;dlq&quot;: 0                                                   ║    ║ }                                                                      ║
+║     &quot;correlationId&quot;: &quot;c-103&quot;,                        ║    ║ }                                                            ║    ╚════════════════════════════════════════════════════════════════════════╝
+║     &quot;userId&quot;: &quot;user-3&quot;,                              ║    ╚══════════════════════════════════════════════════════════════╝
+║     &quot;durationMs&quot;: 412,                               ║
+║     &quot;msg&quot;: &quot;card declined&quot;,                          ║
+║     &quot;card&quot;: &quot;****1111&quot;,                              ║
+║     &quot;pod&quot;: &quot;payment-7d9f&quot;,                           ║
+║     &quot;region&quot;: &quot;ap-south-1&quot;                           ║
+║   }                                                  ║
+║ }                                                    ║
+╚══════════════════════════════════════════════════════╝
+</code></pre></div>
+<h3 id="rules-that-move-or-drop-old-data">Rules that move or drop old data</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">╔══════════════════════════════════════════════╗    ╔══════════════════════════════════════╗    ╔═══════════════════════════════════════════════════╗
+║ Elasticsearch ILM policy                     ║    ║ S3 lifecycle rule                    ║    ║ Grafana alert rule                                ║
+╟──────────────────────────────────────────────╢    ╟──────────────────────────────────────╢    ╟───────────────────────────────────────────────────╢
+║ policy logs-7d (index logs-YYYY.MM.DD):      ║    ║ rule logs-archive (bucket logs):     ║    ║ rule 'acme payment error rate &gt; 5%':              ║
+║   hot   day 0-1  SSD, takes writes           ║    ║   after 365 days -&gt; GLACIER          ║    ║   every 1 min run:                                ║
+║   warm  day 2-7  cheaper disks, read-only,   ║    ║   Glacier restore: minutes to hours, ║    ║     SELECT ts, errors::float / total              ║
+║                  force-merge to 1 segment    ║    ║   only for audits                    ║    ║     FROM service_metrics                          ║
+║   delete after 7 days (drop the whole index) ║    ╚══════════════════════════════════════╝    ║     WHERE tenant = 'acme' AND service = 'payment' ║
+╚══════════════════════════════════════════════╝                                                ║       AND ts &gt; now() - interval '5 minutes'       ║
+                                                                                                ║   fire if every row &gt; 0.05 for 5 min              ║
+                                                                                                ║   send to PagerDuty: team payments-oncall         ║
+                                                                                                ╚═══════════════════════════════════════════════════╝
+</code></pre></div>
+<h2 id="flows-the-big-diagram-one-piece-at-a-time">Flows (the big diagram, one piece at a time)</h2>
+<p>Each flow is one slice of the big diagram. Every box says what it does in each step (<code>STEP n: what</code>, then how, then an example). Arrows go straight from box to box. Under each diagram, <strong>Data in this flow</strong> shows the lines, messages and rows that flow writes, side by side (scroll sideways). The numbered steps below match the <code>STEP n</code> in the boxes.</p>
+<h3 id="flow-1-user-3s-card-declined-line-travels-from-payment-service-to-all-three-stores-api-gateway-payment-service-stdout-fluent-bit-kafka-flink-elasticsearch-timescaledb-s3">Flow 1. User 3's "card declined" line travels from payment-service to all three stores (API Gateway → payment-service stdout → Fluent Bit → Kafka → Flink → Elasticsearch + TimescaleDB + S3)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1 ────────────────────────────────────────────────┐            ┌── STEP 1 ────────────────────────────────────────────────┐            ┌── STEP 2 ────────────────────────────────────────────────┐            ┌── STEP 3 ────────────────────────────────────────────────┐            ┌── STEP 4 ────────────────────────────────────────────────┐            ┌── STEP 5, 6, 7, 8 ───────────────────────────────────────┐            ┌── STEP 6 ────────────────────────────────────────────────┐
+│ User 3's app  (a client of tenant acme)                  │            │ API Gateway  (front door)                                │            │ payment-service  (pod payment-7d9f on Node C)            │            │ Fluent Bit  (DaemonSet agent on Node C)                  │            │ Kafka  (topic logs-raw, 3 copies of each partition)      │            │ Flink  (consumer group flink-log-processor)              │            │ Elasticsearch  (daily index logs-2026.11.12)             │
+├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Taps 'Place order'                               │ ─────────&gt; │ STEP 1: Stamps two ids on the request                    │ ─────────&gt; │ STEP 2: Prints one JSON line to stdout                   │ ─────────&gt; │ STEP 3: Reads the file and ships a batch                 │ ─────────&gt; │ STEP 4: Stores the line safely, in order                 │ ─────────&gt; │ STEP 5: Cleans the line once                             │ ────┬────&gt; │ STEP 6: Makes the line searchable                        │
+│   - HTTPS POST /orders; the app itself never sends logs  │            │   - makes a new correlationId, header X-Correlation-Id   │            │   - the shared logger adds logId, ts, tenantId,          │            │   - tail /var/log/containers/payment-*.log               │            │   - hash(key) picks partition P5; its leader is Broker 3 │            │   - checks the must-have fields: logId, ts, service      │     │      │   - _bulk write with _id = logId                         │
+│   - e.g. User 3 pays with a card ending 1111             │            │   - reads tenantId from the API key, header X-Tenant-Id  │            │     correlationId                                        │            │   - adds pod + namespace, builds key tenantId:service    │            │   - Brokers 1 and 2 copy it, then the 'OK' goes back     │            │   - masks PII, adds region, drops repeats by logId       │     │      │   - a refresh every 1 s makes it visible                 │
+└──────────────────────────────────────────────────────────┘            │   - token bucket: acme may send 1000 requests a second   │            │   - Kubernetes copies stdout into a file on the node     │            │   - batch of ≈1 s or 1 MB, gzip, acks=all, disk buffer   │            │   - e.g. P5 offset 2000418                               │            │   - e.g. card 4111111111111111 -&gt; ****1111               │     │      │   - e.g. searchable at ≈09:30:01                         │
+                                                                        │   - e.g. X-Correlation-Id: c-103, X-Tenant-Id: acme      │            │   - e.g. ERROR 'card declined', logId 01JCXA7Q           │            │   - e.g. key acme:payment -&gt; topic logs-raw              │            └──────────────────────────────────────────────────────────┘            │                                                          │     │      └──────────────────────────────────────────────────────────┘
+                                                                        └──────────────────────────────────────────────────────────┘            └──────────────────────────────────────────────────────────┘            └──────────────────────────────────────────────────────────┘                                                                                    │ STEP 6, 7, 8: Sends the clean line three ways            │     │
+                                                                                                                                                                                                                                                                                                                                                                        │   - search now, 1-minute counts, hourly files            │     │
+                                                                                                                                                                                                                                                                                                                                                                        └──────────────────────────────────────────────────────────┘     │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      ┌── STEP 7 ────────────────────────────────────────────────┐
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      │ TimescaleDB  (table service_metrics)                     │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      ├──────────────────────────────────────────────────────────┤
+                                                                                                                                                                                                                                                                                                                                                                                                                                         ├────&gt; │ STEP 7: Stores one count row per minute                  │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      │   - upsert on (ts, tenant, service) when the minute      │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      │     closes                                               │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      │   - e.g. 09:30 payment: 1200 lines, 78 errors, p99 870   │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      │          ms                                              │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      └──────────────────────────────────────────────────────────┘
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      ┌── STEP 8 ────────────────────────────────────────────────┐
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      │ S3  (bucket logs, Parquet files)                         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                         │      ├──────────────────────────────────────────────────────────┤
+                                                                                                                                                                                                                                                                                                                                                                                                                                         └────&gt; │ STEP 8: Keeps the line for a year, cheaply               │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                │   - one Parquet file per hour per tenant + service       │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                │   - the path holds tenant, service, date and hour        │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                │   - e.g. dt=2026-11-12/hour=09/part-0001.parquet         │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                └──────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ payment-service                          ▼ Kafka                                                      ▼ Elasticsearch                              ▼ TimescaleDB                                                       ▼ S3
+╔═════════════════════════════════════╗    ╔═══════════════════════════════════════════════════════╗    ╔═══════════════════════════════════════╗    ╔══════════════════════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════╗
+║ log line (stdout of every service)  ║    ║ Kafka message (topic logs-raw) · key tenantId:service ║    ║ Elasticsearch document · _id = logId  ║    ║ service_metrics (TimescaleDB) · UNIQUE ts + tenant + service ║    ║ S3 object (Parquet, hourly)                                            ║
+╟─────────────────────────────────────╢    ╟───────────────────────────────────────────────────────╢    ╟───────────────────────────────────────╢    ╟──────────────────────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────╢
+║ {                                   ║    ║ {                                                     ║    ║ {                                     ║    ║ {                                                            ║    ║ {                                                                      ║
+║   &quot;logId&quot;: &quot;01JCXA7Q&quot;,              ║    ║   &quot;topic&quot;: &quot;logs-raw&quot;,                                ║    ║   &quot;_index&quot;: &quot;logs-2026.11.12&quot;,        ║    ║   &quot;ts&quot;: &quot;2026-11-12T09:30:00Z&quot;,                              ║    ║   &quot;path&quot;: &quot;s3://logs/tenant=acme/service=payment/dt=2026-11-           ║
+║   &quot;tenantId&quot;: &quot;acme&quot;,               ║    ║   &quot;partition&quot;: 5,                                     ║    ║   &quot;_id&quot;: &quot;01JCXA7Q&quot;,                  ║    ║   &quot;tenant&quot;: &quot;acme&quot;,                                          ║    ║       12/hour=09/part-0001.parquet&quot;,                                   ║
+║   &quot;service&quot;: &quot;payment&quot;,             ║    ║   &quot;offset&quot;: 2000418,                                  ║    ║   &quot;_source&quot;: {                        ║    ║   &quot;service&quot;: &quot;payment&quot;,                                      ║    ║   &quot;format&quot;: &quot;Parquet (stored by column, compressed)&quot;,                  ║
+║   &quot;level&quot;: &quot;ERROR&quot;,                 ║    ║   &quot;key&quot;: &quot;acme:payment&quot;,                              ║    ║     &quot;tenantId&quot;: &quot;acme&quot;,               ║    ║   &quot;total&quot;: 1200,                                             ║    ║   &quot;size&quot;: &quot;≈400 MB&quot;,                                                   ║
+║   &quot;ts&quot;: &quot;2026-11-12T09:30:00.120Z&quot;, ║    ║   &quot;headers&quot;: {                                        ║    ║     &quot;service&quot;: &quot;payment&quot;,             ║    ║   &quot;errors&quot;: 78,                                              ║    ║   &quot;columns&quot;: [&quot;logId&quot;, &quot;ts&quot;, &quot;level&quot;, &quot;correlationId&quot;, &quot;msg&quot;, &quot;...&quot;],  ║
+║   &quot;correlationId&quot;: &quot;c-103&quot;,         ║    ║     &quot;agent&quot;: &quot;fluent-bit/node-c&quot;                      ║    ║     &quot;level&quot;: &quot;ERROR&quot;,                 ║    ║   &quot;p99_ms&quot;: 870,                                             ║    ║   &quot;storage_class&quot;: &quot;STANDARD&quot;                                          ║
+║   &quot;userId&quot;: &quot;user-3&quot;,               ║    ║   },                                                  ║    ║     &quot;ts&quot;: &quot;2026-11-12T09:30:00.120Z&quot;, ║    ║   &quot;dlq&quot;: 0                                                   ║    ║ }                                                                      ║
+║   &quot;durationMs&quot;: 412,                ║    ║   &quot;value&quot;: {                                          ║    ║     &quot;correlationId&quot;: &quot;c-103&quot;,         ║    ║ }                                                            ║    ╚════════════════════════════════════════════════════════════════════════╝
+║   &quot;msg&quot;: &quot;card declined&quot;,           ║    ║     &quot;logId&quot;: &quot;01JCXA7Q&quot;,                              ║    ║     &quot;userId&quot;: &quot;user-3&quot;,               ║    ╚══════════════════════════════════════════════════════════════╝
+║   &quot;card&quot;: &quot;4111111111111111&quot;        ║    ║     &quot;tenantId&quot;: &quot;acme&quot;,                               ║    ║     &quot;durationMs&quot;: 412,                ║
+║ }                                   ║    ║     &quot;service&quot;: &quot;payment&quot;,                             ║    ║     &quot;msg&quot;: &quot;card declined&quot;,           ║
+╚═════════════════════════════════════╝    ║     &quot;level&quot;: &quot;ERROR&quot;,                                 ║    ║     &quot;card&quot;: &quot;****1111&quot;,               ║
+                                           ║     &quot;ts&quot;: &quot;2026-11-12T09:30:00.120Z&quot;,                 ║    ║     &quot;pod&quot;: &quot;payment-7d9f&quot;,            ║
+                                           ║     &quot;correlationId&quot;: &quot;c-103&quot;,                         ║    ║     &quot;region&quot;: &quot;ap-south-1&quot;            ║
+                                           ║     &quot;userId&quot;: &quot;user-3&quot;,                               ║    ║   }                                   ║
+                                           ║     &quot;durationMs&quot;: 412,                                ║    ║ }                                     ║
+                                           ║     &quot;msg&quot;: &quot;card declined&quot;,                           ║    ╚═══════════════════════════════════════╝
+                                           ║     &quot;card&quot;: &quot;4111111111111111&quot;,                       ║
+                                           ║     &quot;k8s&quot;: {                                          ║
+                                           ║       &quot;pod&quot;: &quot;payment-7d9f&quot;,                          ║
+                                           ║       &quot;namespace&quot;: &quot;prod&quot;,                            ║
+                                           ║       &quot;node&quot;: &quot;node-c&quot;                                ║
+                                           ║     }                                                 ║
+                                           ║   }                                                   ║
+                                           ║ }                                                     ║
+                                           ╚═══════════════════════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>User 3 places an order; the API Gateway stamps two ids on it</strong></p>
+<ul>
+<li><strong>a) The request</strong><ul>
+<li>User 3's app sends <code>POST /orders</code> over HTTPS</li>
+<li>clients never send logs: only our own servers do</li>
+</ul>
+</li>
+<li><strong>b) What the gateway adds</strong><ul>
+<li>a new correlationId <code>c-103</code> in header <code>X-Correlation-Id</code>, like a courier tracking number for this one request</li>
+<li>the tenantId <code>acme</code>, read from the API key <code>k_acme</code>, in header <code>X-Tenant-Id</code></li>
+<li>a rate limit per tenant (a token bucket): acme may send 1000 requests a second; request 1001 gets <code>429 Too Many Requests</code></li>
+</ul>
+</li>
+<li><strong>c) The answer</strong> carries the same <code>X-Correlation-Id</code>, so User 3 can quote "ref c-103" to support</li>
+<li><strong>Data change:</strong> none yet (only headers on the request)</li>
+<li><strong>Why:</strong> one id made at the front door is the only way to join the lines of three services later. If each service made its own id, Meera could never follow one request.</li>
+</ul>
+</li>
+<li>
+<p><strong>payment-service prints one JSON line to stdout</strong></p>
+<ul>
+<li><strong>a) The work</strong><ul>
+<li>order-service creates the order, calls user-service (verify User 3), then payment-service (charge the card)</li>
+<li>a shared HTTP middleware copies <code>X-Correlation-Id: c-103</code> into every outgoing call, so all three services log <code>c-103</code></li>
+</ul>
+</li>
+<li><strong>b) The line</strong><ul>
+<li>the shared logger library (Logback for Java, pino for Node.js) prints <code>{"logId":"01JCXA7Q","tenantId":"acme","service":"payment","level":"ERROR","correlationId":"c-103","msg":"card declined", ...}</code></li>
+<li>logId is a ULID (a unique id that also sorts by time), made once per line; a retry never makes a new one</li>
+</ul>
+</li>
+<li><strong>c) Where it goes</strong><ul>
+<li>to stdout (the console): no file of its own, no network call</li>
+<li>Kubernetes (the system that runs the containers) copies stdout into <code>/var/log/containers/payment-7d9f_prod_payment-abc.log</code> on Node C</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> one line appended to that file on Node C</li>
+<li><strong>Why JSON:</strong> machines read fields like <code>level</code> and <code>correlationId</code> directly, with no guessing from free text.</li>
+<li><strong>Why stdout:</strong> printing is fast and never blocks the payment. Even if Kafka is down, the service does not notice.</li>
+</ul>
+</li>
+<li>
+<p><strong>Fluent Bit on Node C ships the line to Kafka</strong></p>
+<ul>
+<li><strong>a) Read</strong><ul>
+<li>Fluent Bit is a small log-shipping program; one copy runs on every machine (a Kubernetes DaemonSet)</li>
+<li>its <code>tail</code> input reads every new line of <code>/var/log/containers/*.log</code></li>
+<li>its <code>kubernetes</code> filter adds pod <code>payment-7d9f</code> and namespace <code>prod</code>; a small filter builds the key <code>acme:payment</code></li>
+</ul>
+</li>
+<li><strong>b) Trim</strong><ul>
+<li>DEBUG sampling: keeps 10% of DEBUG lines (e.g. user-service's "cache hit"); ERROR lines are always kept</li>
+<li>a quota per tenant: above 5 GB a day, acme loses DEBUG and INFO lines, never ERROR</li>
+</ul>
+</li>
+<li><strong>c) Send</strong><ul>
+<li>collects lines for ≈1 second or 1 MB, then sends one gzip batch (10 MB of JSON becomes ≈1.5 MB), like a postman delivering a full bag instead of every letter on its own</li>
+<li>Fluent Bit is the Kafka producer: <code>acks=all</code>, idempotence on</li>
+<li>while Kafka can't be reached, batches wait in a disk buffer (<code>/var/log/flb-storage/</code>) and go out later</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> a produce request to topic <code>logs-raw</code>, key <code>acme:payment</code>, inside a gzip batch</li>
+<li><strong>Why one agent per machine:</strong> 50 machines means 50 agents, not 2,000 sidecars (one extra container per pod). Services never need a Kafka library.</li>
+</ul>
+</li>
+<li>
+<p><strong>Kafka stores the line on three brokers</strong></p>
+<ul>
+<li><strong>a) Pick the lane</strong><ul>
+<li><code>partition = hash(key) % number of partitions</code>: <code>acme:payment</code> goes to P5</li>
+<li>same key → same partition → acme's payment lines stay in order</li>
+</ul>
+</li>
+<li><strong>b) Copy, then say OK</strong><ul>
+<li>P5's leader is Broker 3; it appends the line at offset 2000418</li>
+<li>Brokers 1 and 2 (followers) copy it; with <code>acks=all</code> and <code>min.insync.replicas=2</code>, the OK goes back only when at least 2 brokers have it</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> Kafka topic <code>logs-raw</code>, partition 5, offset 2000418, key <code>acme:payment</code>, value = the JSON line + pod info</li>
+<li><strong>Why Kafka in the middle:</strong> it soaks up a sale spike while Elasticsearch writes at its own pace, and it keeps 7 days so any store can be filled again (Flow 5).</li>
+</ul>
+</li>
+<li>
+<p><strong>Flink cleans the line once</strong></p>
+<ul>
+<li><strong>a) Check:</strong> the must-have fields (<code>logId</code>, <code>ts</code>, <code>service</code>) are there and <code>ts</code> is a real time; a broken line goes to the DLQ (Flow 2)</li>
+<li><strong>b) Mask PII</strong> (card numbers, emails): <code>4111111111111111</code> → <code>****1111</code>, <code>john@x.com</code> → <code>j***@x.com</code></li>
+<li><strong>c) Enrich:</strong> adds <code>region: ap-south-1</code></li>
+<li><strong>d) Drop repeats:</strong> remembers every logId seen in the last 10 minutes; a second <code>01JCXA7Q</code> is dropped</li>
+<li><strong>Data change:</strong> Flink's dedup state gets <code>01JCXA7Q</code> (kept 10 minutes)</li>
+<li><strong>Why mask here:</strong> once a card number lands in Elasticsearch or S3 it sits in backups and old files for a year. Masking before every store means it never lands.</li>
+<li><strong>Why one job for all three stores:</strong> they all get exactly the same clean line.</li>
+</ul>
+</li>
+<li>
+<p><strong>Elasticsearch makes it searchable in about a second</strong></p>
+<ul>
+<li><strong>a) Write:</strong> Flink's Elasticsearch sink sends <code>_bulk</code> requests over HTTPS to today's index <code>logs-2026.11.12</code>, with <code>_id = logId</code>; it retries on <code>429</code> or a timeout</li>
+<li><strong>b) Visible:</strong> a refresh every second turns new lines into a searchable segment</li>
+<li><strong>Data change:</strong> Elasticsearch document <code>logs-2026.11.12/01JCXA7Q</code> added, with card <code>****1111</code></li>
+<li><strong>Why <code>_id = logId</code>:</strong> the same line written twice (a retry or a replay) overwrites itself. There are never two copies.</li>
+<li><strong>Why one index per day:</strong> deleting a day after 7 days means dropping one index, a cheap file delete instead of a slow delete of millions of documents.</li>
+</ul>
+</li>
+<li>
+<p><strong>TimescaleDB gets one count row for the minute</strong></p>
+<ul>
+<li><strong>a) Count:</strong> Flink groups lines by tenant + service into 1-minute windows, by the line's own time (<code>ts</code>)</li>
+<li><strong>b) Write:</strong> when 09:30 closes: 1200 lines, 78 errors, p99 870 ms (99 in 100 requests were faster than 870 ms)</li>
+<li><strong>Data change:</strong> <code>service_metrics</code> row added <code>{ts: 09:30, tenant: acme, service: payment, total: 1200, errors: 78, p99_ms: 870, dlq: 0}</code></li>
+<li><strong>Why a separate store for numbers:</strong> Grafana reads 5 small rows instead of counting millions of lines in Elasticsearch every minute (Flow 3).</li>
+</ul>
+</li>
+<li>
+<p><strong>S3 keeps the line for a year as Parquet</strong></p>
+<ul>
+<li><strong>a) Collect:</strong> Flink's file sink gathers the hour's lines per tenant + service</li>
+<li><strong>b) Write:</strong> Parquet is a file format that stores data column by column, compressed (≈10 times smaller than JSON); the file is finished at the first Flink checkpoint after 10:00</li>
+<li><strong>c) Later:</strong> an S3 lifecycle rule moves files to Glacier (very cheap storage that is slow to read) after 365 days</li>
+<li><strong>Data change:</strong> S3 object <code>s3://logs/tenant=acme/service=payment/dt=2026-11-12/hour=09/part-0001.parquet</code> added</li>
+<li><strong>Why hourly, with tenant, service and date in the path:</strong> Athena then reads only the folders a question needs (Flow 4). Files of a few hundred MB are big enough to read fast and are finished often.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Services log JSON to stdout with a correlationId made at the gateway. A Fluent Bit DaemonSet batches lines into Kafka keyed by tenant:service with acks=all. One Flink job validates, masks PII and dedups by logId, then fans out to Elasticsearch for search, TimescaleDB for 1-minute metrics and S3 Parquet for a year of cheap history."</p>
+<h3 id="flow-2-a-line-flink-cant-read-goes-to-the-dlq-is-fixed-and-replayed-user-service-fluent-bit-kafka-logs-raw-flink-logs-dlq-arjuns-fix-replay-job-logs-raw-flink-elasticsearch">Flow 2. A line Flink can't read goes to the DLQ, is fixed and replayed (user-service → Fluent Bit → Kafka logs-raw → Flink → logs-dlq → Arjun's fix → replay job → logs-raw → Flink → Elasticsearch)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1 ────────────────────────────────────────────────┐            ┌── STEP 1 ────────────────────────────────────────────────┐            ┌── STEP 2 ────────────────────────────────────────────────┐            ┌── STEP 3 ────────────────────────────────────────────────┐            ┌── STEP 4 ────────────────────────────────────────────────┐            ┌── STEP 6 ────────────────────────────────────────────────┐            ┌── STEP 6 ────────────────────────────────────────────────┐            ┌── STEP 7 ────────────────────────────────────────────────┐            ┌── STEP 8 ────────────────────────────────────────────────┐
+│ user-service  (Node B, new logger version)               │            │ Fluent Bit  (Node B)                                     │            │ Kafka  (topic logs-raw)                                  │            │ Flink  (old parser)                                      │            │ Kafka  (topic logs-dlq)                                  │            │ DLQ replay job  (small Kafka consumer + producer)        │            │ Kafka  (topic logs-raw, drawn again)                     │            │ Flink  (new parser)                                      │            │ Elasticsearch  (index logs-2026.11.12)                   │
+├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Prints a line with a new date format             │ ─────────&gt; │ STEP 1: Ships it like any other line                     │ ─────────&gt; │ STEP 2: Stores it like any other line                    │ ─────────&gt; │ STEP 3: Can't read ts, so parks the line                 │ ─────────&gt; │ STEP 4: Keeps every bad line for 7 days                  │ ────┬────&gt; │ STEP 6: Puts the parked lines back in the pipe           │ ─────────&gt; │ STEP 6: Takes the lines in again                         │ ─────────&gt; │ STEP 7: Reads the old line now                           │ ─────────&gt; │ STEP 8: Shows the lines in Kibana at last                │
+│   - Arjun's 09:31 deploy changed the logger's ts format  │            │   - the agent does not check fields: it stays small and  │            │   - key acme:user always lands on partition P3           │            │   - the ts check fails -&gt; reason bad_ts                  │            │   - Flink also counts DLQ lines per service              │     │      │   - reads logs-dlq, keeps service = user                 │            │   - same key acme:user -&gt; same P3, new offsets           │            │   - parse, mask, drop repeats by logId                   │            │   - _id = logId: a second replay overwrites, never       │
+│   - e.g. ts '12/11/2026 09:31:05' for User 2, c-102      │            │     fast                                                 │            │   - e.g. P3 offset 880112                                │            │   - writes the raw line + reason to logs-dlq             │            │   - Grafana alert: DLQ rate above 1% for 5 minutes       │     │      │   - re-sends the original raw line, same key             │            │   - e.g. P3 offset 912340                                │            │   - then the normal three sinks                          │            │     doubles                                              │
+└──────────────────────────────────────────────────────────┘            │   - e.g. key acme:user                                   │            └──────────────────────────────────────────────────────────┘            │   - goes on with the next line, no crash                 │            │   - e.g. user-service: 1 in 5 lines go to the DLQ        │     │      │   - e.g. ≈20,000 lines from 09:31 to 09:52               │            └──────────────────────────────────────────────────────────┘            │   - e.g. ts -&gt; 2026-11-12T09:31:05Z                      │            │   - e.g. User 2's c-102 'profile viewed'                 │
+                                                                        └──────────────────────────────────────────────────────────┘                                                                                    │   - e.g. error bad_ts, from logs-raw P3 880112           │            └──────────────────────────────────────────────────────────┘     │      └──────────────────────────────────────────────────────────┘                                                                                    └──────────────────────────────────────────────────────────┘            └──────────────────────────────────────────────────────────┘
+                                                                                                                                                                                                                        └──────────────────────────────────────────────────────────┘                                                                             │
+                                                                                                                                                                                                                                                                                                                                                                 │
+                                                                                                                                                                                                                                                                                                                                                                 │
+                                                                                                                                                                                                                                                                                                                                                                 │
+                                                                                                                                                                                                                                                                                                ┌── STEP 5, 6 ─────────────────────────────────────────────┐     │
+                                                                                                                                                                                                                                                                                                │ Arjun  (developer of user-service)                       │     │
+                                                                                                                                                                                                                                                                                                ├──────────────────────────────────────────────────────────┤     │
+                                                                                                                                                                                                                                                                                                │ STEP 5: Reads the reason and fixes the parser            │ ────┘
+                                                                                                                                                                                                                                                                                                │   - reads a few DLQ messages: raw line + bad_ts          │
+                                                                                                                                                                                                                                                                                                │   - adds dd/MM/yyyy HH:mm:ss to Flink's parser           │
+                                                                                                                                                                                                                                                                                                │   - e.g. Flink restarts from a savepoint: no line lost   │
+                                                                                                                                                                                                                                                                                                │                                                          │
+                                                                                                                                                                                                                                                                                                │ STEP 6: Starts the replay job                            │
+                                                                                                                                                                                                                                                                                                │   - from the first user-service DLQ offset of today      │
+                                                                                                                                                                                                                                                                                                └──────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ Kafka logs-dlq                                                              ▼ Kafka logs-raw (replayed)                                                   ▼ Elasticsearch
+╔════════════════════════════════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════╗    ╔══════════════════════════════════════╗
+║ Kafka message (topic logs-dlq)                                         ║    ║ Kafka message (topic logs-raw, replayed)                               ║    ║ Elasticsearch document · _id = logId ║
+╟────────────────────────────────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────╢    ╟──────────────────────────────────────╢
+║ {                                                                      ║    ║ {                                                                      ║    ║ {                                    ║
+║   &quot;topic&quot;: &quot;logs-dlq&quot;,                                                 ║    ║   &quot;topic&quot;: &quot;logs-raw&quot;,                                                 ║    ║   &quot;_index&quot;: &quot;logs-2026.11.12&quot;,       ║
+║   &quot;key&quot;: &quot;acme:user&quot;,                                                  ║    ║   &quot;partition&quot;: 3,                                                      ║    ║   &quot;_id&quot;: &quot;01JCXB2M&quot;,                 ║
+║   &quot;headers&quot;: {                                                         ║    ║   &quot;offset&quot;: 912340,                                                    ║    ║   &quot;_source&quot;: {                       ║
+║     &quot;error&quot;: &quot;bad_ts&quot;,                                                 ║    ║   &quot;key&quot;: &quot;acme:user&quot;,                                                  ║    ║     &quot;tenantId&quot;: &quot;acme&quot;,              ║
+║     &quot;source&quot;: &quot;logs-raw/3/880112&quot;                                      ║    ║   &quot;headers&quot;: {                                                         ║    ║     &quot;service&quot;: &quot;user&quot;,               ║
+║   },                                                                   ║    ║     &quot;agent&quot;: &quot;dlq-replay&quot;,                                             ║    ║     &quot;level&quot;: &quot;INFO&quot;,                 ║
+║   &quot;value&quot;: {                                                           ║    ║     &quot;replay&quot;: &quot;true&quot;                                                   ║    ║     &quot;ts&quot;: &quot;2026-11-12T09:31:05Z&quot;,    ║
+║     &quot;raw&quot;: &quot;{\&quot;logId\&quot;:\&quot;01JCXB2M\&quot;,\&quot;tenantId\&quot;:\&quot;acme\&quot;,\&quot;service\&quot;: ║    ║   },                                                                   ║    ║     &quot;correlationId&quot;: &quot;c-102&quot;,        ║
+║         \&quot;user\&quot;,\&quot;level\&quot;:\&quot;INFO\&quot;,\&quot;ts\&quot;:\&quot;12/11/2026                ║    ║   &quot;value&quot;: &quot;{\&quot;logId\&quot;:\&quot;01JCXB2M\&quot;,\&quot;tenantId\&quot;:\&quot;acme\&quot;,\&quot;service\&quot;: ║    ║     &quot;msg&quot;: &quot;profile viewed&quot;,         ║
+║         09:31:05\&quot;,\&quot;correlationId\&quot;:\&quot;c-102\&quot;,\&quot;msg\&quot;:\&quot;profile       ║    ║       \&quot;user\&quot;,\&quot;level\&quot;:\&quot;INFO\&quot;,\&quot;ts\&quot;:\&quot;12/11/2026                  ║    ║     &quot;region&quot;: &quot;ap-south-1&quot;           ║
+║         viewed\&quot;}&quot;,                                                    ║    ║       09:31:05\&quot;,\&quot;correlationId\&quot;:\&quot;c-102\&quot;,\&quot;msg\&quot;:\&quot;profile         ║    ║   }                                  ║
+║     &quot;error&quot;: &quot;bad_ts&quot;,                                                 ║    ║       viewed\&quot;}&quot;                                                       ║    ║ }                                    ║
+║     &quot;service&quot;: &quot;user&quot;,                                                 ║    ║ }                                                                      ║    ╚══════════════════════════════════════╝
+║     &quot;failed_at&quot;: &quot;2026-11-12T09:31:06Z&quot;                                ║    ╚════════════════════════════════════════════════════════════════════════╝
+║   }                                                                    ║
+║ }                                                                      ║
+╚════════════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>user-service prints a line Flink can't read; Fluent Bit ships it anyway</strong></p>
+<ul>
+<li><strong>a) The change</strong><ul>
+<li>Arjun deploys a new logger version at 09:31; it writes <code>ts</code> as <code>12/11/2026 09:31:05</code> instead of <code>2026-11-12T09:31:05Z</code></li>
+<li>User 2 views a profile (request <code>c-102</code>): <code>{"logId":"01JCXB2M","service":"user","ts":"12/11/2026 09:31:05","msg":"profile viewed"}</code></li>
+</ul>
+</li>
+<li><strong>b) Fluent Bit</strong> does not look inside the fields: it reads, batches and sends with key <code>acme:user</code></li>
+<li><strong>Data change:</strong> a line appended on Node B; a produce request to <code>logs-raw</code></li>
+<li><strong>Why the agent doesn't check:</strong> an agent on every machine must stay tiny. Checking in one place (Flink) is easier to change and to watch.</li>
+</ul>
+</li>
+<li>
+<p><strong>Kafka stores it like any other line</strong></p>
+<ul>
+<li>key <code>acme:user</code> → partition P3, offset 880112, 3 copies</li>
+<li><strong>Data change:</strong> <code>logs-raw</code> P3 offset 880112</li>
+<li><strong>Why:</strong> Kafka stores bytes and never reads them, so it stays fast.</li>
+</ul>
+</li>
+<li>
+<p><strong>Flink can't read <code>ts</code>, so it parks the line in the DLQ</strong></p>
+<ul>
+<li><strong>a) The check fails:</strong> the reason is <code>bad_ts</code></li>
+<li><strong>b) Park it:</strong> a DLQ (Dead Letter Queue, a box for letters that can't be delivered) message goes to topic <code>logs-dlq</code> with the raw line, the reason and where it came from (<code>logs-raw/3/880112</code>)</li>
+<li><strong>c) Go on:</strong> the next line is processed; the job does not crash</li>
+<li><strong>Data change:</strong> <code>logs-dlq</code> message <code>{raw: "...", error: bad_ts, service: user, failed_at: 09:31:06}</code></li>
+<li><strong>Why not drop it:</strong> a dropped line vanishes silently; nobody would know User 2's lines are missing.</li>
+<li><strong>Why not crash:</strong> one bad line would stop the logs of every tenant.</li>
+</ul>
+</li>
+<li>
+<p><strong>The DLQ keeps it; an alert tells Arjun</strong></p>
+<ul>
+<li><strong>a) Keep:</strong> <code>logs-dlq</code> is a normal Kafka topic with the same 7-day retention: found on Friday, fixed on Monday, still replayable</li>
+<li><strong>b) Alert:</strong> Flink also counts DLQ lines per service per minute; a Grafana rule fires when a service's DLQ rate is above 1% for 5 minutes<ul>
+<li>user-service jumps to 1 line in 5 right after the 09:31 deploy</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>service_metrics</code> rows for user-service now have <code>dlq</code> at about a fifth of <code>total</code></li>
+<li><strong>Why alert on the rate:</strong> a few bad lines are normal. A jump right after a deploy means a broken logger, and a rollback is often the quickest fix.</li>
+</ul>
+</li>
+<li>
+<p><strong>Arjun fixes the parser</strong></p>
+<ul>
+<li><strong>a) Look:</strong> he reads a few <code>logs-dlq</code> messages; every one says <code>bad_ts</code> with the new format</li>
+<li><strong>b) Fix:</strong> Flink's parser learns the format <code>dd/MM/yyyy HH:mm:ss</code> (and the user-service logger goes back to the standard format in its next release)</li>
+<li><strong>c) Restart safely:</strong> Flink is stopped with a savepoint (a saved snapshot of its state and Kafka offsets) and started from it with the new parser, so no line is skipped</li>
+<li><strong>Data change:</strong> a new Flink job version runs from the savepoint</li>
+<li><strong>Why fix before replay:</strong> replaying into the old parser would just send every line back to the DLQ.</li>
+</ul>
+</li>
+<li>
+<p><strong>The replay job puts the parked lines back into <code>logs-raw</code></strong></p>
+<ul>
+<li><strong>a) Read:</strong> a small job reads <code>logs-dlq</code> from the first user-service message of today and keeps only <code>service = user</code></li>
+<li><strong>b) Re-send:</strong> each original <code>raw</code> line goes to <code>logs-raw</code> with the same key <code>acme:user</code> (and the same logId inside) and header <code>replay: true</code></li>
+<li><strong>Data change:</strong> ≈20,000 messages on <code>logs-raw</code> P3, from offset 912340</li>
+<li><strong>Why the same key:</strong> the lines land in P3 again, in order with acme's other user-service lines.</li>
+</ul>
+</li>
+<li>
+<p><strong>Flink with the new parser reads them</strong></p>
+<ul>
+<li><strong>a) Normal path:</strong> <code>ts</code> becomes <code>2026-11-12T09:31:05Z</code>; masking, dropping repeats by logId, then the three stores</li>
+<li><strong>b) A known gap:</strong> the lines are too late for the 1-minute counts (those windows closed long ago), so the 09:31 to 09:52 user-service counts stay a little low; S3 gets them in a new file under <code>hour=09</code></li>
+<li><strong>Data change:</strong> Flink's dedup state gets the replayed logIds</li>
+<li><strong>Why logId matters here:</strong> if Arjun runs the replay twice, the second copies are dropped (and would only overwrite in Elasticsearch anyway).</li>
+</ul>
+</li>
+<li>
+<p><strong>Elasticsearch shows the lines at last</strong></p>
+<ul>
+<li>document <code>01JCXB2M</code> lands in <code>logs-2026.11.12</code>; Kibana shows User 2's <code>c-102</code> "profile viewed" at its real time, 09:31:05</li>
+<li><strong>Data change:</strong> Elasticsearch documents added for the ≈20,000 replayed lines</li>
+<li><strong>Why <code>_id = logId</code>:</strong> a second replay overwrites the same documents, so the count never doubles.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Validation lives in Flink. Anything that fails goes to a DLQ topic with the raw payload and the reason, so the job never crashes and nothing is silently dropped. We alert on the DLQ rate per service, fix the parser, restart from a savepoint and replay the DLQ into the main topic; logId-based idempotency makes replays safe."</p>
+<h3 id="flow-3-payment-errors-climb-and-grafana-pages-meera-kafka-p5-flink-1-minute-windows-timescaledb-grafana-alert-rule-pagerduty-meera">Flow 3. Payment errors climb, and Grafana pages Meera (Kafka P5 → Flink 1-minute windows → TimescaleDB → Grafana alert rule → PagerDuty → Meera)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1 ────────────────────────────────────────────────┐            ┌── STEP 2, 3 ─────────────────────────────────────────────┐            ┌── STEP 3, 4 ─────────────────────────────────────────────┐            ┌── STEP 4, 5 ─────────────────────────────────────────────┐            ┌── STEP 5 ────────────────────────────────────────────────┐
+│ Kafka  (topic logs-raw, partition P5)                    │            │ Flink  (1-minute window per tenant + service)            │            │ TimescaleDB  (hypertable service_metrics)                │            │ Grafana  (dashboards + alert rules)                      │            │ Meera's phone  (on-call engineer)                        │
+├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Holds every acme payment line in order           │ ─────────&gt; │ STEP 2: Counts each minute by the line's own time        │ ─────────&gt; │ STEP 3: Stores one small row per minute                  │ ─────────&gt; │ STEP 4: Checks the rule every minute                     │ ─────────&gt; │ STEP 5: Rings                                            │
+│   - key acme:payment, so Users 1 and 3 sit side by side  │            │   - keyBy(tenant, service), 1-minute tumbling window     │            │   - upsert on (ts, tenant, service): a retry never adds  │            │   - SQL: errors / total per minute, last 5 minutes       │            │   - PagerDuty calls until she acknowledges               │
+│   - e.g. 2000417 'charge ok', 2000418 'card declined'    │            │   - uses ts, not arrival time; waits 30 s for late lines │            │     a 2nd row                                            │            │   - e.g. all 5 minutes are above 5%                      │            │   - e.g. she opens Kibana from the link (Flow 4)         │
+└──────────────────────────────────────────────────────────┘            │   - e.g. 09:30 window: 1200 lines, 78 of them ERROR      │            │   - e.g. 09:30 acme payment 1200 / 78 / 870              │            │                                                          │            └──────────────────────────────────────────────────────────┘
+                                                                        │                                                          │            │                                                          │            │ STEP 5: Fires the alert at 09:35                         │
+                                                                        │ STEP 3: Closes the window and writes one row             │            │ STEP 4: Answers Grafana's query                          │            │   - sends it to PagerDuty with links to the graph and to │
+                                                                        │   - p99 worked out from the durationMs field of each     │            │   - reads 5 rows from today's chunk                      │            │     Kibana                                               │
+                                                                        │     line                                                 │            │   - e.g. error rate 6.5%, 6.1%, 7.0%, 6.8%, 6.4%         │            │   - e.g. 'acme payment error rate &gt; 5%'                  │
+                                                                        │   - e.g. p99 870 ms                                      │            └──────────────────────────────────────────────────────────┘            └──────────────────────────────────────────────────────────┘
+                                                                        └──────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ TimescaleDB                                                       ▼ Grafana                                                ▼ PagerDuty page
+╔══════════════════════════════════════════════════════════════╗    ╔═══════════════════════════════════════════════════╗    ╔═══════════════════════════════════════════════════════╗
+║ service_metrics (TimescaleDB) · UNIQUE ts + tenant + service ║    ║ Grafana alert rule                                ║    ║ alert sent to PagerDuty                               ║
+╟──────────────────────────────────────────────────────────────╢    ╟───────────────────────────────────────────────────╢    ╟───────────────────────────────────────────────────────╢
+║ [                                                            ║    ║ rule 'acme payment error rate &gt; 5%':              ║    ║ {                                                     ║
+║   {                                                          ║    ║   every 1 min run:                                ║    ║   &quot;alert&quot;: &quot;acme payment error rate &gt; 5%&quot;,            ║
+║     &quot;ts&quot;: &quot;2026-11-12T09:30:00Z&quot;,                            ║    ║     SELECT ts, errors::float / total              ║    ║   &quot;status&quot;: &quot;firing&quot;,                                 ║
+║     &quot;tenant&quot;: &quot;acme&quot;,                                        ║    ║     FROM service_metrics                          ║    ║   &quot;started_at&quot;: &quot;2026-11-12T09:35:00Z&quot;,               ║
+║     &quot;service&quot;: &quot;payment&quot;,                                    ║    ║     WHERE tenant = 'acme' AND service = 'payment' ║    ║   &quot;value&quot;: &quot;6.4%&quot;,                                    ║
+║     &quot;total&quot;: 1200,                                           ║    ║       AND ts &gt; now() - interval '5 minutes'       ║    ║   &quot;links&quot;: {                                          ║
+║     &quot;errors&quot;: 78,                                            ║    ║   fire if every row &gt; 0.05 for 5 min              ║    ║     &quot;graph&quot;: &quot;grafana/d/payments&quot;,                    ║
+║     &quot;p99_ms&quot;: 870,                                           ║    ║   send to PagerDuty: team payments-oncall         ║    ║     &quot;logs&quot;: &quot;kibana: service:payment AND level:ERROR&quot; ║
+║     &quot;dlq&quot;: 0                                                 ║    ╚═══════════════════════════════════════════════════╝    ║   },                                                  ║
+║   },                                                         ║                                                             ║   &quot;on_call&quot;: &quot;Meera&quot;                                  ║
+║   {                                                          ║                                                             ║ }                                                     ║
+║     &quot;ts&quot;: &quot;2026-11-12T09:31:00Z&quot;,                            ║                                                             ╚═══════════════════════════════════════════════════════╝
+║     &quot;tenant&quot;: &quot;acme&quot;,                                        ║
+║     &quot;service&quot;: &quot;payment&quot;,                                    ║
+║     &quot;total&quot;: 1200,                                           ║
+║     &quot;errors&quot;: 73,                                            ║
+║     &quot;p99_ms&quot;: 870,                                           ║
+║     &quot;dlq&quot;: 0                                                 ║
+║   },                                                         ║
+║   {                                                          ║
+║     &quot;ts&quot;: &quot;2026-11-12T09:32:00Z&quot;,                            ║
+║     &quot;tenant&quot;: &quot;acme&quot;,                                        ║
+║     &quot;service&quot;: &quot;payment&quot;,                                    ║
+║     &quot;total&quot;: 1200,                                           ║
+║     &quot;errors&quot;: 84,                                            ║
+║     &quot;p99_ms&quot;: 870,                                           ║
+║     &quot;dlq&quot;: 0                                                 ║
+║   },                                                         ║
+║   {                                                          ║
+║     &quot;ts&quot;: &quot;2026-11-12T09:33:00Z&quot;,                            ║
+║     &quot;tenant&quot;: &quot;acme&quot;,                                        ║
+║     &quot;service&quot;: &quot;payment&quot;,                                    ║
+║     &quot;total&quot;: 1200,                                           ║
+║     &quot;errors&quot;: 82,                                            ║
+║     &quot;p99_ms&quot;: 870,                                           ║
+║     &quot;dlq&quot;: 0                                                 ║
+║   },                                                         ║
+║   {                                                          ║
+║     &quot;ts&quot;: &quot;2026-11-12T09:34:00Z&quot;,                            ║
+║     &quot;tenant&quot;: &quot;acme&quot;,                                        ║
+║     &quot;service&quot;: &quot;payment&quot;,                                    ║
+║     &quot;total&quot;: 1200,                                           ║
+║     &quot;errors&quot;: 77,                                            ║
+║     &quot;p99_ms&quot;: 870,                                           ║
+║     &quot;dlq&quot;: 0                                                 ║
+║   }                                                          ║
+║ ]                                                            ║
+╚══════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>Kafka holds acme's payment lines in order</strong></p>
+<ul>
+<li>every payment line, success or failure, is in P5 (key <code>acme:payment</code>): User 1's "charge ok" at 2000417, User 3's "card declined" at 2000418</li>
+<li><strong>Data change:</strong> none (Flink only reads)</li>
+<li><strong>Why:</strong> same key → same partition → one Flink worker sees all of acme's payment lines and can count them alone.</li>
+</ul>
+</li>
+<li>
+<p><strong>Flink counts each minute by the line's own time</strong></p>
+<ul>
+<li><strong>a) Group:</strong> <code>keyBy(tenant, service)</code> sends every acme payment line to the same counter</li>
+<li><strong>b) Window:</strong> 1-minute tumbling windows: 09:30:00 to 09:30:59, then 09:31, with no overlap</li>
+<li><strong>c) Event time:</strong> it uses <code>ts</code> from the line, not the time the line arrived; a watermark (Flink's "I have seen everything up to this time" marker) waits 30 seconds for late lines, so a 09:30:50 line that arrives at 09:31:10 still counts in 09:30</li>
+<li><strong>Data change:</strong> Flink window state for (acme, payment, 09:30): 1200 lines, 78 errors, the durations for p99</li>
+<li><strong>Why event time:</strong> after a slow-down or a replay, lines arrive late. Counting by arrival time would put them in the wrong minute and invent a spike.</li>
+</ul>
+</li>
+<li>
+<p><strong>The window closes and one row goes to TimescaleDB</strong></p>
+<ul>
+<li><strong>a) Close:</strong> when the watermark passes 09:31 (≈09:31:30)</li>
+<li><strong>b) p99:</strong> worked out from each line's <code>durationMs</code>: 99 in 100 payments were faster than 870 ms</li>
+<li><strong>c) TimescaleDB</strong> is PostgreSQL plus automatic time chunks (a hypertable): one chunk per day, and old chunks are dropped whole</li>
+<li><strong>Data change:</strong> <code>service_metrics</code> row <code>{ts: 09:30, tenant: acme, service: payment, total: 1200, errors: 78, p99_ms: 870}</code>; then the rows for 09:31 to 09:34 the same way</li>
+<li><strong>Why upsert on (ts, tenant, service):</strong> after a Flink restart the same window may be written again. It replaces the row and never adds a second one.</li>
+</ul>
+</li>
+<li>
+<p><strong>Grafana checks the rule every minute</strong></p>
+<ul>
+<li>the rule's SQL gives the error rate of the last 5 minutes: 6.5%, 6.1%, 7.0%, 6.8%, 6.4%</li>
+<li>"for 5 minutes" means every one of them is above 5%</li>
+<li><strong>Data change:</strong> the alert goes from pending to firing at 09:35</li>
+<li><strong>Why 5 minutes:</strong> one bad minute (a short bank hiccup) would wake Meera for nothing.</li>
+</ul>
+</li>
+<li>
+<p><strong>Meera is paged</strong></p>
+<ul>
+<li><strong>a) Send:</strong> Grafana sends the alert to PagerDuty (a service that calls the on-call person's phone until they answer)</li>
+<li><strong>b) Links:</strong> the alert carries the payment graph and a Kibana search <code>service:payment AND level:ERROR</code></li>
+<li><strong>Data change:</strong> a PagerDuty incident for team payments-oncall</li>
+<li><strong>Why it's fast:</strong> counts are made while the lines stream past, so the page goes out within ≈2 minutes of the 5th bad minute ending, and the link takes Meera straight to the right lines (Flow 4).</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Flink pre-aggregates per tenant and service in 1-minute event-time windows with a 30-second watermark and upserts into a TimescaleDB hypertable. Grafana alerts on error rate above 5% for 5 minutes and pages through PagerDuty, with links into Kibana."</p>
+<h3 id="flow-4-meera-finds-why-user-3s-payment-failed-then-answers-an-audit-question-kibana-elasticsearch-athena-s3-parquet">Flow 4. Meera finds why User 3's payment failed, then answers an audit question (Kibana → Elasticsearch; Athena → S3 Parquet)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1, 3, 5 ──────────────────────────────────────────┐            ┌── STEP 1, 3 ─────────────────────────────────────────────┐            ┌── STEP 2, 4 ─────────────────────────────────────────────┐
+│ Meera  (on-call engineer)                                │            │ Kibana  (search screen)                                  │            │ Elasticsearch  (daily indices, 7 days)                   │
+├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Searches the failing service                     │ ────┬────&gt; │ STEP 1, 3: Turns the query into a search request         │ ─────────&gt; │ STEP 2: Searches only the matching days                  │
+│   - Kibana, last 15 minutes                              │     │      │   - Kibana server -&gt; POST logs-*/_search on port 9200    │            │   - today's index logs-2026.11.12, all shards at once    │
+│   - e.g. tenantId:acme AND service:payment AND           │     │      │   - e.g. KQL becomes Query DSL, sorted by ts             │            │   - returns the hits + a count by msg                    │
+│          level:ERROR                                     │     │      └──────────────────────────────────────────────────────────┘            │   - e.g. most errors say 'card declined'                 │
+│                                                          │     │                                                                              │                                                          │
+│ STEP 3: Follows one request end to end                   │     │                                                                              │ STEP 4: Returns the whole request path                   │
+│   - clicks User 3's line, then searches its              │     │                                                                              │   - every line with c-103, sorted by ts                  │
+│     correlationId                                        │     │                                                                              │   - e.g. order created -&gt; user 3 verified -&gt; card        │
+│   - e.g. correlationId:&quot;c-103&quot;                           │     │                                                                              │          declined                                        │
+│                                                          │     │                                                                              └──────────────────────────────────────────────────────────┘
+│ STEP 5: Answers an audit question                        │     │
+│   - older than 7 days, so not in Elasticsearch: Athena   │     │
+│     SQL                                                  │     │
+│   - e.g. acme payment errors in June 2026                │     │
+└──────────────────────────────────────────────────────────┘     │
+                                                                 │
+                                                                 │
+                                                                 │
+                                                                 │      ┌── STEP 5 ────────────────────────────────────────────────┐            ┌── STEP 6 ────────────────────────────────────────────────┐
+                                                                 │      │ Athena  (SQL on S3 files)                                │            │ S3  (Parquet files, 1 year)                              │
+                                                                 │      ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤
+                                                                 └────&gt; │ STEP 5: Runs the SQL with no server to manage            │ ─────────&gt; │ STEP 6: Hands Athena only the files it needs             │
+                                                                        │   - table logs from the Glue Data Catalog; path parts =  │            │   - path filter: tenant=acme, service=payment, June      │
+                                                                        │     columns                                              │            │   - reads the level column only; skips blocks by min/max │
+                                                                        │   - e.g. you pay per GB read                             │            │   - e.g. reads one month of one service, not a whole     │
+                                                                        └──────────────────────────────────────────────────────────┘            │          year                                            │
+                                                                                                                                                └──────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ Kibana                                                      ▼ Elasticsearch                     ▼ Athena                                               ▼ S3
+╔════════════════════════════════════════════════════════╗    ╔══════════════════════════════╗    ╔═════════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════╗
+║ search request                                         ║    ║ hits for c-103               ║    ║ Athena SQL                                      ║    ║ S3 object (Parquet, hourly)                                            ║
+╟────────────────────────────────────────────────────────╢    ╟──────────────────────────────╢    ╟─────────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────╢
+║ Kibana query (KQL): correlationId:&quot;c-103&quot;              ║    ║ [                            ║    ║ SELECT count(*) FROM logs                       ║    ║ {                                                                      ║
+║ becomes POST logs-*/_search:                           ║    ║   {                          ║    ║ WHERE tenant = 'acme' AND service = 'payment'   ║    ║   &quot;path&quot;: &quot;s3://logs/tenant=acme/service=payment/dt=2026-06-           ║
+║   { &quot;query&quot;: { &quot;term&quot;: { &quot;correlationId&quot;: &quot;c-103&quot; } }, ║    ║     &quot;ts&quot;: &quot;09:30:00.050&quot;,    ║    ║   AND level = 'ERROR'                           ║    ║       15/hour=14/part-0001.parquet&quot;,                                   ║
+║     &quot;sort&quot;: [ { &quot;ts&quot;: &quot;asc&quot; } ] }                      ║    ║     &quot;service&quot;: &quot;order&quot;,      ║    ║   AND dt BETWEEN '2026-06-01' AND '2026-06-30'; ║    ║   &quot;format&quot;: &quot;Parquet (stored by column, compressed)&quot;,                  ║
+╚════════════════════════════════════════════════════════╝    ║     &quot;level&quot;: &quot;INFO&quot;,         ║    ║ -- reads only tenant=acme/service=payment/      ║    ║   &quot;size&quot;: &quot;≈400 MB&quot;,                                                   ║
+                                                              ║     &quot;msg&quot;: &quot;order created&quot;   ║    ║ --   dt=2026-06-01 .. dt=2026-06-30 folders     ║    ║   &quot;columns&quot;: [&quot;logId&quot;, &quot;ts&quot;, &quot;level&quot;, &quot;correlationId&quot;, &quot;msg&quot;, &quot;...&quot;],  ║
+                                                              ║   },                         ║    ╚═════════════════════════════════════════════════╝    ║   &quot;storage_class&quot;: &quot;STANDARD&quot;                                          ║
+                                                              ║   {                          ║                                                           ║ }                                                                      ║
+                                                              ║     &quot;ts&quot;: &quot;09:30:00.080&quot;,    ║                                                           ╚════════════════════════════════════════════════════════════════════════╝
+                                                              ║     &quot;service&quot;: &quot;user&quot;,       ║
+                                                              ║     &quot;level&quot;: &quot;INFO&quot;,         ║
+                                                              ║     &quot;msg&quot;: &quot;user 3 verified&quot; ║
+                                                              ║   },                         ║
+                                                              ║   {                          ║
+                                                              ║     &quot;ts&quot;: &quot;09:30:00.120&quot;,    ║
+                                                              ║     &quot;service&quot;: &quot;payment&quot;,    ║
+                                                              ║     &quot;level&quot;: &quot;ERROR&quot;,        ║
+                                                              ║     &quot;msg&quot;: &quot;card declined&quot;   ║
+                                                              ║   }                          ║
+                                                              ║ ]                            ║
+                                                              ╚══════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>Meera searches the failing service</strong></p>
+<ul>
+<li>she opens Kibana (the web screen for Elasticsearch) from the alert link</li>
+<li>the query is <code>tenantId:acme AND service:payment AND level:ERROR</code>, last 15 minutes</li>
+<li><strong>Data change:</strong> none (search only reads)</li>
+<li><strong>Why the tenant filter:</strong> Kibana spaces add the tenant filter by role, so each team only ever sees its own tenant's lines.</li>
+</ul>
+</li>
+<li>
+<p><strong>Elasticsearch searches only the days that match</strong></p>
+<ul>
+<li><strong>a) Translate:</strong> the Kibana server turns KQL (Kibana Query Language) into Elasticsearch Query DSL and calls <code>POST logs-*/_search</code> on port 9200</li>
+<li><strong>b) Narrow:</strong> the time filter leaves only today's index <code>logs-2026.11.12</code>; each of its shards searches its part at the same time, then the results are merged</li>
+<li><strong>c) Answer:</strong> the newest hits plus a count per <code>msg</code>: most errors say "card declined"</li>
+<li><strong>Data change:</strong> none</li>
+<li><strong>Why it is fast:</strong> Elasticsearch keeps an inverted index (word → list of lines), like the index at the back of a book.</li>
+</ul>
+</li>
+<li>
+<p><strong>Meera follows one request</strong></p>
+<ul>
+<li>she clicks User 3's line, copies <code>correlationId: c-103</code> and searches <code>correlationId:"c-103"</code></li>
+<li><strong>Data change:</strong> none</li>
+<li><strong>Why:</strong> the error line says what failed; the whole path says why.</li>
+</ul>
+</li>
+<li>
+<p><strong>Elasticsearch returns the whole path</strong></p>
+<ul>
+<li>7 lines from 3 services, sorted by <code>ts</code>: order created → user 3 verified → card declined</li>
+<li><strong>Data change:</strong> none</li>
+<li><strong>Why it works:</strong> <code>c-103</code> was made once at the gateway and passed in <code>X-Correlation-Id</code> on every call (Flow 1).</li>
+</ul>
+</li>
+<li>
+<p><strong>A week later, an audit question goes to Athena</strong></p>
+<ul>
+<li><strong>a) The question:</strong> "How many acme payment errors in June?" June left Elasticsearch long ago (7 days only)</li>
+<li><strong>b) Athena</strong> runs SQL straight on the S3 files with no server to manage; the table <code>logs</code> lives in the Glue Data Catalog, with <code>tenant</code>, <code>service</code>, <code>dt</code> and <code>hour</code> taken from the folder names</li>
+<li>
+<p><strong>c) The SQL:</strong></p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code>SELECT count(*) FROM logs
+WHERE tenant = 'acme' AND service = 'payment'
+  AND level = 'ERROR'
+  AND dt BETWEEN '2026-06-01' AND '2026-06-30';
+</code></pre></div>
+</li>
+<li>
+<p><strong>Data change:</strong> Athena saves the answer as a small CSV file in its results bucket</p>
+</li>
+<li><strong>Why not keep a year in Elasticsearch:</strong> ≈1 TB a day on fast, indexed disks would cost many times more than Parquet in S3, and audits are rare and can wait a few seconds.</li>
+</ul>
+</li>
+<li>
+<p><strong>S3 hands Athena only the files it needs</strong></p>
+<ul>
+<li><strong>a) Folders:</strong> only <code>tenant=acme/service=payment/dt=2026-06-01</code> to <code>dt=2026-06-30</code> are listed (partition pruning)</li>
+<li><strong>b) Columns:</strong> Parquet stores data by column, so only <code>level</code> is read, not <code>msg</code> or the rest</li>
+<li><strong>c) Blocks:</strong> each block (row group) keeps the min and max of every column; blocks with no ERROR are skipped</li>
+<li><strong>d) Older than a year:</strong> those files are in Glacier and must be restored first (minutes to hours), so that is only for audits</li>
+<li><strong>Data change:</strong> none</li>
+<li><strong>Why:</strong> Athena charges per GB read. Good folders plus Parquet make the same question far cheaper and faster.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Recent logs are searched in Kibana on daily Elasticsearch indices; the correlationId from the gateway turns one error into the full request path. Anything older than 7 days is queried with Athena on hourly Parquet in S3, partitioned by tenant, service, date and hour, so a query reads only the folders and columns it needs."</p>
+<h3 id="flow-5-a-kafka-broker-dies-and-later-elasticsearch-is-down-for-6-hours-nothing-is-lost-fluent-bit-broker-3-kraft-controller-broker-1-flink-checkpoint-elasticsearch-catch-up">Flow 5. A Kafka broker dies, and later Elasticsearch is down for 6 hours: nothing is lost (Fluent Bit → Broker 3 → KRaft controller → Broker 1 → Flink checkpoint → Elasticsearch catch-up)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1, 3 ─────────────────────────────────────────────┐            ┌── STEP 1 ────────────────────────────────────────────────┐            ┌── STEP 2 ────────────────────────────────────────────────┐            ┌── STEP 2, 3, 4 ──────────────────────────────────────────┐            ┌── STEP 4, 5, 6 ──────────────────────────────────────────┐            ┌── STEP 5, 7 ─────────────────────────────────────────────┐
+│ Fluent Bit  (Node C, the Kafka producer)                 │            │ Kafka Broker 3  (old leader of P5)                       │            │ KRaft controller  (Kafka's own brain)                    │            │ Kafka Broker 1  (new leader of P5)                       │            │ Flink  (consumer group flink-log-processor)              │            │ Elasticsearch  (cluster down 6 hours)                    │
+├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤            ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Sends a batch to P5's leader, Broker 3           │ ────┬────&gt; │ STEP 1: Dies before it can answer                        │ ─────────&gt; │ STEP 2: Picks a new leader for P5                        │ ────┬────&gt; │ STEP 2: Takes over P5                                    │ ─────────&gt; │ STEP 4: Reads on from its own checkpoint                 │ ─────────&gt; │ STEP 5: Down after a bad upgrade                         │
+│   - acks=all: waits for the copies before 'OK'           │     │      │   - power loss in the middle of the request              │            │   - Broker 3 misses its heartbeats -&gt; fenced off         │     │      │   - holds every acked line: acks=all +                   │            │   - offsets live in Flink's checkpoint, not in the       │            │   - cluster red, writes refused                          │
+│   - e.g. producer id 77, sequence 512: the next payment  │     │      │   - e.g. last offset written 2000419                     │            │   - the new leader comes only from the in-sync list      │     │      │     min.insync.replicas=2                                │            │     broker                                               │            │   - e.g. 13 Nov 01:00 to 07:00                           │
+│          lines                                           │     │      └──────────────────────────────────────────────────────────┘            │     (ISR)                                                │     │      │   - e.g. high watermark 2000418                          │            │   - e.g. P5 from 2000300                                 │            │                                                          │
+│                                                          │     │                                                                              │   - e.g. ISR {B3, B1, B2} -&gt; leader B1, epoch + 1        │     │      │                                                          │            │                                                          │            │ STEP 7: Takes the backlog without duplicates             │
+│ STEP 3: Gets no answer, so sends again                   │     │                                                                              └──────────────────────────────────────────────────────────┘     │      │ STEP 3: Writes the retried batch once                    │            │ STEP 5: Can't write while Elasticsearch is down          │            │   - _id = logId: a line sent twice overwrites itself     │
+│   - the batch stays in memory + disk buffer until acked  │     │                                                                                                                                               │      │   - producer id 77, sequence 512 already there? just ack │            │   - the ES sink retries with back-off                    │            │   - e.g. the document count is right after the catch-up  │
+│   - asks for fresh metadata: P5's leader is now Broker 1 │     │                                                                                                                                               │      │     again                                                │            │   - checkpoints wait, so offsets stay put                │            └──────────────────────────────────────────────────────────┘
+│   - e.g. same producer id 77, sequence 512               │     │                                                                                                                                               │      │   - e.g. offset 2000419 stays the only copy              │            │   - Kafka lag grows; Kafka keeps 7 days                  │
+└──────────────────────────────────────────────────────────┘     │                                                                                                                                               │      │                                                          │            │   - e.g. 13 Nov 01:00 to 07:00                           │
+                                                                 │                                                                                                                                               │      │ STEP 4: Serves Flink from the same offsets               │            │                                                          │
+                                                                 │                                                                                                                                               │      │   - Flink reconnects and reads on                        │            │ STEP 6: Catches up when it is back                       │
+                                                                 │                                                                                                                                               │      └──────────────────────────────────────────────────────────┘            │   - restarts from the last good checkpoint and reads     │
+                                                                 │                                                                                                                                               │                                                                              │     again                                                │
+                                                                 │                                                                                                                                               │                                                                              │   - e.g. P5 from the 01:00 offset                        │
+                                                                 │                                                                                                                                               │                                                                              └──────────────────────────────────────────────────────────┘
+                                                                 │                                                                                                                                               │
+                                                                 │                                                                                                                                               │
+                                                                 │                                                                                                                                               │
+                                                                 │                                                                                                                                               │
+                                                                 │                                                                                                                                               │
+                                                                 │                                                                                                                                               │
+                                                                 └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ Kafka P5                                                  ▼ Fluent Bit                    ▼ Flink                                                                       ▼ Elasticsearch
+╔══════════════════════════════════════════════════════╗    ╔══════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════╗    ╔═══════════════════════════════════════╗
+║ partition P5 (KRaft metadata)                        ║    ║ producer batch           ║    ║ Flink checkpoint                                                       ║    ║ Elasticsearch document · _id = logId  ║
+╟──────────────────────────────────────────────────────╢    ╟──────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────╢    ╟───────────────────────────────────────╢
+║ P5 before: leader B3, ISR {B3, B1, B2}               ║    ║ {                        ║    ║ {                                                                      ║    ║ {                                     ║
+║   B3 last offset 2000419 (not on B2 yet)             ║    ║   &quot;producer_id&quot;: 77,     ║    ║   &quot;checkpoint_id&quot;: 4411,                                               ║    ║   &quot;_index&quot;: &quot;logs-2026.11.12&quot;,        ║
+║   high watermark 2000418                             ║    ║   &quot;sequence&quot;: 512,       ║    ║   &quot;taken_at&quot;: &quot;2026-11-13T00:59:30Z&quot;,                                  ║    ║   &quot;_id&quot;: &quot;01JCXA7Q&quot;,                  ║
+║ P5 after:  leader B1, ISR {B1, B2}, epoch + 1        ║    ║   &quot;topic&quot;: &quot;logs-raw&quot;,   ║    ║   &quot;offsets&quot;: {                                                         ║    ║   &quot;_source&quot;: {                        ║
+║   2000419 was never 'OK'ed, so Fluent Bit resends it ║    ║   &quot;partition&quot;: 5,        ║    ║     &quot;logs-raw/5&quot;: 2000300                                              ║    ║     &quot;tenantId&quot;: &quot;acme&quot;,               ║
+╚══════════════════════════════════════════════════════╝    ║   &quot;records&quot;: 400,        ║    ║   },                                                                   ║    ║     &quot;service&quot;: &quot;payment&quot;,             ║
+                                                            ║   &quot;compression&quot;: &quot;gzip&quot;, ║    ║   &quot;state&quot;: [&quot;dedup logIds (10 min TTL)&quot;, &quot;open 1-minute windows&quot;,      ║    ║     &quot;level&quot;: &quot;ERROR&quot;,                 ║
+                                                            ║   &quot;first_record&quot;: {      ║    ║       &quot;half-written Parquet files&quot;]                                    ║    ║     &quot;ts&quot;: &quot;2026-11-12T09:30:00.120Z&quot;, ║
+                                                            ║     &quot;logId&quot;: &quot;01JCXA7R&quot;, ║    ║ }                                                                      ║    ║     &quot;correlationId&quot;: &quot;c-103&quot;,         ║
+                                                            ║     &quot;offset&quot;: 2000419,   ║    ╚════════════════════════════════════════════════════════════════════════╝    ║     &quot;userId&quot;: &quot;user-3&quot;,               ║
+                                                            ║     &quot;msg&quot;: &quot;charge ok&quot;   ║                                                                                  ║     &quot;durationMs&quot;: 412,                ║
+                                                            ║   }                      ║                                                                                  ║     &quot;msg&quot;: &quot;card declined&quot;,           ║
+                                                            ║ }                        ║                                                                                  ║     &quot;card&quot;: &quot;****1111&quot;,               ║
+                                                            ╚══════════════════════════╝                                                                                  ║     &quot;pod&quot;: &quot;payment-7d9f&quot;,            ║
+                                                                                                                                                                          ║     &quot;region&quot;: &quot;ap-south-1&quot;            ║
+                                                                                                                                                                          ║   }                                   ║
+                                                                                                                                                                          ║ }                                     ║
+                                                                                                                                                                          ╚═══════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>Fluent Bit sends a batch to Broker 3, which dies</strong></p>
+<ul>
+<li><strong>a) Send:</strong> Fluent Bit on Node C sends the next payment batch to P5's leader, Broker 3, tagged producer id 77, sequence 512 (the idempotent producer numbers every batch)</li>
+<li><strong>b) Crash:</strong> Broker 3 appends it as offset 2000419, Broker 1 copies it, Broker 2 has not yet; then the power goes, before the OK</li>
+<li><strong>Data change:</strong> P5 offset 2000419 on Brokers 3 and 1, never confirmed</li>
+<li><strong>Why <code>acks=all</code>:</strong> with <code>acks=1</code> Broker 3 would have said OK right after writing, and the lines would have died with it.</li>
+</ul>
+</li>
+<li>
+<p><strong>The KRaft controller picks a new leader for P5</strong></p>
+<ul>
+<li><strong>a) Who decides:</strong> KRaft is Kafka's built-in controller group (it replaced ZooKeeper); it stores which broker leads each partition</li>
+<li><strong>b) Detect:</strong> Broker 3 misses its heartbeats and is fenced off</li>
+<li><strong>c) Choose:</strong> the new leader comes only from the ISR (in-sync replicas: the copies that are caught up); unclean leader election is off</li>
+<li><strong>Data change:</strong> KRaft metadata for P5: leader Broker 1, ISR {B1, B2}, leader epoch + 1</li>
+<li><strong>Why only from the ISR:</strong> a copy that is behind would be missing confirmed lines. Better a few seconds of "unavailable" than silently losing logs.</li>
+</ul>
+</li>
+<li>
+<p><strong>Fluent Bit sends again; Broker 1 keeps one copy</strong></p>
+<ul>
+<li><strong>a) Retry:</strong> no OK came, so the batch is still in the disk buffer; Fluent Bit asks for fresh metadata and sends it to Broker 1</li>
+<li><strong>b) No double:</strong> Broker 1 already has producer 77, sequence 512 (it copied it from Broker 3), so it doesn't write it again; it just says OK</li>
+<li><strong>c) Still safe:</strong> the ISR is now {B1, B2}: 2 copies, which meets <code>min.insync.replicas=2</code>; if Broker 2 also died, writes would get <code>NotEnoughReplicas</code> and Fluent Bit would keep buffering on disk</li>
+<li><strong>Data change:</strong> nothing new on P5 (2000419 is there once); the high watermark moves to 2000419 when Broker 2 copies it</li>
+<li><strong>Why:</strong> retries are how we survive failures; sequence numbers make a retry harmless.</li>
+</ul>
+</li>
+<li>
+<p><strong>Flink reads on</strong></p>
+<ul>
+<li>Flink's Kafka reader learns the new leader and goes on from its own offsets</li>
+<li>it could only ever read up to the high watermark (the last offset that every in-sync copy has), so it never saw a line that could vanish</li>
+<li><strong>Data change:</strong> none</li>
+<li><strong>Why offsets live in Flink's checkpoint:</strong> Flink restores its state and its offsets together, so counts and stores agree after a crash.</li>
+</ul>
+</li>
+<li>
+<p><strong>The next night, Elasticsearch is down for 6 hours</strong></p>
+<ul>
+<li><strong>a) Outage:</strong> a bad upgrade at 01:00 on 13 Nov; writes are refused until 07:00</li>
+<li><strong>b) Flink waits:</strong> the Elasticsearch sink retries with back-off; checkpoints can't finish because the sink can't flush, so the saved offsets stay at ≈01:00</li>
+<li><strong>c) Back pressure:</strong> the whole job slows down, so TimescaleDB and S3 wait too; Kafka keeps the lines (7 days)</li>
+<li><strong>Data change:</strong> consumer lag for <code>flink-log-processor</code> grows to ≈6 hours; services and Fluent Bit see no change</li>
+<li><strong>Why services don't notice:</strong> they only print to stdout, and Kafka sits between them and every store.</li>
+<li><strong>Bigger setups:</strong> run the Elasticsearch writer as its own consumer group, so TimescaleDB and S3 keep going during an Elasticsearch outage.</li>
+</ul>
+</li>
+<li>
+<p><strong>Elasticsearch is back; Flink catches up</strong></p>
+<ul>
+<li><strong>a) Catch up:</strong> Flink restarts from the last good checkpoint (offsets of ≈01:00) and reads the 6 hours again at full speed</li>
+<li><strong>b) If Elasticsearch lost data instead</strong> (restored from an old snapshot): a one-off job starts from a time; Kafka's <code>.timeindex</code> file turns "01:00" into an offset</li>
+<li><strong>Data change:</strong> Flink checkpoint offsets move forward again</li>
+<li><strong>Why rewinding is safe:</strong> see the next step.</li>
+</ul>
+</li>
+<li>
+<p><strong>Elasticsearch takes the backlog without duplicates</strong></p>
+<ul>
+<li>lines that were already sent before the outage are sent again; <code>_id = logId</code> makes them overwrite themselves</li>
+<li><strong>Data change:</strong> documents for 01:00 to 07:00 added; the count equals the number of lines, no doubles</li>
+<li><strong>Why:</strong> at-least-once delivery plus idempotent writes gives the same result as exactly-once.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Kafka runs with RF=3, acks=all, min.insync.replicas=2 and unclean leader election off, so a broker loss only moves leadership inside the ISR; the idempotent producer turns retries into no-ops. Flink keeps offsets in its checkpoints, so when Elasticsearch is down it simply lags and later replays from Kafka, and <code>_id = logId</code> keeps the re-index free of duplicates."</p>
+<h2 id="key-design-choices">Key design choices</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Choice</th>
+<th>Why vs alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Getting logs out of services</td>
+<td>JSON to stdout; a Fluent Bit DaemonSet (one agent per machine) ships it</td>
+<td>Services writing to Kafka themselves tie every service to Kafka (libraries, retries, outages slowing the app); a sidecar per pod means thousands of agents.</td>
+</tr>
+<tr>
+<td>Request tracing</td>
+<td>correlationId made at the API Gateway, passed in <code>X-Correlation-Id</code> on every hop, plus tenantId</td>
+<td>Each service making its own id can't be joined; without tenantId there are no per-tenant quotas or search filters.</td>
+</tr>
+<tr>
+<td>Buffer between agents and stores</td>
+<td>Kafka, key <code>tenantId:service</code>, 3 copies, 7 days</td>
+<td>Agents writing straight to Elasticsearch drop lines on a spike or an outage and give no replay; a key like <code>service#timestamp</code> scatters one service's lines and loses their order.</td>
+</tr>
+<tr>
+<td>No line lost</td>
+<td>Disk buffer + <code>acks=all</code> + <code>min.insync.replicas=2</code> + unclean leader election off</td>
+<td><code>acks=1</code> loses a confirmed line when the leader dies before copying it.</td>
+</tr>
+<tr>
+<td>No duplicates</td>
+<td>Idempotent producer + Flink dedup by logId + Elasticsearch <code>_id = logId</code></td>
+<td>End-to-end exactly-once transactions are slow and complex; at-least-once plus idempotent writes gives the same result.</td>
+</tr>
+<tr>
+<td>Processing</td>
+<td>One Flink job: check, mask, enrich, dedup, then three sinks</td>
+<td>Cleaning in each store repeats the work, and PII could reach a store before it is masked.</td>
+</tr>
+<tr>
+<td>Bad lines</td>
+<td>DLQ topic <code>logs-dlq</code> + alert on DLQ rate + replay job</td>
+<td>Dropping loses data silently; crashing stops the logs of every tenant for one bad line.</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>Elasticsearch, daily indices, ILM (Index Lifecycle Management) hot → warm → delete at 7 days, 30-50 GB shards</td>
+<td>One big index needs slow delete-by-query; a year on search servers costs far more than files.</td>
+</tr>
+<tr>
+<td>Metrics + alerts</td>
+<td>Flink 1-minute event-time counts → TimescaleDB → Grafana</td>
+<td>Counting raw lines in Elasticsearch every minute scans millions of documents per alert rule.</td>
+</tr>
+<tr>
+<td>Archive</td>
+<td>Hourly Parquet in S3 by tenant/service/date/hour, Athena, Glacier after a year</td>
+<td>JSON files are ≈10 times bigger and every query reads whole rows; daily files are slow to appear and big to scan.</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>PII masked in Flink before any store; TLS everywhere</td>
+<td>Hiding it only on the Kibana screen still leaves it on disks, in backups and in S3.</td>
+</tr>
+<tr>
+<td>Fair use</td>
+<td>Rate limit per tenant at the gateway, quota per tenant in Fluent Bit</td>
+<td>One noisy tenant would fill Kafka and Elasticsearch for everyone.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="deep-dive-with-kafka-internals">Deep Dive (with Kafka internals)</h2>
+<p>Only what the flows above did not cover in depth, with the same story: tenant acme, User 1 (order, <code>c-101</code>, success), User 2 (profile view, <code>c-102</code>, success), User 3 (order, <code>c-103</code>, card declined).</p>
+<hr />
+<h3 id="1-clients-api-gateway">1. Clients → API Gateway</h3>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>What happens per request</strong><ul>
+<li>The gateway authenticates the user, then attaches <code>correlationId</code> and <code>tenantId</code><ul>
+<li>e.g. User 3 → <code>POST /orders</code> → gateway adds <code>X-Correlation-Id: c-103</code>, <code>X-Tenant-Id: acme</code></li>
+</ul>
+</li>
+<li>The correlationId is returned in the response for support<ul>
+<li>e.g. User 3 sees "Payment failed, ref c-103"</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Per-tenant rate limiting (token bucket)</strong><ul>
+<li>Each tenant has a bucket; a request takes one token, and tokens refill at a fixed rate<ul>
+<li>e.g. acme: 1000 tokens/s, so Users 1, 2 and 3 together share 1000 rps</li>
+</ul>
+</li>
+<li>When the bucket is empty, the gateway rejects early, so no log flood reaches the backend<ul>
+<li>e.g. a bot from acme sends 5000 rps → 4000 get HTTP 429, and the order service stays healthy</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="2-microservices-order-user-payment">2. Microservices: order / user / payment</h3>
+<ul>
+<li><strong>Structured JSON on stdout</strong><ul>
+<li>Every service uses the same field contract<ul>
+<li>e.g. payment-service for User 3: <code>{"logId":"01JCXA7Q","tenantId":"acme","service":"payment","level":"ERROR","ts":"2026-11-12T09:30:00.120Z","correlationId":"c-103","msg":"card declined"}</code></li>
+</ul>
+</li>
+<li>Fixed fields mean no guessing from free text<ul>
+<li>e.g. Kibana filters on <code>level</code> and <code>service</code> directly</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>A unique logId on every line</strong><ul>
+<li>A ULID (unique and sorted by time), made once when the line is printed<ul>
+<li>e.g. <code>01JCXA7Q</code></li>
+</ul>
+</li>
+<li>A line sent twice keeps the same logId, which is what makes dedup and <code>_id = logId</code> work<ul>
+<li>e.g. a Fluent Bit retry never creates a new id</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>No log files inside the container</strong><ul>
+<li>Kubernetes writes stdout to a file on the node<ul>
+<li>e.g. <code>/var/log/containers/payment-7d9f_prod_payment-abc.log</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Correlation ID propagation</strong><ul>
+<li>A shared HTTP client middleware copies <code>X-Correlation-Id</code> into every outgoing call<ul>
+<li>e.g. order → user (verify User 3) → payment (charge card) all carry c-103</li>
+</ul>
+</li>
+<li>So one correlationId gives logs from all three services<ul>
+<li>e.g. Kibana <code>correlationId:"c-103"</code> → 3 services, 7 log lines, in time order</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="3-fluent-bit-daemonset">3. Fluent Bit (DaemonSet)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text"> Node A                         Node B                         Node C
+┌──────────────────────┐       ┌──────────────────────┐       ┌──────────────────────┐
+│ order-service pod    │       │ user-service pod     │       │ payment-service pod  │
+│   └─ stdout → file   │       │   └─ stdout → file   │       │   └─ stdout → file   │
+│ Fluent Bit           │       │ Fluent Bit           │       │ Fluent Bit           │
+│ tail → filter → out  │       │ tail → filter → out  │       │ tail → filter → out  │
+└──────────┬───────────┘       └──────────┬───────────┘       └──────────┬───────────┘
+           └──────────────────────────────┼──────────────────────────────┘
+                                          v
+                                   Kafka  logs-raw
+</code></pre></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Pipeline inside the agent</strong><ul>
+<li><code>tail</code> input → <code>kubernetes</code> filter (adds pod and namespace) → filter that builds the key → <code>kafka</code> output<ul>
+<li>e.g. a small Lua filter sets <code>kafka_key = tenantId .. ":" .. service</code> → <code>acme:payment</code></li>
+</ul>
+</li>
+<li>Filesystem buffering survives Kafka outages<ul>
+<li>e.g. <code>storage.path /var/log/flb-storage/</code>, input <code>storage.type filesystem</code>, output <code>storage.total_limit_size 5G</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Kafka output settings (Fluent Bit uses librdkafka)</strong><ul>
+<li>Key and reliability<ul>
+<li>e.g. <code>message_key_field kafka_key</code>, <code>rdkafka.request.required.acks -1</code> (= all), <code>rdkafka.enable.idempotence true</code></li>
+</ul>
+</li>
+<li>Throughput<ul>
+<li>e.g. <code>rdkafka.compression.codec gzip</code>, <code>rdkafka.linger.ms 50</code>, <code>rdkafka.batch.size 1000000</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Why a DaemonSet, not a sidecar</strong><ul>
+<li>One agent per machine reads every container's log file on that machine<ul>
+<li>e.g. 50 nodes = 50 agents, not 2,000 sidecars (one per pod)</li>
+</ul>
+</li>
+<li>A sidecar would add memory and CPU to every pod and one more thing to update in every deploy</li>
+</ul>
+</li>
+<li><strong>Gotcha: the partitioner</strong><ul>
+<li>librdkafka's default partitioner is <code>consistent_random</code> (CRC32). The Java client uses murmur2<ul>
+<li>e.g. the same key <code>acme:payment</code> can land on a <strong>different partition</strong> from Java producers</li>
+</ul>
+</li>
+<li>Fix: use the same hashing everywhere<ul>
+<li>e.g. <code>rdkafka.partitioner murmur2_random</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Sampling and quota</strong><ul>
+<li>Drop most DEBUG logs at the edge<ul>
+<li>e.g. user-service DEBUG "cache hit" → keep 10%</li>
+</ul>
+</li>
+<li>Cap per-tenant volume<ul>
+<li>e.g. acme over 5 GB/day → drop INFO, but payment ERROR for User 3 is always kept</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="4-kafka-internals-core-deep-dive">4. Kafka internals (core deep dive)</h3>
+<h4 id="41-cluster-layout">4.1 Cluster layout</h4>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">                 ┌────────────────────────── KRaft controller quorum ──────────────────────────┐
+                 │  stores metadata: topics, partitions, leaders, ISR (no ZooKeeper in 4.x)    │
+                 └─────────────────────────────────────────────────────────────────────────────┘
+   Broker 1                          Broker 2                          Broker 3
+┌───────────────────────┐         ┌───────────────────────┐         ┌───────────────────────┐
+│ P0 (L)  P1 (F)  P2 (F)│         │ P0 (F)  P1 (L)  P2 (F)│         │ P0 (F)  P1 (F)  P2 (L)│
+│ P3 (L)  P4 (F)  P5 (F)│         │ P3 (F)  P4 (L)  P5 (F)│         │ P3 (F)  P4 (F)  P5 (L)│
+└───────────────────────┘         └───────────────────────┘         └───────────────────────┘
+ Topic logs-raw: 6 partitions, RF=3   (L = leader, F = follower)
+</code></pre></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Topic → partitions → replicas</strong><ul>
+<li>A topic is split into partitions; each partition is an ordered, append-only log<ul>
+<li>e.g. <code>logs-raw</code> has P0..P5</li>
+</ul>
+</li>
+<li>Each partition has 3 copies (RF=3) on different brokers; one is the leader<ul>
+<li>e.g. P5 leader on Broker 3, followers on Brokers 1 and 2</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Leaders are spread across brokers</strong><ul>
+<li>Producers and consumers talk <strong>only to the leader</strong> of a partition<ul>
+<li>e.g. all writes for P5 go to Broker 3</li>
+</ul>
+</li>
+<li>Spreading leaders spreads the load<ul>
+<li>e.g. each broker leads 2 of the 6 partitions</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h4 id="42-producer-path-from-log-line-to-partition">4.2 Producer path: from log line to partition</h4>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">log record ──&gt; serialize ──&gt; partitioner ──────────────&gt; per-partition batch ──&gt; compress ──&gt; leader broker
+               (JSON bytes)   hash(key) % 6               (batch.size / linger.ms)  (gzip)      (ProduceRequest)
+</code></pre></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Partitioner picks the partition from the key</strong><ul>
+<li><code>partition = hash(key) % numPartitions</code><ul>
+<li>e.g. <code>acme:order → P1</code>, <code>acme:user → P3</code>, <code>acme:payment → P5</code> (illustrative hash results)</li>
+</ul>
+</li>
+<li>Same key → always the same partition → logs stay <strong>in order</strong><ul>
+<li>e.g. payment logs for Users 1 and 3 are in P5 in the exact order they were produced</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Batching</strong><ul>
+<li>The producer collects records per partition until <code>batch.size</code> is full or <code>linger.ms</code> expires<ul>
+<li>e.g. 400 payment logs in 50 ms → 1 batch to P5 instead of 400 requests</li>
+</ul>
+</li>
+<li>Compression is applied per batch (better ratio than per record)<ul>
+<li>e.g. a 1 MB batch of similar JSON → ≈150 KB gzip</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<p>Ordering is <strong>per partition only</strong>, not across the topic. order-service (P1) and payment-service (P5) lines aren't in one global order. Use <code>ts</code> + correlationId to rebuild the request.</p>
+<h4 id="43-inside-one-partition-offsets-and-segments">4.3 Inside one partition: offsets and segments</h4>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">Partition P5 (acme:payment) on Broker 3 disk:   /kafka-logs/logs-raw-5/
+
+  00000000000000000000.log   offsets 0 .. 999,999        (closed segment)
+  00000000000001000000.log   offsets 1,000,000 .. 1,999,999  (closed)
+  00000000000002000000.log   offsets 2,000,000 .. now   ← active segment (appends here)
+  + .index (offset → file position)   + .timeindex (timestamp → offset)
+
+  ... | 2000417: User 1 &quot;charge ok&quot; | 2000418: User 3 &quot;card declined&quot; | 2000419: ... ← append
+</code></pre></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Offset = position in the partition</strong><ul>
+<li>Each record gets the next offset; it never changes<ul>
+<li>e.g. User 3's "card declined" = P5 offset 2000418</li>
+</ul>
+</li>
+<li>Consumers track "what I've read" as an offset per partition<ul>
+<li>e.g. Flink has read P5 up to 2000418</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Segments and indexes</strong><ul>
+<li>The log is split into segment files (default ≈1 GB); only the active one is written<ul>
+<li>e.g. new payment logs append to <code>...2000000.log</code></li>
+</ul>
+</li>
+<li><code>.index</code> and <code>.timeindex</code> give fast lookups<ul>
+<li>e.g. "replay from 09:00" → timeindex → offset 1,950,200 → seek directly</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Retention = delete whole old segments</strong><ul>
+<li><code>retention.ms = 604800000</code> (7 days); a closed segment is deleted when its newest record is older than that<ul>
+<li>e.g. Monday's segment is removed next Monday, which is cheap (a file delete, not a row delete)</li>
+</ul>
+</li>
+<li>Reads are fast because of sequential I/O + page cache + zero-copy (<code>sendfile</code>)<ul>
+<li>e.g. Flink reading P5 mostly hits the OS page cache, not the disk</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h4 id="44-replication-isr-and-the-high-watermark">4.4 Replication, ISR and the high watermark</h4>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">P5 replicas            LEO (last written)       Leader view
+Broker 3 (Leader)      2000419                  ISR = {B3, B1, B2}
+Broker 1 (Follower)    2000419                  HW  = min LEO of ISR = 2000418
+Broker 2 (Follower)    2000418    ← 1 behind
+                                                 Consumers can read only up to HW
+</code></pre></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Followers pull from the leader</strong><ul>
+<li>Followers send fetch requests to the leader and copy the records<ul>
+<li>e.g. B1 and B2 continuously fetch P5 from B3</li>
+</ul>
+</li>
+<li><strong>ISR</strong> (in-sync replicas) = replicas that are caught up within <code>replica.lag.time.max.ms</code> (default 30 s)<ul>
+<li>e.g. if B2 stalls for 40 s → removed from the ISR → ISR = {B3, B1}</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>High watermark (HW)</strong><ul>
+<li>The HW is the highest offset copied to <strong>all</strong> ISR replicas; only records below it are visible to consumers<ul>
+<li>e.g. offset 2000419 isn't yet on B2 → Flink can't read it yet</li>
+</ul>
+</li>
+<li>This prevents consumers from seeing data that could vanish if the leader dies<ul>
+<li>e.g. B3 crashes before replicating 2000419 → nobody ever saw it, so nothing is inconsistent</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h4 id="45-acksall-mininsyncreplicas2">4.5 acks=all + min.insync.replicas=2</h4>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Situation (P5, RF=3, min.insync=2)</th>
+<th>ISR size</th>
+<th>Producer result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All brokers healthy</td>
+<td>3</td>
+<td>✅ ack after B3, B1, B2 have it</td>
+</tr>
+<tr>
+<td>B2 down</td>
+<td>2</td>
+<td>✅ ack after B3 and B1 have it</td>
+</tr>
+<tr>
+<td>B1 and B2 down</td>
+<td>1</td>
+<td>❌ <code>NotEnoughReplicas</code> → Fluent Bit retries / buffers to disk</td>
+</tr>
+</tbody>
+</table></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>acks options</strong><ul>
+<li><code>acks=0</code> fire-and-forget, <code>acks=1</code> leader only, <code>acks=all</code> all ISR replicas<ul>
+<li>e.g. with <code>acks=1</code>: B3 acks User 3's error, then dies before replicating → <strong>log lost</strong></li>
+</ul>
+</li>
+<li><code>acks=all</code> + <code>min.insync.replicas=2</code> → every acked record is on at least 2 brokers<ul>
+<li>e.g. B3 dies after ack → B1 still has User 3's error → no loss</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Unclean leader election = off</strong><ul>
+<li>Only an ISR replica can become leader<ul>
+<li>e.g. a lagging replica missing offsets 2000400+ can't be leader</li>
+</ul>
+</li>
+<li>Trade-off: availability vs. losing data<ul>
+<li>e.g. if no ISR replica is alive, P5 is unavailable rather than silently losing logs</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h4 id="46-idempotent-producer-no-duplicates-from-retries">4.6 Idempotent producer (no duplicates from retries)</h4>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>The problem</strong><ul>
+<li>The producer sends a batch, the leader writes it, but the ack is lost on the network<ul>
+<li>e.g. Fluent Bit on Node C retries the batch with User 3's error</li>
+</ul>
+</li>
+<li>Without protection, the log is written twice<ul>
+<li>e.g. P5 offsets 2000418 and 2000420 hold the same log</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>The fix: Producer ID + sequence number</strong><ul>
+<li>Each producer gets a PID; each batch per partition gets an increasing sequence number<ul>
+<li>e.g. PID 77, seq 512 → the broker has already seen it → drops the duplicate, acks again</li>
+</ul>
+</li>
+<li>Enabled with <code>enable.idempotence=true</code> (default in the modern Java client)<ul>
+<li>e.g. it covers retries within one producer session; it does <strong>not</strong> dedupe across restarts → that's why Flink also dedups by logId</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h4 id="47-consumer-groups-and-offsets-flink-side">4.7 Consumer groups and offsets (Flink side)</h4>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">Consumer group: flink-log-processor           Partitions assigned
+┌─────────────────────────┐
+│ Flink source subtask 0  │ ◄── P0, P1  (acme:order ...)
+│ Flink source subtask 1  │ ◄── P2, P3  (acme:user ...)
+│ Flink source subtask 2  │ ◄── P4, P5  (acme:payment ...)
+└─────────────────────────┘
+</code></pre></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>One partition → one consumer in a group</strong><ul>
+<li>Partitions are split across the group's members; that's how consumption scales<ul>
+<li>e.g. 6 partitions, 3 subtasks → 2 partitions each</li>
+</ul>
+</li>
+<li>More consumers than partitions → the extra ones sit idle<ul>
+<li>e.g. 8 subtasks for 6 partitions → 2 idle; <strong>partition count = max parallelism</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Offsets and replay</strong><ul>
+<li>Plain consumers commit offsets to the internal topic <code>__consumer_offsets</code><ul>
+<li>e.g. group <code>flink-log-processor</code>, P5 → 2000418</li>
+</ul>
+</li>
+<li>Flink stores offsets <strong>in its checkpoint</strong> (committing back to Kafka is only for monitoring)<ul>
+<li>e.g. after a crash, Flink restores P5 = 2000300 from the checkpoint and re-reads 118 records</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Multiple independent consumers</strong><ul>
+<li>Each consumer group reads the full topic with its own offsets<ul>
+<li>e.g. <code>flink-log-processor</code> and an <code>audit-archiver</code> both read P5 without affecting each other</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Rebalance</strong><ul>
+<li>Group membership changes → partitions are reassigned<ul>
+<li>e.g. subtask 2 dies → P4, P5 move to the others (Flink handles this through its own restart)</li>
+</ul>
+</li>
+<li>Lag = latest offset − committed offset<ul>
+<li>e.g. P5 lag 50,000 → payment logs reach Kibana minutes late → alert</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h4 id="48-failure-scenarios-walk-through-these-in-the-interview">4.8 Failure scenarios (walk through these in the interview)</h4>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Broker 3 (leader of P5) crashes</strong><ul>
+<li>The controller picks a new leader from the ISR<ul>
+<li>e.g. B1 becomes P5 leader in seconds</li>
+</ul>
+</li>
+<li>Producers and consumers refresh metadata and continue<ul>
+<li>e.g. Fluent Bit on Node C retries → writes to B1, with no loss (acks=all)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Elasticsearch is down for 6 hours</strong><ul>
+<li>Kafka still holds 7 days of data<ul>
+<li>e.g. all payment logs for Users 1–3 are still in P5</li>
+</ul>
+</li>
+<li>Rewind and replay<ul>
+<li>e.g. restart the ES sink from a savepoint / offset by time (09:00) → re-index; <code>_id=logId</code> → no duplicates</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Hot partition</strong><ul>
+<li>One key gets far more traffic than the others<ul>
+<li>e.g. a sale → <code>acme:payment</code> gets 50x traffic → P5 overloaded, P1/P3 idle</li>
+</ul>
+</li>
+<li>Fix: salt the key<ul>
+<li>e.g. <code>acme:payment:0..3</code> spreads over 4 partitions; you keep order per salt bucket, not for all payment logs</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h4 id="49-sizing-quick-math">4.9 Sizing quick math</h4>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Partitions</strong><ul>
+<li>Need ≥ (target throughput / per-partition throughput)<ul>
+<li>e.g. 300 MB/s ÷ ≈10 MB/s per partition ≈ 30 partitions → choose 48 for headroom</li>
+</ul>
+</li>
+<li>Hard to reduce later; adding partitions changes key → partition mapping<ul>
+<li>e.g. going 6 → 12 moves <code>acme:payment</code> to a new partition (ordering breaks at that moment)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Storage</strong><ul>
+<li>Daily volume × retention × RF<ul>
+<li>e.g. 1 TB/day × 7 days × 3 = 21 TB raw (≈ 4–5 TB with gzip)</li>
+</ul>
+</li>
+<li>Keep disk &lt; ≈70% full<ul>
+<li>e.g. 21 TB → provision ≈30 TB</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="5-flink-stream-processing">5. Flink (stream processing)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">KafkaSource ─&gt; parse/validate ─┬─&gt; (invalid) ────────────────────────────&gt; DLQ topic
+                               └─&gt; mask PII ─&gt; enrich ─&gt; keyBy(logId) dedup ─┬─&gt; ES sink
+                                                                             ├─&gt; keyBy(service) 1-min window ─&gt; TimescaleDB
+                                                                             └─&gt; hourly Parquet ─&gt; S3
+</code></pre></div>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Parse, validate, mask</strong><ul>
+<li>Each record is checked against the schema<ul>
+<li>e.g. user-service sends <code>"ts": "yesterday"</code> → DLQ with reason <code>bad_ts</code></li>
+</ul>
+</li>
+<li>PII is masked before anything is stored<ul>
+<li>e.g. User 3's <code>card=4111111111111111</code> → <code>card=****1111</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Dedup with keyed state</strong><ul>
+<li><code>keyBy(logId)</code> → each logId has its own small state entry with a TTL<ul>
+<li>e.g. <code>01JCXA7Q</code> seen at 09:30:00 → a second copy at 09:30:02 is dropped</li>
+</ul>
+</li>
+<li>The TTL keeps state bounded<ul>
+<li>e.g. 10 min TTL → only the last 10 min of logIds in RocksDB</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Event time and windows</strong><ul>
+<li>Watermarks handle late logs (event time = <code>ts</code>, not arrival time)<ul>
+<li>e.g. bounded out-of-orderness 30 s → a payment log for 09:30:50 that arrives at 09:31:10 still counts in the 09:30 window</li>
+</ul>
+</li>
+<li>Tumbling 1-min window per service<ul>
+<li>e.g. <code>payment 09:30 → total=1200, errors=78 (User 3 included), p99=870ms</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Checkpoints = consistency</strong><ul>
+<li>Barriers flow through the job; state + Kafka offsets are snapshotted together<ul>
+<li>e.g. every 30 s → <code>{P5: 2000300, dedup-state, window-state}</code></li>
+</ul>
+</li>
+<li>On failure: restore the snapshot and re-read from those offsets<ul>
+<li>e.g. some records are re-sent to ES, but <code>_id=logId</code> makes it effectively exactly-once</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="6-dlq-dead-letter-queue">6. DLQ (Dead Letter Queue)</h3>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Why a Kafka topic for bad logs</strong><ul>
+<li>The main job keeps running; bad data is kept, not dropped<ul>
+<li>e.g. <code>logs-dlq</code> record: <code>{raw: "...", error: "bad_ts", service: "user"}</code></li>
+</ul>
+</li>
+<li>Same 7-day retention, so you have time to fix<ul>
+<li>e.g. found on Friday, fixed on Monday, still replayable</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Monitor + replay</strong><ul>
+<li>Alert on the DLQ rate per service<ul>
+<li>e.g. user-service DLQ jumps to 20% after a deploy → roll back</li>
+</ul>
+</li>
+<li>After fixing the parser, replay into <code>logs-raw</code><ul>
+<li>e.g. a small job reads <code>logs-dlq</code> → re-publishes → normal flow</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="7-elasticsearch-kibana">7. Elasticsearch + Kibana</h3>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Write path</strong><ul>
+<li>Document → shard via <code>hash(_routing) % primary_shards</code> (<code>_routing</code> defaults to <code>_id</code> = logId)<ul>
+<li>e.g. User 3's error <code>01JCXA7Q</code> → shard 2 of <code>logs-2026.11.12</code></li>
+</ul>
+</li>
+<li>Primary writes to the translog + memory buffer, then replicates to replica shards<ul>
+<li>e.g. the ack comes back only after the replicas confirm</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Near real-time search</strong><ul>
+<li>A refresh (default every 1 s) turns the buffer into a searchable segment<ul>
+<li>e.g. User 3's error is searchable ≈1 s after indexing</li>
+</ul>
+</li>
+<li>Background merges combine small segments<ul>
+<li>e.g. warm phase → force-merge to 1 segment per shard (faster reads)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Idempotency with <code>_id = logId</code></strong><ul>
+<li>Re-indexing the same logId overwrites the document instead of adding one<ul>
+<li>e.g. Flink replay after a crash → the doc count stays the same</li>
+</ul>
+</li>
+<li>That's why Kafka replay + Flink retry are safe<ul>
+<li>e.g. 6-hour ES outage replay → no duplicates</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Daily indices + ILM (Index Lifecycle Management: automatic rules that move old data to cheaper disks, then delete it)</strong><ul>
+<li>Hot (SSD, writes) → warm (HDD, read-only) → delete at 7 days<ul>
+<li>e.g. <code>logs-2026.11.05</code> is dropped on 11-12 in one cheap operation</li>
+</ul>
+</li>
+<li>Shards of 30–50 GB: too small = overhead per shard, too big = slow to move and recover after a node dies<ul>
+<li>e.g. 1 TB/day → 25 primaries × 40 GB</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Kibana queries</strong><ul>
+<li>Per correlationId<ul>
+<li>e.g. <code>correlationId:"c-103"</code> → order → user → payment "card declined"</li>
+</ul>
+</li>
+<li>Per service and level<ul>
+<li>e.g. <code>service:payment AND level:ERROR AND tenantId:acme</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="8-timescaledb-grafana">8. TimescaleDB + Grafana</h3>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Hypertable</strong><ul>
+<li>A normal SQL table that is automatically split into time chunks<ul>
+<li>e.g. <code>service_metrics(ts, tenant, service, total, errors, p99_ms, dlq)</code> chunked by 1 day</li>
+</ul>
+</li>
+<li>Old chunks drop fast (like ES indices)<ul>
+<li>e.g. <code>drop_chunks</code> older than 90 days</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Queries and alerts</strong><ul>
+<li>SQL for dashboards<ul>
+<li>e.g. <code>SELECT ts, errors::float/total FROM service_metrics WHERE service='payment' AND ts &gt; now()-interval '1 hour';</code></li>
+</ul>
+</li>
+<li>Grafana alert rule<ul>
+<li>e.g. payment error rate &gt; 5% for 5 min → page on-call (User 3's failures contribute)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Why not Elasticsearch for metrics</strong><ul>
+<li>Aggregating raw logs again and again is expensive<ul>
+<li>e.g. scanning 10M payment logs vs. reading 60 rows/hour</li>
+</ul>
+</li>
+<li>Flink pre-aggregates once<ul>
+<li>e.g. 1 row per service per minute = 1,440 rows a day per service</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="9-s3-parquet-athena-glacier">9. S3 + Parquet + Athena (+ Glacier)</h3>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Layout</strong><ul>
+<li>Hive-style partitions in the path<ul>
+<li>e.g. <code>s3://logs/tenant=acme/service=payment/dt=2026-11-12/hour=09/part-0001.parquet</code></li>
+</ul>
+</li>
+<li>Hourly files (not too small, not too big)<ul>
+<li>e.g. 128 MB–1 GB per file is the sweet spot</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Parquet internals</strong><ul>
+<li>Columnar: row groups → column chunks with min/max stats<ul>
+<li>e.g. a query on <code>level='ERROR'</code> reads only the <code>level</code> and <code>msg</code> columns</li>
+</ul>
+</li>
+<li>Predicate pushdown skips row groups whose stats don't match<ul>
+<li>e.g. a row group with <code>ts</code> max 08:59 is skipped for a 09:30 query</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Athena</strong><ul>
+<li>Serverless SQL; you pay per data scanned<ul>
+<li>e.g. <code>WHERE tenant='acme' AND dt='2026-11-12'</code> scans 1 day, not 1 year</li>
+</ul>
+</li>
+<li>Typical query<ul>
+<li>e.g. <code>SELECT service, count(*) FROM logs WHERE tenant='acme' AND level='ERROR' AND dt BETWEEN '2026-06-01' AND '2026-06-30' GROUP BY service;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Glacier</strong><ul>
+<li>An S3 lifecycle rule moves files after 365 days<ul>
+<li>e.g. <code>transition: GLACIER after 365d</code></li>
+</ul>
+</li>
+<li>Restore takes minutes to hours, so it's only for audits<ul>
+<li>e.g. a regulator asks for acme's payment logs from 2025</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<hr />
+<h3 id="10-end-to-end-walk-through-user-3s-failed-payment">10. End-to-end walk-through: User 3's failed payment</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">09:30:00.000  User 3 → POST /orders                        Gateway: correlationId c-103, tenant acme
+09:30:00.050  order-service   INFO  &quot;order created&quot;         → stdout → Fluent Bit (Node A) → P1
+09:30:00.080  user-service    INFO  &quot;user 3 verified&quot;       → stdout → Fluent Bit (Node B) → P3
+09:30:00.120  payment-service ERROR &quot;card declined&quot;         → stdout → Fluent Bit (Node C) → P5 offset 2000418
+09:30:00.170  Kafka: B3 leader writes, B1 + B2 replicate → HW advances → ack to Fluent Bit
+09:30:00.300  Flink: read P5 → validate → mask card → dedup → ES + 09:30 window + Parquet buffer
+09:30:01.300  ES refresh → &quot;card declined&quot; searchable in Kibana
+09:31:30      Window closes → payment errors=78 → TimescaleDB
+09:35:00      Error rate &gt; 5% for 5 min → Grafana alert → on-call
+09:36:00      On-call: Kibana correlationId:&quot;c-103&quot; → order → user → payment &quot;card declined&quot;
+10:00:00      Hourly Parquet for 09:00 written to S3 → queryable in Athena for a year
+</code></pre></div>
+<hr />
+<h3 id="11-rapid-fire-interview-qa">11. Rapid-fire interview Q&amp;A</h3>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Why Kafka between agents and ES?</strong><ul>
+<li>It absorbs spikes and decouples producers from consumers<ul>
+<li>e.g. a sale spike → Kafka buffers it while ES indexes at its own pace</li>
+</ul>
+</li>
+<li>It gives 7-day replay<ul>
+<li>e.g. ES outage → no data loss</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>How do you guarantee no loss?</strong><ul>
+<li>Fluent Bit disk buffer + <code>acks=all</code> + <code>min.insync.replicas=2</code> + RF=3<ul>
+<li>e.g. any single broker or node can fail</li>
+</ul>
+</li>
+<li>Flink checkpoints + Kafka offsets<ul>
+<li>e.g. a crash resumes from the last checkpoint</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>How do you avoid duplicates?</strong><ul>
+<li>Idempotent producer (retries within a session)<ul>
+<li>e.g. a lost ack → the broker drops the repeat</li>
+</ul>
+</li>
+<li>Flink dedup + ES <code>_id=logId</code> (everything else)<ul>
+<li>e.g. a replay overwrites the same doc</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Why key = tenantId:service?</strong><ul>
+<li>Ordering per tenant + service, and load is spread<ul>
+<li>e.g. acme payment logs are always in order</li>
+</ul>
+</li>
+<li>Watch for hot keys<ul>
+<li>e.g. salt <code>acme:payment:0..3</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table></article></main><button id="top" title="Back to top">↑</button>
+<script>
+const root=document.documentElement, nav=document.querySelector('nav'), shade=document.getElementById('shade');
+root.dataset.theme=localStorage.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+const toggleNav=o=>{nav.classList.toggle('open',o);shade.classList.toggle('open',o);};
+document.getElementById('menu').onclick=()=>toggleNav(true);
+shade.onclick=()=>toggleNav(false);
+nav.querySelectorAll('a').forEach(a=>a.onclick=()=>toggleNav(false));
+document.getElementById('theme').onclick=()=>{root.dataset.theme=localStorage.theme=root.dataset.theme==='dark'?'light':'dark';};
+let fs=+(localStorage.fs||16); const setFs=d=>{fs=Math.min(26,Math.max(11,fs+d));document.body.style.fontSize=fs+'px';localStorage.fs=fs;};
+setFs(0); document.getElementById('aminus').onclick=()=>setFs(-1); document.getElementById('aplus').onclick=()=>setFs(1);
+document.querySelectorAll('.pre-wrap').forEach(w=>{
+  const pre=w.querySelector('pre'); let s=12; const set=v=>{s=Math.min(24,Math.max(4,v));pre.style.setProperty('--pre-size',s+'px');};
+  w.querySelector('.zin').onclick=()=>set(s+1); w.querySelector('.zout').onclick=()=>set(s-1);
+  w.querySelector('.fit').onclick=()=>{set(12);const c=pre.querySelector('code');set(Math.floor(12*(pre.clientWidth-24)/c.scrollWidth));};
+  w.querySelector('.full').onclick=()=>{pre.style.maxHeight=pre.style.maxHeight?'':'none';};
+});
+const bar=document.getElementById('progress'), top=document.getElementById('top');
+addEventListener('scroll',()=>{const h=root.scrollHeight-innerHeight;bar.style.width=(h>0?scrollY/h*100:0)+'%';top.style.display=scrollY>600?'block':'none';},{passive:true});
+top.onclick=()=>scrollTo(0,0);
+</script></body></html>

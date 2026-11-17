@@ -1,13 +1,36 @@
-from langchain_community.document_loaders import WebBaseLoader
+import bs4
+import requests
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from src.Rag_With_Judge.constants import CHUNK_OVERLAP, CHUNK_SIZE, URLS
+from src.Rag_With_Judge.constants import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    HTTP_TIMEOUT,
+    URLS,
+    USER_AGENT,
+)
+
+
+def load_web_page(url: str) -> Document:
+    response = requests.get(
+        url, headers={"User-Agent": USER_AGENT}, timeout=HTTP_TIMEOUT
+    )
+    response.raise_for_status()
+    strainer = bs4.SoupStrainer(class_=CONTENT_CSS_CLASSES)
+    soup = bs4.BeautifulSoup(response.text, "html.parser", parse_only=strainer)
+    title = soup.find(class_="post-title")
+    return Document(
+        page_content=soup.get_text(),
+        metadata={
+            "source": url,
+            "title": title.get_text(strip=True) if title else url,
+        },
+    )
 
 
 def load_documents(urls: list[str]) -> list[Document]:
-    docs = [WebBaseLoader(url).load() for url in urls]
-    return [item for sublist in docs for item in sublist]
+    return [load_web_page(url) for url in urls]
 
 
 def split_documents(

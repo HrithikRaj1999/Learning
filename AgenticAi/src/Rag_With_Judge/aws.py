@@ -32,8 +32,5 @@ def embedding_client() -> BedrockEmbeddings:
 
 
 def llm_client() -> ChatBedrockConverse:
-    return ChatBedrockConverse(
-        model=LLM_MODEL,
-        client=_bedrock_client(),
-        temperature=0,
-    )
+
+    return ChatBedrockConverse(model=LLM_MODEL, client=_bedrock_client())

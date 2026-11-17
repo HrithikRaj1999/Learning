@@ -1,16 +1,11 @@
-from dotenv.main import load_dotenv
 from langchain_core.runnables import Runnable
-from langchain_groq import ChatGroq
 from pydantic import BaseModel
 
-load_dotenv()
+from src.Rag_With_Judge.aws import llm_client
 
-base_evaluater_llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+# the judge uses the same AWS credentials and Bedrock model as the RAG bot
+base_evaluater_llm = llm_client()
 
 
 def evaluater_for[SchemaT: BaseModel](schema: type[SchemaT]) -> Runnable:
-    return base_evaluater_llm.with_structured_output(
-        schema,
-        method="json_schema",
-        strict=True,
-    )
+    return base_evaluater_llm.with_structured_output(schema)
