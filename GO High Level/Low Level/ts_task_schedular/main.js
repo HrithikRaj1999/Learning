@@ -34,4 +34,11 @@ app.get("/main/all", (req, res) => {
   res.send(`main -> ${r1}, ${r2}, ${r3} (${Date.now() - t0}ms)\n`);
 });
 
-app.listen(3000, () => console.log("server on http://localhost:3000"));
+// Express 5 calls this callback on failure too (e.g. port already in use), so check err.
+app.listen(3000, (err) => {
+  if (err) {
+    console.error(`could not start: ${err.message}`);
+    process.exit(1);
+  }
+  console.log("server on http://localhost:3000");
+});

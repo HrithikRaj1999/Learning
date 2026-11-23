@@ -5,7 +5,7 @@ export class Scheduler {
     this.idle_worker_threads = [];
     this.task_queue = [];
     for (let i = 0; i < size; i++) {
-      // by default add size free worker in idle queue to pick the job
+      // by default add n size worker in idle queue to pick the job
       // to run parallely
       this.idle_worker_threads.push(this.creates_new_worker());
     }
@@ -36,6 +36,7 @@ export class Scheduler {
 
   finish(w, err, result) {
     const { resolve, reject } = w.task;
+    //reseting to null as work has been done
     w.task = null;
     if (err) {
       reject(err);
