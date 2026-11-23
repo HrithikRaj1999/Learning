@@ -1,21 +1,26 @@
-import db from '../db.js';
+import * as userService from "../services/users.js";
 
 export const follow = async (req, res) => {
-  const { rowCount } = await db.query(
-    'INSERT INTO follows (followerId, followeeId) VALUES ($1, $2) ON CONFLICT DO NOTHING', [req.user.sub, req.params.userId]);
-  if (rowCount) {
-    await db.query('UPDATE users SET followingCount = followingCount + 1 WHERE id = $1', [req.user.sub]);
-    await db.query('UPDATE users SET followerCount = followerCount + 1 WHERE id = $1', [req.params.userId]);
-  }
+  await userService.follow(req.userId, req.params.userId);
+  res.sendStatus(202); // request sent (or already sent / already following)
+};
+
+export const followRequests = async (req, res) => {
+  const page = await userService.followRequests(req.userId, req.page);
+  res.json(page);
+};
+
+export const acceptRequest = async (req, res) => {
+  await userService.acceptRequest(req.userId, req.params.followerId);
   res.sendStatus(200);
 };
 
+export const declineRequest = async (req, res) => {
+  await userService.declineRequest(req.userId, req.params.followerId);
+  res.sendStatus(204);
+};
+
 export const unfollow = async (req, res) => {
-  const { rowCount } = await db.query(
-    'DELETE FROM follows WHERE followerId = $1 AND followeeId = $2', [req.user.sub, req.params.userId]);
-  if (rowCount) {
-    await db.query('UPDATE users SET followingCount = followingCount - 1 WHERE id = $1', [req.user.sub]);
-    await db.query('UPDATE users SET followerCount = followerCount - 1 WHERE id = $1', [req.params.userId]);
-  }
+  await userService.unfollow(req.userId, req.params.userId);
   res.sendStatus(204);
 };
