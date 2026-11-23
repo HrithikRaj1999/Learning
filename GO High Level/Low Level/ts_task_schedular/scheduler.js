@@ -5,7 +5,8 @@ export class Scheduler {
     this.idle_worker_threads = [];
     this.task_queue = [];
     for (let i = 0; i < size; i++) {
-      // by default add one free worker in idle queue to pick the job
+      // by default add size free worker in idle queue to pick the job
+      // to run parallely
       this.idle_worker_threads.push(this.creates_new_worker());
     }
   }
