@@ -104,8 +104,8 @@
 </td><td valign="top" width="50%" markdown="1">
 
 - **Delete is safe and undoable**
-  - Soft delete: the row gets `status = 2` and stays, so comment and like rows still point at something real.
-    - e.g. support can restore post 901 by setting `status = 1`.
+  - Soft delete: the row gets `status = 'deleted'` and stays, so comment and like rows still point at something real.
+    - e.g. support can restore post 901 by setting `status = 'active'`.
 
 </td></tr>
 <tr markdown="1"><td valign="top" width="50%" markdown="1">
@@ -212,17 +212,17 @@ Every request walks the same path inside the one Node.js program (written at the
    - **a) Rules:** you can't follow yourself (`400 CANNOT_FOLLOW_SELF`); the target must exist (`userExists(42)`, else `404`)
    - **b) SQL:**
 
-            INSERT INTO follows (followerId, followeeId, status) VALUES (7, 42, 1)
+            INSERT INTO follows (followerId, followeeId, status) VALUES (7, 42, 'pending')
             ON CONFLICT DO NOTHING;   -- already asked or already following: nothing happens
 
    - **c) Reply:** the controller answers `202` ("request sent"), also on a repeat
-   - **Data change:** `follows` row added `{followerId: 7, followeeId: 42, status: 1 (PENDING)}`; counts unchanged
+   - **Data change:** `follows` row added `{followerId: 7, followeeId: 42, status: 'pending'}`; counts unchanged
    - **Why counts don't move yet:** a request is not a follow. If counts moved now, every ignored request would inflate Priya's follower number.
    - **Why the database has a `CHECK (followerId <> followeeId)` too:** the service check gives a nice error; the `CHECK` is the last guard if some other code path forgets it.
 
 4. **Priya opens "Follow requests"**
    - **a) Call:** `GET /v1/users/me/follow-requests` → `paginate('time')` sets `req.page = {cursor: null, limit: 20}`
-   - **b) SQL:** `follows JOIN users ... WHERE followeeId = 42 AND status = 1 ORDER BY createdAt DESC LIMIT 20`
+   - **b) SQL:** `follows JOIN users ... WHERE followeeId = 42 AND status = 'pending' ORDER BY createdAt DESC LIMIT 20`
    - **c) How it stays fast:** the index `(followeeId, status, createdAt DESC)` is already sorted that way, so PostgreSQL reads just Priya's pending part from the top, like opening a phone book at "Priya, pending" and reading down.
    - **Data change:** none
    - **Why `/me/`:** the user id comes from the token, so Priya can never ask for someone else's requests.
@@ -230,13 +230,13 @@ Every request walks the same path inside the one Node.js program (written at the
 5. **Priya taps "Accept"**
    - **a) Flip once:**
 
-            UPDATE follows SET status = 2
-             WHERE followerId = 7 AND followeeId = 42 AND status = 1;   -- rowCount 1 or 0
+            UPDATE follows SET status = 'accepted'
+             WHERE followerId = 7 AND followeeId = 42 AND status = 'pending';   -- rowCount 1 or 0
 
    - **b) Only if 1 row changed:** `users.followingCount + 1` for Rahul and `users.followerCount + 1` for Priya. 0 rows (second tap, or no request) → `404`
-   - **c) Decline instead:** `DELETE ... WHERE status = 1` → `204`. **Unfollow later:** `DELETE ... RETURNING status`; counts drop only if the deleted row was ACCEPTED (cancelling a pending request moves nothing)
-   - **Data change:** `follows` (7, 42) status 1 → 2; `users` 42 `followerCount` 0 → 1; `users` 7 `followingCount` 0 → 1
-   - **What the `WHERE status = 1` trick is called:** a conditional update (compare-and-set): "change it only if it still looks the way I expect". Two taps at the same moment can't both see PENDING, because PostgreSQL locks the row while updating it.
+   - **c) Decline instead:** `DELETE ... WHERE status = 'pending'` → `204`. **Unfollow later:** `DELETE ... RETURNING status`; counts drop only if the deleted row was ACCEPTED (cancelling a pending request moves nothing)
+   - **Data change:** `follows` (7, 42) status `'pending'` → `'accepted'`; `users` 42 `followerCount` 0 → 1; `users` 7 `followingCount` 0 → 1
+   - **What the `WHERE status = 'pending'` trick is called:** a conditional update (compare-and-set): "change it only if it still looks the way I expect". Two taps at the same moment can't both see PENDING, because PostgreSQL locks the row while updating it.
    - **Why (crash in between):** today the flip and the two counter updates are three separate statements on the pool (`db.query` each time), not one transaction. If the program dies after the flip, Rahul follows Priya but the counts stay 0 forever. The fix is to run all three inside one `BEGIN ... COMMIT` on one connection (`const c = await db.connect(); await c.query('BEGIN'); ...`), so either all three happen or none.
 
 **Say in the interview:** "Following is a request row in `follows` with status PENDING. Accept is a conditional update `WHERE status = PENDING`, and counters move only when that update hit one row, all in one transaction. The user id always comes from the JWT."
@@ -270,7 +270,7 @@ Every request walks the same path inside the one Node.js program (written at the
    - **a) Own folder only:** every key must start with `posts/42/` and contain no `..` (which could climb out of the folder). Rahul sending Priya's key → `400 INVALID_MEDIA_KEY`
    - **b) SQL:** `INSERT INTO posts (authorId, content, mediaKeys) VALUES (42, 'Sunset at Nandi Hills', '{posts/42/9f3a.jpg}') RETURNING *` → id 901 from `BIGSERIAL` (an auto-increasing number)
    - **c) Links:** `withMedia` drops `mediakeys` and adds `mediaUrls = CDN_BASE_URL + "/" + key`
-   - **Data change:** `posts` row 901 `{authorId: 42, mediaKeys: ["posts/42/9f3a.jpg"], likeCount: 0, status: 1}`
+   - **Data change:** `posts` row 901 `{authorId: 42, mediaKeys: ["posts/42/9f3a.jpg"], likeCount: 0, status: 'active'}`
    - **Why store keys, not full links:** if the CDN moves from `cdn.example.com` to `img.example.com`, or we switch to signed links, nothing in the database changes. The link is built on every read.
 
 5. **Priya gets `201 {post}`**
@@ -311,11 +311,11 @@ Every request walks the same path inside the one Node.js program (written at the
    - **a) SQL (`visiblePost`):**
 
             SELECT p.* FROM posts p
-             WHERE p.id = 901 AND p.status = 1
+             WHERE p.id = 901 AND p.status = 'active'
                AND (p.authorId = $2                              -- my own post
                     OR EXISTS (SELECT 1 FROM follows f           -- or I follow the author
                                 WHERE f.followerId = $2 AND f.followeeId = p.authorId
-                                  AND f.status = 2));            -- and she accepted
+                                  AND f.status = 'accepted'));            -- and she accepted
 
    - **b) Rahul ($2 = 7):** the row `follows (7, 42, 2)` exists → post comes back
    - **c) Anita ($2 = 8):** no such row → no post → the service throws `notFound()`
@@ -324,7 +324,7 @@ Every request walks the same path inside the one Node.js program (written at the
    - **Why in one query, not "read, then check":** with two steps, someone could forget the second step in a new endpoint. Here every read of a post (`getVisiblePost`, `getVisibleComment`) has the rule built in.
 
 4. **Rahul also gets "did I like it?"**
-   - **a)** `SELECT 1 FROM likes WHERE userId = 7 AND targetType = 1 AND targetId = 901` → no row → `likedByMe: false`
+   - **a)** `SELECT 1 FROM likes WHERE userId = 7 AND targetType = 'post' AND targetId = 901` → no row → `likedByMe: false`
    - **b)** controller → `200 {post, likedByMe: false}`
    - **Data change:** none
    - **Why:** the app draws the heart filled or empty. One primary-key lookup is cheaper than sending the whole "Liked by" list.
@@ -352,7 +352,7 @@ Every request walks the same path inside the one Node.js program (written at the
 
 2. **The route decides what is being liked**
    - **a)** `/posts/:id/like` → `likes.like('posts')`; `/comments/:id/like` → `likes.like('comments')`
-   - **b)** the service maps `'posts'` → `targetType 1`, and in SQL `COUNTED[1] = 'posts'` picks the table name
+   - **b)** the service maps `'posts'` → `targetType 'post'`, and in SQL `COUNTED['post'] = 'posts'` picks the table name
    - **Data change:** none
    - **Why the table name never comes from the user:** table names can't be passed as `$1` parameters, so they are glued into the SQL text. If a user could choose them, they could inject SQL. A fixed map makes that impossible.
 
@@ -364,30 +364,30 @@ Every request walks the same path inside the one Node.js program (written at the
 4. **The primary key blocks the second like; the counter moves only on a new row**
    - **a) First request:**
 
-            INSERT INTO likes (userId, targetType, targetId) VALUES (7, 1, 901)
+            INSERT INTO likes (userId, targetType, targetId) VALUES (7, 'post', 901)
             ON CONFLICT DO NOTHING;                        -- rowCount = 1
             UPDATE posts SET likeCount = likeCount + 1 WHERE id = 901;
 
    - **b) Second request:** the same `INSERT` hits the primary key `(userId, targetType, targetId)` → `rowCount = 0` → the `UPDATE` is skipped
    - **c) Reply:** both get `200`
-   - **Data change:** `likes` row `(7, 1, 901)`; `posts` 901 `likeCount` 0 → 1 (once)
+   - **Data change:** `likes` row `(7, 'post', 901)`; `posts` 901 `likeCount` 0 → 1 (once)
    - **Why a counter column at all:** counting `likes` rows on every post view would be slow for a popular post. A stored number is read for free with the post.
    - **Why (crash in between):** the `INSERT` and the `UPDATE` are two separate calls today. If the program dies between them, the like exists but the count stays 0, and a retry won't fix it (the retry's insert gets `rowCount 0`). The fix is one statement, which PostgreSQL always runs all-or-nothing:
 
             WITH ins AS (
-              INSERT INTO likes (userId, targetType, targetId) VALUES (7, 1, 901)
+              INSERT INTO likes (userId, targetType, targetId) VALUES (7, 'post', 901)
               ON CONFLICT DO NOTHING RETURNING 1)
             UPDATE posts SET likeCount = likeCount + (SELECT count(*) FROM ins) WHERE id = 901;
 
 5. **Rahul unlikes**
-   - **a)** `DELETE FROM likes WHERE userId = 7 AND targetType = 1 AND targetId = 901` → `rowCount 1` → `likeCount - 1`. A repeat → `rowCount 0` → nothing
+   - **a)** `DELETE FROM likes WHERE userId = 7 AND targetType = 'post' AND targetId = 901` → `rowCount 1` → `likeCount - 1`. A repeat → `rowCount 0` → nothing
    - **b)** reply `204` (done, nothing to send back)
    - **Data change:** `likes` row gone; `likeCount` 1 → 0
    - **Why no visibility check here:** the `DELETE` only ever touches Rahul's own row. Even if Priya removed him as a follower, he can still take his like back.
 
 6. **"Liked by" list**
    - **a)** `GET /v1/posts/901/likes` → `paginate('time')`: the cursor is a time, the last `createdAt` seen
-   - **b)** `likes JOIN users WHERE targetType = 1 AND targetId = 901 AND createdAt < cursor ORDER BY createdAt DESC`, served by the index `(targetType, targetId, createdAt DESC)`
+   - **b)** `likes JOIN users WHERE targetType = 'post' AND targetId = 901 AND createdAt < cursor ORDER BY createdAt DESC`, served by the index `(targetType, targetId, createdAt DESC)`
    - **Data change:** none
    - **Why this second index:** the primary key starts with `userId` ("did Rahul like X?"). "Who liked X?" needs the opposite order, so it gets its own index.
 
@@ -450,10 +450,10 @@ Every request walks the same path inside the one Node.js program (written at the
    - **a) SQL (shortened):**
 
             SELECT c.*, (SELECT json_agg(r) FROM
-                          (SELECT * FROM comments WHERE parentId = c.id AND status = 1
+                          (SELECT * FROM comments WHERE parentId = c.id AND status = 'active'
                            ORDER BY id LIMIT 2) r) AS replies
               FROM comments c
-             WHERE postId = 901 AND parentId IS NULL AND status = 1
+             WHERE postId = 901 AND parentId IS NULL AND status = 'active'
              ORDER BY id DESC LIMIT 20;
 
    - **b) `json_agg`:** packs the replies of each comment into a JSON list inside that comment's row, so the app gets the whole first screen in one call
@@ -491,7 +491,7 @@ Every request walks the same path inside the one Node.js program (written at the
    - **b) SQL:**
 
             UPDATE posts SET content = 'Sunset at Nandi Hills!', updatedAt = now()
-             WHERE id = 901 AND authorId = 42 AND status = 1
+             WHERE id = 901 AND authorId = 42 AND status = 'active'
             RETURNING *;
 
    - **c)** a row came back → `200 {post}`
@@ -504,10 +504,10 @@ Every request walks the same path inside the one Node.js program (written at the
    - **Why 404 again:** same idea as Flow 3. "Not yours" and "doesn't exist" look the same from outside.
 
 3. **Priya deletes the post**
-   - **a)** `UPDATE posts SET status = 2 WHERE id = 901 AND authorId = 42` → `204`
-   - **b)** every read checks `status = 1`, and `visibleComment` also checks the post's status, so the post, its comments and likes all vanish from the app at once
+   - **a)** `UPDATE posts SET status = 'deleted' WHERE id = 901 AND authorId = 42` → `204`
+   - **b)** every read checks `status = 'active'`, and `visibleComment` also checks the post's status, so the post, its comments and likes all vanish from the app at once
    - **c) Comments:** `PATCH` / `DELETE /v1/comments/{id}` work the same way, owner in the `WHERE`
-   - **Data change:** `posts` 901 `status` 1 → 2 (row kept)
+   - **Data change:** `posts` 901 `status` `'active'` → `'deleted'` (row kept)
    - **Why soft delete:** a real `DELETE` would fail (comments point at the post with a foreign key) or would need to remove thousands of comment and like rows in one go. A status flag is one tiny update and can be undone.
    - **Small gap:** `DELETE` answers `204` even when nothing was deleted (Rahul deleting Priya's post). It is harmless but hides mistakes; checking the row count and answering `404` would be clearer. The counters also don't go down when a comment is deleted.
 
@@ -518,7 +518,7 @@ Every request walks the same path inside the one Node.js program (written at the
    - **Data change:** none
    - **Why:** one place decides what errors look like. Database messages and stack traces (which can reveal table names) never reach the phone.
 
-**Say in the interview:** "Edits and deletes put the ownership check in the `WHERE` clause and use `RETURNING` or the row count to decide between 200 and 404. Deletes are soft (`status = 2`) and every read filters on it. Errors are typed `HttpError`s mapped in one Express error middleware."
+**Say in the interview:** "Edits and deletes put the ownership check in the `WHERE` clause and use `RETURNING` or the row count to decide between 200 and 404. Deletes are soft (`status = 'deleted'`) and every read filters on it. Errors are typed `HttpError`s mapped in one Express error middleware."
 
 ## Key design choices
 
@@ -536,7 +536,7 @@ Each row is one decision. Read it as: "For this area, we picked this, because th
 | Paging | Cursor on a sorted, indexed key; limit at most 50 | `OFFSET` gets slower page by page and shows duplicates when new rows arrive |
 | Media | S3 keys in the row, pre-signed uploads, CDN links built on read | Bytes through our server waste it; stored full links break when the CDN address changes |
 | Media ownership | Key must start with `posts/<own id>/`, no `..` | Otherwise anyone could attach anyone's photo to their post |
-| Delete | Soft delete (`status = 2`) | A hard delete breaks foreign keys or has to remove thousands of child rows |
+| Delete | Soft delete (`status = 'deleted'`) | A hard delete breaks foreign keys or has to remove thousands of child rows |
 | SQL safety | Values as `$1, $2`; table names only from a fixed map | Gluing user input into SQL text allows SQL injection |
 | Errors | `HttpError` thrown by services, one `errorHandler` | Scattered `res.status(...)` calls give inconsistent replies and can leak internals |
 
@@ -620,9 +620,9 @@ errorHandler  last middleware     HttpError -> status (+ code), anything else ->
 |---|---|
 | Phone sends the like twice | Primary key blocks the second row, counter moves once, both get 200 |
 | Program crashes between "insert like" and "bump counter" | Today: count off by one for good. With the one-statement CTE (Common Table Expression, a `WITH ...` sub-query) or a transaction: impossible |
-| Priya taps "Accept" twice at the same moment | Both run `UPDATE ... WHERE status = 1`; PostgreSQL locks the row, the second finds status 2 and changes 0 rows → 404 |
+| Priya taps "Accept" twice at the same moment | Both run `UPDATE ... WHERE status = 'pending'`; PostgreSQL locks the row, the second finds `'accepted'` and changes 0 rows → 404 |
 | Rahul is removed as a follower while scrolling | The next request's visibility check fails → 404; his old likes and comments stay |
-| A comment's parent is deleted while Priya types a reply | `findLiveComment` checks `status = 1` → 404, no reply to a dead comment |
+| A comment's parent is deleted while Priya types a reply | `findLiveComment` checks `status = 'active'` → 404, no reply to a dead comment |
 | JWT expired | `jwt.verify` throws → 401; the app gets a new token from the login service |
 | Broken JSON body | `express.json` throws `entity.parse.failed` → 400 INVALID_JSON |
 | PostgreSQL is down | Every query throws → errorHandler logs it → 500; nothing half-written thanks to transactions |
@@ -657,7 +657,7 @@ errorHandler  last middleware     HttpError -> status (+ code), anything else ->
 19:05  Rahul  PUT /v1/posts/901/like (sent twice)      -> one likes row, likeCount 0->1
 19:10  Rahul  comment 5001 / Priya reply 5002 / Rahul reply 5003 -> all under 5001, 5003 mentions @Priya, commentCount 3
 19:30  Rahul  GET /v1/posts/901/comments               -> 5001 with [5002, 5003] inline, nextCursor null
-20:10  Priya  PATCH then DELETE /v1/posts/901          -> content edited, then status 2; post and comments vanish for everyone
+20:10  Priya  PATCH then DELETE /v1/posts/901          -> content edited, then status 'deleted'; post and comments vanish for everyone
 ```
 
 - **The happy path:** Rahul follows, sees, likes and comments on Priya's post; every write is guarded by a key or a `WHERE`.

@@ -52,7 +52,7 @@ FOLLOWS = ('follows (PostgreSQL) · PRIMARY KEY followerId + followeeId', '''
 {
   "followerId": 7,     -- Rahul (asks)
   "followeeId": 42,    -- Priya (accepts)
-  "status": 1 (PENDING) or 2 (ACCEPTED),
+  "status": "pending" or "accepted",
   "createdAt": "2026-11-22T18:00:00+05:30"
 }
 CHECK followerId <> followeeId
@@ -65,7 +65,7 @@ POSTS = ('posts (PostgreSQL) · key id · INDEX authorId + id DESC', '''
   "mediaKeys": ["posts/42/9f3a.jpg"],
   "likeCount": 1,
   "commentCount": 3,
-  "status": 1 (active) or 2 (deleted),
+  "status": "active" or "deleted",
   "createdAt": "2026-11-22T19:00:00+05:30",
   "updatedAt": "2026-11-22T19:00:00+05:30"
 }''')
@@ -79,13 +79,13 @@ COMMENTS = ('comments (PostgreSQL) · key id · INDEX postId + parentId + id DES
   "text": "Saving up for one!",
   "likeCount": 0,
   "replyCount": 0,
-  "status": 1 (active) or 2 (deleted),
+  "status": "active" or "deleted",
   "createdAt": "2026-11-22T19:20:00+05:30"
 }''')
 LIKES = ('likes (PostgreSQL) · PRIMARY KEY userId + targetType + targetId', '''
 {
   "userId": 7,
-  "targetType": 1 (post) or 2 (comment),
+  "targetType": "post" or "comment",
   "targetId": 901,
   "createdAt": "2026-11-22T19:05:00+05:30"
 }
@@ -122,7 +122,7 @@ POST_REPLY = ('201 reply (what Priya\'s app gets back)', '''
     "content": "Sunset at Nandi Hills",
     "likecount": 0,
     "commentcount": 0,
-    "status": 1,
+    "status": "active",
     "createdat": "2026-11-22T13:30:00.000Z",
     "mediaUrls": ["https://cdn.example.com/posts/42/9f3a.jpg"]
   }
@@ -189,9 +189,9 @@ def flow1():
                     (4, 'Lists who asked', ['newest first, cursor = createdAt'], 'toPage -> nextCursor null'),
                     (5, 'Accepts, then moves both counters', ['counters move only if 1 row changed'], '0 rows -> notFound() -> 404')),
         'pg': node(5, 0, 'PostgreSQL (follows, users)',
-                   (3, 'Stores the request once', ['INSERT ... ON CONFLICT DO NOTHING'], 'follows (7, 42) status 1'),
+                   (3, 'Stores the request once', ['INSERT ... ON CONFLICT DO NOTHING'], 'follows (7, 42) pending'),
                    (4, 'Finds pending requests fast', ['INDEX followeeId + status + createdAt'], 'only Priya\'s part of the index'),
-                   (5, 'Flips PENDING -> ACCEPTED once', ['UPDATE ... WHERE status = 1', 'then two counter UPDATEs'], 'status 2, counts 0 -> 1')),
+                   (5, 'Flips PENDING -> ACCEPTED once', ["UPDATE ... WHERE status = 'pending'", 'then two counter UPDATEs'], 'accepted, counts 0 -> 1')),
     }
     edges = [('rahul', 'auth'), ('priya', 'auth')] + chain('auth', 'router', 'ctrl', 'svc', 'pg')
     data = data_row([('PostgreSQL', [FOLLOWS, USERS, USERS_RAHUL]),
@@ -249,7 +249,7 @@ def flow3():
                     (4, 'Adds "did I like it?"', ['likedByMe: 1 row in likes or not'], 'Rahul -> false')),
         'pg': node(5, 0, 'PostgreSQL (posts, follows, likes)',
                    (3, 'Answers read + access in one SQL', ['post live AND (my post OR', '  I am an ACCEPTED follower)'], '(7, 42, ACCEPTED) exists'),
-                   (4, 'Checks the like by primary key', ['userId + targetType + targetId'], '(7, 1, 901) -> none')),
+                   (4, 'Checks the like by primary key', ['userId + targetType + targetId'], "(7, 'post', 901) -> none")),
         'err': node(5, 1, 'errorHandler (middleware)',
                     (5, 'Turns the error into a reply', ['HttpError(404) -> 404, no body'], 'Anita sees "not found"')),
     }
@@ -275,7 +275,7 @@ def flow4():
                     (4, 'Moves the counter only on a new row', ['rowCount 1 -> likeCount + 1', 'rowCount 0 -> do nothing'], '2nd tap -> 0 -> no change'),
                     (5, 'Unlike: no access check needed', ['you can only delete your own row'], 'rowCount 1 -> likeCount - 1')),
         'pg': node(5, 0, 'PostgreSQL (likes, posts)',
-                   (4, 'Primary key blocks a 2nd like', ['INSERT ... ON CONFLICT DO NOTHING', 'UPDATE posts likeCount + 1'], '(7, 1, 901) once, count 1'),
+                   (4, 'Primary key blocks a 2nd like', ['INSERT ... ON CONFLICT DO NOTHING', 'UPDATE posts likeCount + 1'], "(7, 'post', 901) once, count 1"),
                    (6, 'Lists likers by time', ['INDEX targetType+targetId+createdAt'], 'Rahul, 19:05')),
     }
     edges = chain('rahul', 'auth', 'router', 'ctrl', 'svc', 'pg')
@@ -400,10 +400,10 @@ def flow7():
         'svc': node(4, 0, 'services/posts.js',
                     (1, 'Owner check inside the UPDATE', ['no row back -> throw notFound()'], 'Priya -> row back'),
                     (2, 'Same UPDATE, 0 rows for Rahul', ['throw notFound()'], 'Rahul -> 404'),
-                    (3, 'Soft delete', ['status = 2, row stays'], 'all reads skip status 2')),
+                    (3, 'Soft delete', ["status = 'deleted', row stays"], 'all reads skip deleted rows')),
         'pg': node(5, 0, 'PostgreSQL (posts)',
-                   (1, 'Changes only my live post', ['WHERE id = 901 AND authorId = 42', '  AND status = 1'], 'updatedAt = now()'),
-                   (3, 'Marks the post deleted', ['UPDATE posts SET status = 2'], 'comments hidden with it')),
+                   (1, 'Changes only my live post', ['WHERE id = 901 AND authorId = 42', "  AND status = 'active'"], 'updatedAt = now()'),
+                   (3, 'Marks the post deleted', ["UPDATE posts SET status = 'deleted'"], 'comments hidden with it')),
         'err': node(5, 1, 'errorHandler (middleware)',
                     (4, 'One place that writes errors', ['HttpError -> its status (+ code)', 'other errors -> log + 500'], 'Rahul gets 404')),
     }
@@ -413,7 +413,7 @@ def flow7():
   "id": 901,
   "authorId": 42,
   "content": "Sunset at Nandi Hills" -> "Sunset at Nandi Hills!",
-  "status": 1 -> 2,
+  "status": "active" -> "deleted",
   "updatedAt": "2026-11-22T19:00:00+05:30" -> "2026-11-22T20:10:00+05:30"
 }''')]), ('Replies', [ERRORS])])
     return flow(nodes, edges), data

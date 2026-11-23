@@ -15,7 +15,7 @@ CREATE TABLE posts (
   mediaKeys    TEXT[],                     -- S3 object keys, e.g. posts/42/9f3a.jpg; CDN URL built on read
   likeCount    INT DEFAULT 0,
   commentCount INT DEFAULT 0,
-  status       SMALLINT DEFAULT 1,         -- 1 active, 2 deleted
+  status       TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'deleted')),
   createdAt    TIMESTAMPTZ DEFAULT now(),
   updatedAt    TIMESTAMPTZ DEFAULT now()
 );
@@ -30,14 +30,14 @@ CREATE TABLE comments (
   text          TEXT,
   likeCount     INT DEFAULT 0,
   replyCount    INT DEFAULT 0,
-  status        SMALLINT DEFAULT 1,
+  status        TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'deleted')),
   createdAt     TIMESTAMPTZ DEFAULT now()
 );
 CREATE INDEX ON comments (postId, parentId, id DESC);
 
 CREATE TABLE likes (
   userId     BIGINT,
-  targetType SMALLINT,                     -- 1 post, 2 comment
+  targetType TEXT CHECK (targetType IN ('post', 'comment')),
   targetId   BIGINT,
   createdAt  TIMESTAMPTZ DEFAULT now(),
   PRIMARY KEY (userId, targetType, targetId)
@@ -47,7 +47,7 @@ CREATE INDEX ON likes (targetType, targetId, createdAt DESC);
 CREATE TABLE follows (
   followerId BIGINT REFERENCES users,      -- Rahul (asks)
   followeeId BIGINT REFERENCES users,      -- Priya (accepts)
-  status     SMALLINT DEFAULT 1,           -- 1 pending request, 2 accepted
+  status     TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted')),
   createdAt  TIMESTAMPTZ DEFAULT now(),
   PRIMARY KEY (followerId, followeeId),    -- also serves "does Rahul follow Priya?"
   CHECK (followerId <> followeeId)

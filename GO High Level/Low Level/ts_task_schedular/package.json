@@ -1,0 +1,11 @@
+{
+  "name": "ts_task_schedular",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}
