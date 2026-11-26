@@ -1,0 +1,1093 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+<title>Workflow Automation Engine (HighLevel / HubSpot / Klaviyo style: trigger → actions → waits → if/else, per contact)</title><style>
+:root { --bg:#f7f8fb; --card:#fff; --text:#1f2430; --muted:#5b6475; --line:#e3e6ee; --accent:#4f46e5;
+        --code-bg:#f2f4f9; --pre-bg:#fbfcfe; --quote:#eef0ff; }
+[data-theme=dark] { --bg:#0f1218; --card:#171b24; --text:#e4e7ee; --muted:#9aa3b5; --line:#2a3040; --accent:#8b8cff;
+        --code-bg:#222838; --pre-bg:#12161e; --quote:#1d2140; color-scheme:dark; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:64px; -webkit-text-size-adjust:100%; }
+body { margin:0; background:var(--bg); color:var(--text); font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+header { position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:8px; padding:8px 12px;
+         background:var(--card); border-bottom:1px solid var(--line); box-shadow:0 1px 6px rgba(0,0,0,.06); }
+header .title { flex:1; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+button { font:inherit; font-size:14px; min-width:40px; height:36px; padding:0 10px; border:1px solid var(--line);
+         border-radius:8px; background:var(--bg); color:var(--text); cursor:pointer; }
+#progress { position:fixed; top:0; left:0; height:3px; background:var(--accent); width:0; z-index:11; }
+nav { position:fixed; top:0; bottom:0; left:0; width:min(320px,85vw); background:var(--card); border-right:1px solid var(--line);
+      transform:translateX(-100%); transition:transform .2s; z-index:20; overflow-y:auto; padding:16px; }
+nav.open { transform:none; box-shadow:4px 0 24px rgba(0,0,0,.2); }
+nav ul { list-style:none; padding-left:12px; margin:0; } nav > div > ul { padding-left:0; }
+nav a { display:block; padding:6px 4px; color:var(--text); text-decoration:none; border-radius:6px; font-size:14px; }
+nav a:hover { background:var(--quote); color:var(--accent); }
+#shade { display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:15; } #shade.open { display:block; }
+main { margin:4px; padding:4px; }
+article { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:4px; margin:4px; }
+h1 { font-size:1.8em; line-height:1.25; margin:.2em 0 .6em; }
+h2 { font-size:1.4em; margin-top:2em; padding-bottom:.3em; border-bottom:2px solid var(--line); }
+h3 { font-size:1.15em; margin-top:1.6em; color:var(--accent); }
+h1,h2,h3,h4 { scroll-margin-top:64px; }
+a { color:var(--accent); }
+p, li { overflow-wrap:anywhere; }
+li { margin:3px 0; }
+blockquote { margin:12px 0; padding:10px 14px; background:var(--quote); border-left:4px solid var(--accent); border-radius:0 8px 8px 0; }
+blockquote p { margin:4px 0; }
+code { font-family:Consolas,"Cascadia Mono",Menlo,"DejaVu Sans Mono","Roboto Mono",monospace; font-size:.88em;
+       background:var(--code-bg); padding:1px 5px; border-radius:4px; }
+.pre-wrap { position:relative; margin:14px 0; border:1px solid var(--line); border-radius:10px; background:var(--pre-bg); }
+.pre-wrap .tools { position:sticky; left:0; display:flex; gap:6px; justify-content:flex-end; padding:6px;
+                   border-bottom:1px solid var(--line); }
+.pre-wrap .tools button { height:30px; min-width:34px; font-size:13px; }
+pre { margin:0; padding:12px; overflow:auto; max-height:80vh; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y pinch-zoom; }
+pre code { background:none; padding:0; font-size:var(--pre-size,12px); line-height:1.15; white-space:pre; display:block; }
+.table-scroll { overflow-x:auto; margin:12px 0; }
+table { border-collapse:collapse; width:100%; font-size:.95em; }
+th, td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; text-align:left; }
+th { background:var(--code-bg); }
+tr:nth-child(even) td { background:color-mix(in srgb,var(--code-bg) 40%,transparent); }
+table.cols { table-layout:fixed; }
+table.cols td { background:none !important; border:none; padding:0 16px 0 0; }
+table.cols h3 { margin-top:.6em; }
+@media (max-width:700px) {
+  body { font-size:15px; }
+  table.cols, table.cols tbody, table.cols tr, table.cols td { display:block; width:100%; }
+  table.cols td:empty { display:none; }
+}
+#top { position:fixed; right:16px; bottom:16px; border-radius:50%; width:46px; height:46px; display:none;
+       background:var(--accent); color:#fff; border:none; box-shadow:0 4px 12px rgba(0,0,0,.25); z-index:12; font-size:20px; }
+</style></head><body>
+<div id="progress"></div>
+<header><button id="menu" title="Contents">☰</button><span class="title">Workflow Automation Engine (HighLevel / HubSpot / Klaviyo style: trigger → actions → waits → if/else, per contact)</span>
+<button id="aminus" title="Smaller text">A−</button><button id="aplus" title="Bigger text">A+</button><button id="theme" title="Light / dark">◐</button></header>
+<nav><strong>Contents</strong><div class="toc">
+<ul>
+<li><a href="#requirements">Requirements</a><ul>
+<li><a href="#functional-what-the-product-does">Functional (what the product does)</a></li>
+<li><a href="#non-functional-how-well-it-must-work">Non-functional (how well it must work)</a></li>
+</ul>
+</li>
+<li><a href="#apis">APIs</a></li>
+<li><a href="#diagram">Diagram</a></li>
+<li><a href="#schema-overview">Schema Overview</a><ul>
+<li><a href="#postgresql-workflow-db-the-outbox-shape-every-db-shares">PostgreSQL: Workflow DB (+ the outbox shape every DB shares)</a></li>
+<li><a href="#postgresql-run-db-contact-db">PostgreSQL: Run DB + Contact DB</a></li>
+<li><a href="#redis-kafka-sqs">Redis, Kafka, SQS</a></li>
+</ul>
+</li>
+<li><a href="#flows-the-big-diagram-one-piece-at-a-time">Flows (the big diagram, one piece at a time)</a><ul>
+<li><a href="#flow-1-priya-publishes-new-lead-nurture-a-frozen-version-1-the-trigger-index-knows-about-it-workflow-service-workflow-db-outbox-outbox-relay-kafka-trigger-matcher-redis">Flow 1. Priya publishes "New Lead Nurture" → a frozen version 1 → the trigger index knows about it (Workflow Service → Workflow DB + outbox → Outbox Relay → Kafka → Trigger Matcher → Redis)</a></li>
+<li><a href="#flow-2-rahul-submits-the-form-he-is-enrolled-exactly-once-api-gateway-event-ingestion-contact-db-outbox-outbox-relay-kafka-trigger-matcher-redis-run-db">Flow 2. Rahul submits the form → he is enrolled exactly once (API Gateway → Event Ingestion → Contact DB + outbox → Outbox Relay → Kafka → Trigger Matcher → Redis + Run DB)</a></li>
+<li><a href="#flow-3-the-welcome-email-goes-out-once-then-rahul-goes-to-sleep-for-2-days-kafka-step-executor-run-db-outbox-outbox-relay-sqs-email-worker-sendgrid-run-db-outbox-kafka">Flow 3. The welcome email goes out once, then Rahul goes to sleep for 2 days (Kafka → Step Executor → Run DB + outbox → Outbox Relay → SQS → Email Worker → SendGrid → Run DB + outbox → Kafka)</a></li>
+<li><a href="#flow-4-rahul-opens-the-email-on-wednesday-he-wakes-up-and-takes-the-yes-path-sendgrid-webhook-event-ingestion-kafka-activity-writer-contact-db-timer-service-run-db-outbox-outbox-relay-kafka-step-executor-contact-db-run-db">Flow 4. Rahul opens the email; on Wednesday he wakes up and takes the "Yes" path (SendGrid webhook → Event Ingestion → Kafka → Activity Writer → Contact DB; Timer Service → Run DB + outbox → Outbox Relay → Kafka → Step Executor → Contact DB, Run DB)</a></li>
+</ul>
+</li>
+<li><a href="#key-design-choices">Key design choices</a></li>
+<li><a href="#deep-dive-only-what-the-flows-did-not-cover">Deep Dive (only what the flows did not cover)</a><ul>
+<li><a href="#1-back-of-the-envelope-estimates-say-these-early">1. Back-of-the-envelope estimates (say these early)</a></li>
+<li><a href="#2-what-the-market-actually-uses-honest-comparison">2. What the market actually uses (honest comparison)</a></li>
+<li><a href="#3-timers-in-more-detail">3. Timers in more detail</a></li>
+<li><a href="#4-event-waits-wait-until-opened-or-2-days">4. Event waits ("wait until opened, or 2 days")</a></li>
+<li><a href="#5-exits-and-edits">5. Exits and edits</a></li>
+<li><a href="#6-failure-scenarios">6. Failure scenarios</a></li>
+<li><a href="#7-why-a-boxes-in-a-line-answer-gets-rejected">7. Why a "boxes in a line" answer gets rejected</a></li>
+<li><a href="#8-rapid-fire-interview-qa">8. Rapid-fire interview Q&amp;A</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav><div id="shade"></div>
+<main><article><h1 id="workflow-automation-engine-highlevel-hubspot-klaviyo-style-trigger-actions-waits-ifelse-per-contact">Workflow Automation Engine (HighLevel / HubSpot / Klaviyo style: trigger → actions → waits → if/else, per contact)</h1>
+<blockquote>
+<p><strong>The one idea to remember: "Every contact's journey is one saved row with a bookmark (which step am I on?) and an alarm clock (when do I wake up?). Workers are forgetful; the row remembers."</strong>
+Think of a hotel wake-up-call desk. The desk doesn't stand next to each guest for two days. It writes "Room 501, wake at 10:00 Wednesday" on a card, files the card by time, and every minute it pulls the cards that are due. Our engine works the same way. When Rahul fills Priya's form, we create one <strong>run</strong> row for him: "workflow wf-12, version 1, now on step n2". After the welcome email the row says "asleep until Wednesday 10:00". A <strong>Timer Service</strong> pulls due rows, a stateless <strong>Step Executor</strong> moves each one forward a single step, and <strong>Action Workers</strong> do the real sending. Any server can crash at any moment, because everything that matters is in the row, and every "tell someone else" goes through an <strong>outbox</strong> row in the same transaction.
+Deep dive: <a href="#deep-dive-only-what-the-flows-did-not-cover">Deep Dive</a></p>
+</blockquote>
+<h2 id="requirements">Requirements</h2>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<h3 id="functional-what-the-product-does">Functional (what the product does)</h3>
+</td>
+<td valign="top" width="50%">
+<h3 id="non-functional-how-well-it-must-work">Non-functional (how well it must work)</h3>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Business owners build and publish workflows</strong><ul>
+<li>Trigger, actions, waits, if/else, drawn in a visual builder and saved as a graph.<ul>
+<li>e.g. Priya publishes "New Lead Nurture" (wf-12) for her yoga studio.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Editing never breaks contacts already inside</strong><ul>
+<li>Runs stay on the version they started with. Published versions are never edited.<ul>
+<li>e.g. Priya changes "2 days" to "1 day"; Rahul, already waiting, keeps his 2 days.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>A trigger enrolls the contact</strong><ul>
+<li>Form sent, tag added, appointment booked, email opened, and so on.<ul>
+<li>e.g. Rahul submits form f-3, so he enters wf-12.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Enrolled once, step done once</strong><ul>
+<li>Kafka and SQS can deliver twice. Repeats must not enroll twice or send twice.<ul>
+<li>e.g. event e-77 arrives twice; Rahul still has only run r-9001.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Actions: email, SMS, tag, webhook</strong><ul>
+<li>Sent through outside companies (SendGrid, Twilio) or the business's own URL.<ul>
+<li>e.g. welcome email to Rahul; SMS to Anita, the sales rep.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Fair between businesses</strong><ul>
+<li>One business blasting a million contacts must not delay the small ones.<ul>
+<li>e.g. a big gym's campaign does not hold up Priya's welcome email.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Waits from minutes to months</strong><ul>
+<li>"Wait 2 days", "wait until 9 am in the contact's time zone".<ul>
+<li>e.g. Rahul sleeps from Monday 10:00 to Wednesday 10:00.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Waits survive anything and fire on time</strong><ul>
+<li>Crashes, deploys, restarts. A few seconds late is fine; lost is not.<ul>
+<li>e.g. we deploy 30 times while Rahul sleeps; he still wakes on Wednesday.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Conditions read what the contact did</strong><ul>
+<li>Opened, clicked, replied, has tag, booked.<ul>
+<li>e.g. "Did Rahul open the welcome email?"</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Honest open data and the law</strong><ul>
+<li>Machine opens (Apple Mail Privacy Protection) are ignored; opt-outs are checked before every send.<ul>
+<li>e.g. Rahul replies STOP, so no more SMS ever.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+<ul>
+<li><strong>See where each contact is</strong><ul>
+<li>Per contact: current step, history, errors.<ul>
+<li>e.g. Priya sees "Rahul: waiting at n3 until Wed 10:00".</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+<td valign="top" width="50%">
+<ul>
+<li><strong>Most runs are asleep: scale for that</strong><ul>
+<li>Millions of sleeping runs cost only rows on disk, no memory or threads.<ul>
+<li>e.g. 50 million open runs, only a few thousand wake each second.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</table>
+<h2 id="apis">APIs</h2>
+<table class="cols">
+<tr>
+<td valign="top" width="50%">
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Save draft</td>
+<td><code>PUT /v1/workflows/{id}/draft {trigger, nodes}</code> + <code>If-Match</code> → <code>{draft_rev}</code></td>
+</tr>
+<tr>
+<td>Publish</td>
+<td><code>POST /v1/workflows/{id}/publish</code> → <code>{version: 1}</code></td>
+</tr>
+<tr>
+<td>Pause / resume</td>
+<td><code>POST /v1/workflows/{id}:pause</code></td>
+</tr>
+<tr>
+<td>Submit form (public)</td>
+<td><code>POST /v1/forms/{form_id}/submissions {email, name, fields}</code> + form key → <code>202</code></td>
+</tr>
+</tbody>
+</table></div>
+</td>
+<td valign="top" width="50%">
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider callbacks</td>
+<td><code>POST /v1/webhooks/sendgrid</code> (signed), <code>POST /v1/webhooks/twilio</code> (signed)</td>
+</tr>
+<tr>
+<td>Enroll by hand</td>
+<td><code>POST /v1/workflows/{id}/enrollments {contact_id}</code> + <code>Idempotency-Key</code></td>
+</tr>
+<tr>
+<td>Remove contact</td>
+<td><code>DELETE /v1/runs/{run_id}</code> → status <code>EXITED</code></td>
+</tr>
+<tr>
+<td>Run history</td>
+<td><code>GET /v1/contacts/{id}/runs</code> → <code>[{run_id, current_node, status, next_run_at, steps[]}]</code></td>
+</tr>
+</tbody>
+</table></div>
+</td>
+</tr>
+</table>
+<h2 id="diagram">Diagram</h2>
+<p>A quick map of all the parts. Arrows (<code>──&gt;</code>) show which way requests or data move.</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">CALLERS (outside)                                ╔══ THE WORKFLOW ENGINE: everything inside this box is ours ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗   OUTSIDE COMPANIES / RECEIVERS
+                                                 ║                                                                                                                                                                                                                                                                                                                                                                     ║
+┌───────────────────────────────────┐            ║                                                        ┌───────────────────────────────────┐               ┌───────────────────────────────────┐               ┌───────────────────────────────────┐               ┌───────────────────────────────────┐               ┌───────────────────────────────────┐                                                        ║            ┌───────────────────────────────────┐
+│ Priya (business owner)            │ ──┐        ║                                            ┌─────────&gt; │ Workflow Service                  │ ────────────&gt; │ Workflow DB (PostgreSQL)          │   ┌─────────&gt; │ Trigger Matcher                   │ ────┬───────&gt; │ Redis (cache)                     │   ┌─────────&gt; │ Timer Service                     │                                                        ║    ┌─────&gt; │ SendGrid (email)                  │
+├───────────────────────────────────┤   │        ║                                            │           ├───────────────────────────────────┤               ├───────────────────────────────────┤   │           ├───────────────────────────────────┤     │         ├───────────────────────────────────┤   │           ├───────────────────────────────────┤                                                        ║    │       ├───────────────────────────────────┤
+│ - builds + publishes workflows    │   │        ║                                            │           │ - saves drafts, publishes         │               │ - workflows, frozen versions      │   │           │ - event -&gt; which workflows?       │     │         │ - trigger index, graph cache      │   │           │ - wakes runs whose wait ended     │                                                        ║    │       │ - delivers the email              │
+│ - in the visual builder           │   │        ║                                            │           │ - checks the graph can run        │               │ - outbox -&gt; relay -&gt; Kafka        │   │           │ - enrolls the contact once        │     │         │ - rate limits, safe to lose       │   │           │ - SKIP LOCKED, every second       │                                                        ║    │       └───────────────────────────────────┘
+└───────────────────────────────────┘   │        ║                                            │           └───────────────────────────────────┘               └───────────────────────────────────┘   │           └───────────────────────────────────┘     │         └───────────────────────────────────┘   │           └───────────────────────────────────┘                                                        ║    │
+                                        │        ║                                            │                                                                                 │                     │                                                     │                                                 │                                                                                                        ║    │
+                                        │        ║                                            │                                                                                 │                     │                                                     │                                                 │                                                                                                        ║    │
+                                        │        ║                                            │                                                                                 ▼                     │                                                     │                                                 │                                                                                                        ║    │
+┌───────────────────────────────────┐   │        ║    ┌───────────────────────────────────┐   │           ┌───────────────────────────────────┐               ┌───────────────────────────────────┐   │           ┌───────────────────────────────────┐     │         ┌───────────────────────────────────┐   │           ┌───────────────────────────────────┐               ┌───────────────────────────────────┐    ║    │       ┌───────────────────────────────────┐
+│ Rahul's browser                   │ ──┼────────╫──&gt; │ API Gateway                       │ ──┴─────────&gt; │ Event Ingestion                   │ ────────────&gt; │ Kafka (event pipe)                │ ──┼─────────&gt; │ Step Executor                     │ ──┬─┴───────&gt; │ Run DB (PostgreSQL)               │ ──┴─────────&gt; │ SQS action queues                 │ ────────────&gt; │ Action Workers                    │ ───╫────┼─────&gt; │ Twilio (SMS)                      │
+├───────────────────────────────────┤   │        ║    ├───────────────────────────────────┤               ├───────────────────────────────────┤               ├───────────────────────────────────┤   │           ├───────────────────────────────────┤   │           ├───────────────────────────────────┤               ├───────────────────────────────────┤               ├───────────────────────────────────┤    ║    │       ├───────────────────────────────────┤
+│ - fills Priya's website form      │   │        ║    │ - login, form keys                │               │ - form: contact + outbox          │               │ - contact / workflow / run events │   │           │ - moves one run one step          │   │           │ - one row per contact journey     │               │ - one queue per channel           │               │ - email, SMS, tag, webhook        │    ║    │       │ - delivers the SMS                │
+│ - is the contact                  │   │        ║    │ - rate limit per business         │               │ - opens/clicks: straight to Kafka │               │ - ordered per contact or run      │   │           │ - stateless, reads the graph      │   │           │ - next_run_at, steps, outbox      │               │ - fair per business, DLQ          │               │ - claim step, then send           │    ║    │       └───────────────────────────────────┘
+└───────────────────────────────────┘   │        ║    └───────────────────────────────────┘               └───────────────────────────────────┘               └───────────────────────────────────┘   │           └───────────────────────────────────┘   │           └───────────────────────────────────┘               └───────────────────────────────────┘               └───────────────────────────────────┘    ║    │
+                                        │        ║                                                                                                                                                    │                                                   │                                                                                                                                                            ║    │
+                                        │        ║                                                                                                                                                    │                                                   │                                                                                                                                                            ║    │
+                                        │        ║                                                                                                                                                    │                                                   │                                                                                                                                                            ║    │
+┌───────────────────────────────────┐   │        ║                                                                                                                                                    │           ┌───────────────────────────────────┐   │           ┌───────────────────────────────────┐                                                                                                            ║    │       ┌───────────────────────────────────┐
+│ Email / SMS callbacks             │ ──┘        ║                                                                                                                                                    └─────────&gt; │ Activity Writer                   │ ──┴─────────&gt; │ Contact DB (PostgreSQL)           │                                                                                                            ║    └─────&gt; │ Business's own webhook URL        │
+├───────────────────────────────────┤            ║                                                                                                                                                                ├───────────────────────────────────┤               ├───────────────────────────────────┤                                                                                                            ║            ├───────────────────────────────────┤
+│ - SendGrid, Twilio webhooks       │            ║                                                                                                                                                                │ - saves opens, clicks, replies    │               │ - contacts, tags, opt-outs        │                                                                                                            ║            │ - e.g. Priya's booking tool       │
+│ - delivered, opened, clicked      │            ║                                                                                                                                                                │ - drops repeats                   │               │ - activity: opened, clicked       │                                                                                                            ║            └───────────────────────────────────┘
+└───────────────────────────────────┘            ║                                                                                                                                                                └───────────────────────────────────┘               └───────────────────────────────────┘                                                                                                            ║
+                                                 ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<h2 id="schema-overview">Schema Overview</h2>
+<p>What every store keeps, one real example per box. Where a field can take several values, they are shown as <code>"A" or "B"</code>. Each row scrolls sideways.</p>
+<h3 id="postgresql-workflow-db-the-outbox-shape-every-db-shares">PostgreSQL: Workflow DB (+ the outbox shape every DB shares)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">╔══════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════╗
+║ workflows (Workflow DB) · key workflow_id    ║    ║ workflow_versions (Workflow DB) · key workflow_id + version · never edited ║    ║ outbox (same shape in Workflow DB, Run DB, Contact DB)             ║
+╟──────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────╢
+║ {                                            ║    ║ {                                                                          ║    ║ {                                                                  ║
+║   &quot;workflow_id&quot;: &quot;wf-12&quot;,                    ║    ║   &quot;workflow_id&quot;: &quot;wf-12&quot;,                                                  ║    ║   &quot;id&quot;: &quot;ob-5501&quot;,                                                 ║
+║   &quot;tenant_id&quot;: &quot;t-17 (Priya's Yoga Studio)&quot;, ║    ║   &quot;version&quot;: 1,                                                            ║    ║   &quot;destination&quot;: &quot;kafka:workflow.events&quot; or &quot;kafka:contact.events&quot; ║
+║   &quot;name&quot;: &quot;New Lead Nurture&quot;,                ║    ║   &quot;trigger&quot;: { &quot;type&quot;: &quot;form.submitted&quot;, &quot;form_id&quot;: &quot;f-3&quot; },               ║    ║                  or &quot;kafka:run.events&quot; or &quot;sqs:actions-email&quot;      ║
+║   &quot;live_version&quot;: 1,                         ║    ║   &quot;reentry&quot;: &quot;ONCE&quot; or &quot;EVERY_TIME&quot;,                                       ║    ║                  or &quot;sqs:actions-sms&quot; or &quot;sqs:actions-tag&quot;,        ║
+║   &quot;status&quot;: &quot;DRAFT&quot; or &quot;ACTIVE&quot; or &quot;PAUSED&quot;  ║    ║   &quot;start&quot;: &quot;n2&quot;,                                                           ║    ║   &quot;key&quot;: &quot;wf-12&quot; or &quot;c-501&quot; or &quot;r-9001&quot;,                           ║
+║ }                                            ║    ║   &quot;nodes&quot;: {                                                               ║    ║   &quot;payload&quot;: { &quot;event_id&quot;: &quot;ob-5501&quot;, &quot;type&quot;: &quot;...&quot;, ... },        ║
+╚══════════════════════════════════════════════╝    ║     &quot;n2&quot;: { &quot;type&quot;: &quot;send_email&quot;, &quot;template&quot;: &quot;welcome&quot;, &quot;next&quot;: &quot;n3&quot; },   ║    ║   &quot;created_at&quot;: &quot;2026-11-23T10:00:00Z&quot;,                            ║
+                                                    ║     &quot;n3&quot;: { &quot;type&quot;: &quot;wait&quot;, &quot;for&quot;: &quot;P2D&quot;, &quot;next&quot;: &quot;n4&quot; },                  ║    ║   &quot;sent_at&quot;: null or &quot;2026-11-23T10:00:00.4Z&quot;                      ║
+                                                    ║     &quot;n4&quot;: { &quot;type&quot;: &quot;if&quot;, &quot;rule&quot;: &quot;opened(n2)&quot;, &quot;yes&quot;: &quot;n5&quot;, &quot;no&quot;: &quot;n7&quot; }, ║    ║ }                                                                  ║
+                                                    ║     &quot;n5&quot;: { &quot;type&quot;: &quot;add_tag&quot;, &quot;tag&quot;: &quot;engaged&quot;, &quot;next&quot;: &quot;n6&quot; },           ║    ╚════════════════════════════════════════════════════════════════════╝
+                                                    ║     &quot;n6&quot;: { &quot;type&quot;: &quot;send_sms&quot;, &quot;to&quot;: &quot;assigned_rep&quot;, &quot;next&quot;: null },      ║
+                                                    ║     &quot;n7&quot;: { &quot;type&quot;: &quot;send_sms&quot;, &quot;template&quot;: &quot;follow_up&quot;, &quot;next&quot;: &quot;n8&quot; },   ║
+                                                    ║     &quot;n8&quot;: { &quot;type&quot;: &quot;wait&quot;, &quot;for&quot;: &quot;P3D&quot;, &quot;next&quot;: &quot;n9&quot; },                  ║
+                                                    ║     &quot;n9&quot;: { &quot;type&quot;: &quot;send_email&quot;, &quot;template&quot;: &quot;final&quot;, &quot;next&quot;: null }      ║
+                                                    ║   }                                                                        ║
+                                                    ║ }                                                                          ║
+                                                    ╚════════════════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<h3 id="postgresql-run-db-contact-db">PostgreSQL: Run DB + Contact DB</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">╔════════════════════════════════════════════════════════════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════╗    ╔════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════════════════════╗
+║ runs (Run DB) · key run_id · UNIQUE workflow_id + contact_id + enroll_key · index status + next_run_at ║    ║ run_steps (Run DB) · key run_id + node_id    ║    ║ contacts (Contact DB) · key contact_id     ║    ║ contact_activity (Contact DB) · UNIQUE provider_event_id · index contact_id + type ║
+╟────────────────────────────────────────────────────────────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────╢    ╟────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────────────────────╢
+║ {                                                                                                      ║    ║ {                                            ║    ║ {                                          ║    ║ {                                                                                  ║
+║   &quot;run_id&quot;: &quot;r-9001&quot;,                                                                                  ║    ║   &quot;run_id&quot;: &quot;r-9001&quot;,                        ║    ║   &quot;contact_id&quot;: &quot;c-501&quot;,                   ║    ║   &quot;provider_event_id&quot;: &quot;sg-evt-77Q&quot;,                                               ║
+║   &quot;tenant_id&quot;: &quot;t-17&quot;,                                                                                 ║    ║   &quot;node_id&quot;: &quot;n2&quot;,                           ║    ║   &quot;tenant_id&quot;: &quot;t-17&quot;,                     ║    ║   &quot;contact_id&quot;: &quot;c-501&quot;,                                                           ║
+║   &quot;workflow_id&quot;: &quot;wf-12&quot;,                                                                              ║    ║   &quot;status&quot;: &quot;PENDING&quot; or &quot;SENDING&quot; or &quot;SENT&quot; ║    ║   &quot;name&quot;: &quot;Rahul&quot;,                         ║    ║   &quot;type&quot;: &quot;email.delivered&quot; or &quot;email.opened&quot;                                      ║
+║   &quot;version&quot;: 1,                                                                                        ║    ║             or &quot;FAILED&quot; or &quot;UNKNOWN&quot;,        ║    ║   &quot;email&quot;: &quot;rahul@example.com&quot;,            ║    ║           or &quot;email.clicked&quot; or &quot;sms.delivered&quot;,                                   ║
+║   &quot;contact_id&quot;: &quot;c-501 (Rahul)&quot;,                                                                       ║    ║   &quot;provider_msg_id&quot;: &quot;sg-AbC123&quot; or null,    ║    ║   &quot;phone&quot;: &quot;+91-98xxxxxx01&quot;,               ║    ║   &quot;run_id&quot;: &quot;r-9001&quot;,                                                              ║
+║   &quot;enroll_key&quot;: &quot;ONCE&quot; or &quot;e-77 (trigger event id)&quot;,                                                   ║    ║   &quot;attempts&quot;: 1,                             ║    ║   &quot;time_zone&quot;: &quot;Asia/Kolkata&quot;,             ║    ║   &quot;node_id&quot;: &quot;n2&quot;,                                                                 ║
+║   &quot;current_node&quot;: &quot;n2&quot; or &quot;n3&quot; or &quot;n4&quot; or ...,                                                         ║    ║   &quot;updated_at&quot;: &quot;2026-11-23T10:00:02Z&quot;       ║    ║   &quot;tags&quot;: [&quot;lead&quot;] or [&quot;lead&quot;, &quot;engaged&quot;], ║    ║   &quot;machine_open&quot;: false or true,                                                   ║
+║   &quot;status&quot;: &quot;READY&quot; or &quot;WAITING_ACTION&quot; or &quot;WAITING&quot;                                                   ║    ║ }                                            ║    ║   &quot;assigned_rep&quot;: &quot;u-9 (Anita)&quot;,           ║    ║   &quot;at&quot;: &quot;2026-11-23T18:20:11Z&quot;                                                     ║
+║             or &quot;DONE&quot; or &quot;EXITED&quot; or &quot;FAILED&quot;,                                                         ║    ╚══════════════════════════════════════════════╝    ║   &quot;email_opt_out&quot;: false or true,          ║    ║ }                                                                                  ║
+║   &quot;next_run_at&quot;: &quot;2026-11-25T10:00:03Z&quot; or null,                                                       ║                                                        ║   &quot;sms_opt_out&quot;: false or true             ║    ╚════════════════════════════════════════════════════════════════════════════════════╝
+║   &quot;row_version&quot;: 4                                                                                     ║                                                        ║ }                                          ║
+║ }                                                                                                      ║                                                        ╚════════════════════════════════════════════╝
+╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<h3 id="redis-kafka-sqs">Redis, Kafka, SQS</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">╔════════════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════════════════════╗    ╔═════════════════════════════════════════════════════════════════╗
+║ Redis · trigger index · key trig:{tenant}:{event type} ║    ║ Redis · graph cache + rate limit                             ║    ║ Kafka topics (key = ordering lane)                                 ║    ║ SQS message · queue actions-email or actions-sms or actions-tag ║
+╟────────────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────────────────────╢    ╟─────────────────────────────────────────────────────────────────╢
+║ {                                                      ║    ║ {                                                            ║    ║ {                                                                  ║    ║ {                                                               ║
+║   &quot;key&quot;: &quot;trig:t-17:form.submitted&quot;,                   ║    ║   &quot;wfv:wf-12:1&quot;: &quot;&lt;the frozen nodes JSON&gt;  (never stale)&quot;,   ║    ║   &quot;workflow.events&quot;: &quot;key workflow_id  (published, paused)&quot;,       ║    ║   &quot;MessageGroupId&quot;: &quot;t-17   (fair queue: one busy business      ║
+║   &quot;value&quot;: [ { &quot;workflow_id&quot;: &quot;wf-12&quot;, &quot;version&quot;: 1,   ║    ║   &quot;rl:t-17:sms&quot;: { &quot;tokens&quot;: 18, &quot;refill&quot;: &quot;20 per second&quot; } ║    ║   &quot;contact.events&quot;:  &quot;key contact_id   (form.submitted,            ║    ║                              cannot starve the others)&quot;,        ║
+║                &quot;filter&quot;: { &quot;form_id&quot;: &quot;f-3&quot; } } ]      ║    ║ }                                                            ║    ║                                         email.opened, tag_added)&quot;, ║    ║   &quot;body&quot;: { &quot;event_id&quot;: &quot;ob-5502&quot;, &quot;run_id&quot;: &quot;r-9001&quot;,          ║
+║ }                                                      ║    ╚══════════════════════════════════════════════════════════════╝    ║   &quot;run.events&quot;:      &quot;key run_id       (run.ready,                 ║    ║             &quot;node_id&quot;: &quot;n2&quot;, &quot;channel&quot;: &quot;email&quot;,                ║
+╚════════════════════════════════════════════════════════╝                                                                        ║                                         action.completed)&quot;         ║    ║             &quot;template&quot;: &quot;welcome&quot;, &quot;to&quot;: &quot;c-501&quot; }              ║
+                                                                                                                                  ║ }                                                                  ║    ║ }                                                               ║
+                                                                                                                                  ╚════════════════════════════════════════════════════════════════════╝    ╚═════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<h2 id="flows-the-big-diagram-one-piece-at-a-time">Flows (the big diagram, one piece at a time)</h2>
+<p>Each box says what it does in each step (<code>STEP n: what</code>, then how, then an example). Under each diagram, <strong>Data in this flow</strong> shows the rows and messages that flow writes (scroll sideways).</p>
+<h3 id="flow-1-priya-publishes-new-lead-nurture-a-frozen-version-1-the-trigger-index-knows-about-it-workflow-service-workflow-db-outbox-outbox-relay-kafka-trigger-matcher-redis">Flow 1. Priya publishes "New Lead Nurture" → a frozen version 1 → the trigger index knows about it (Workflow Service → Workflow DB + outbox → Outbox Relay → Kafka → Trigger Matcher → Redis)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1 ────────────────────────────────────────────────┐             ┌── STEP 2, 3 ─────────────────────────────────────────────┐             ┌── STEP 3 ────────────────────────────────────────────────┐             ┌── STEP 4 ────────────────────────────────────────────────┐             ┌── STEP 4, 5 ─────────────────────────────────────────────┐             ┌── STEP 5 ────────────────────────────────────────────────┐             ┌── STEP 5 ────────────────────────────────────────────────┐
+│ Priya  (business owner, visual builder)                  │             │ Workflow Service                                         │             │ Workflow DB  (PostgreSQL)                                │             │ Outbox Relay                                             │             │ Kafka  (topic workflow.events)                           │             │ Trigger Matcher                                          │             │ Redis  (cache)                                           │
+├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Clicks Publish on &quot;New Lead Nurture&quot;             │ ──────────&gt; │ STEP 2: Checks the graph can really run                  │ ──────────&gt; │ STEP 3: Keeps the frozen version and the news            │ ──────────&gt; │ STEP 4: Copies new outbox rows into Kafka                │ ──────────&gt; │ STEP 4: Keeps each workflow's changes in order           │ ──────────&gt; │ STEP 5: Updates the trigger index                        │ ──────────&gt; │ STEP 5: Answers &quot;who listens to this event?&quot;             │
+│   - POST /v1/workflows/wf-12/publish                     │             │   - every path ends, every wait has a length             │             │   - version rows are never edited, only added            │             │   - polls outbox (SKIP LOCKED), sends, marks sent        │             │   - same key = same partition = one lane                 │             │   - adds wf-12 v1 under its trigger                      │             │   - cache only: on a miss, read Workflow DB              │
+│   - e.g. email -&gt; wait 2d -&gt; if opened -&gt; ...            │             │   - e.g. n4 has both a yes and a no branch               │             │   - e.g. outbox ob-5501 workflow.published               │             │   - e.g. ob-5501 -&gt; workflow.events, key wf-12           │             │   - e.g. published v1 is read before paused              │             │   - e.g. form.submitted + form f-3 -&gt; wf-12 v1           │             │   - e.g. trig:t-17:form.submitted -&gt; [wf-12 v1]          │
+└──────────────────────────────────────────────────────────┘             │                                                          │             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘
+                                                                         │ STEP 3: Saves version 1 + outbox in one go               │
+                                                                         │   - BEGIN; INSERT version; UPDATE live; INSERT outbox    │
+                                                                         │   - e.g. workflow_versions wf-12 v1, live_version = 1    │
+                                                                         └──────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ Workflow DB                                                                                                                                                           ▼ Kafka                                                 ▼ Redis
+╔═══════════════════════════════════════════╗    ╔═════════════════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════╗
+║ workflows (Workflow DB) · key workflow_id ║    ║ workflow_versions (Workflow DB) · key workflow_id + version ║    ║ outbox (Workflow DB)                         ║    ║ Kafka message                                    ║    ║ Redis key                                    ║
+╟───────────────────────────────────────────╢    ╟─────────────────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────╢
+║ {                                         ║    ║ {                                                           ║    ║ {                                            ║    ║ {                                                ║    ║ {                                            ║
+║   &quot;workflow_id&quot;: &quot;wf-12&quot;,                 ║    ║   &quot;workflow_id&quot;: &quot;wf-12&quot;,                                   ║    ║   &quot;id&quot;: &quot;ob-5501&quot;,                           ║    ║   &quot;topic&quot;: &quot;workflow.events&quot;,                    ║    ║   &quot;trig:t-17:form.submitted&quot;: [              ║
+║   &quot;tenant_id&quot;: &quot;t-17&quot;,                    ║    ║   &quot;version&quot;: 1,                                             ║    ║   &quot;destination&quot;: &quot;kafka:workflow.events&quot;,    ║    ║   &quot;key&quot;: &quot;wf-12&quot;,                                ║    ║     { &quot;workflow_id&quot;: &quot;wf-12&quot;, &quot;version&quot;: 1,  ║
+║   &quot;name&quot;: &quot;New Lead Nurture&quot;,             ║    ║   &quot;trigger&quot;: { &quot;type&quot;: &quot;form.submitted&quot;,                    ║    ║   &quot;key&quot;: &quot;wf-12&quot;,                            ║    ║   &quot;headers&quot;: { &quot;event_id&quot;: &quot;ob-5501&quot; },          ║    ║       &quot;filter&quot;: { &quot;form_id&quot;: &quot;f-3&quot; } } ],    ║
+║   &quot;live_version&quot;: 1,                      ║    ║                &quot;form_id&quot;: &quot;f-3&quot; },                          ║    ║   &quot;payload&quot;: { &quot;type&quot;: &quot;workflow.published&quot;, ║    ║   &quot;value&quot;: { &quot;type&quot;: &quot;workflow.published&quot;,       ║    ║   &quot;wfv:wf-12:1&quot;: &quot;&lt;nodes JSON of version 1&gt;&quot; ║
+║   &quot;status&quot;: &quot;ACTIVE&quot;                      ║    ║   &quot;reentry&quot;: &quot;ONCE&quot;,                                        ║    ║                &quot;version&quot;: 1 },               ║    ║              &quot;tenant_id&quot;: &quot;t-17&quot;, &quot;version&quot;: 1 } ║    ║ }                                            ║
+║ }                                         ║    ║   &quot;start&quot;: &quot;n2&quot;,                                            ║    ║   &quot;sent_at&quot;: null                            ║    ║ }                                                ║    ╚══════════════════════════════════════════════╝
+╚═══════════════════════════════════════════╝    ║   &quot;nodes&quot;: { &quot;n2&quot;: ..., &quot;n9&quot;: ... }                         ║    ║ }                                            ║    ╚══════════════════════════════════════════════════╝
+                                                 ║ }                                                           ║    ╚══════════════════════════════════════════════╝
+                                                 ╚═════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>Priya clicks Publish</strong></p>
+<ul>
+<li><strong>a) What is sent</strong><ul>
+<li><code>POST /v1/workflows/wf-12/publish</code>; the draft graph is already saved</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> none yet</li>
+<li><strong>Why a draft and a publish:</strong> Priya can fiddle with the draft all week. Only Publish makes it live.</li>
+</ul>
+</li>
+<li>
+<p><strong>The Workflow Service checks the graph can run</strong></p>
+<ul>
+<li><strong>a) Checks</strong><ul>
+<li>every path ends; every <code>if</code> has a yes and a no; every wait has a length</li>
+<li>a loop must contain a wait (otherwise one contact spins forever and burns SMS money)</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> none</li>
+<li><strong>Why:</strong> a broken graph found at publish time costs nothing. Found while 10,000 contacts are inside, it costs a support ticket per contact.</li>
+</ul>
+</li>
+<li>
+<p><strong>One transaction: new frozen version + outbox row</strong></p>
+<ul>
+<li><strong>a) The transaction</strong><ul>
+<li><code>INSERT workflow_versions (wf-12, 1, nodes...)</code>, <code>UPDATE workflows SET live_version = 1</code>, <code>INSERT outbox</code></li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>workflow_versions</code> row <code>{wf-12, version: 1}</code>, <code>workflows.live_version = 1</code>, <code>outbox</code> row <code>ob-5501 workflow.published</code></li>
+<li><strong>Why frozen versions:</strong> each run remembers its version. If Priya edits later, she publishes version 2; Rahul keeps walking version 1 and never lands on a step that no longer exists.</li>
+<li><strong>Why the outbox:</strong> saving and then sending to Kafka is two writes. A crash between them means the Trigger Matcher never hears about wf-12, and form submissions are silently ignored.</li>
+</ul>
+</li>
+<li>
+<p><strong>The Outbox Relay copies the row into Kafka</strong></p>
+<ul>
+<li><strong>a) How</strong><ul>
+<li>a small loop: <code>SELECT ... FROM outbox WHERE sent_at IS NULL FOR UPDATE SKIP LOCKED LIMIT 500</code>, publish, set <code>sent_at</code></li>
+<li>a crash after publishing but before <code>sent_at</code> means it publishes again; readers drop repeats by <code>event_id</code></li>
+</ul>
+</li>
+<li><strong>Data change:</strong> Kafka <code>workflow.events</code>, key <code>wf-12</code></li>
+<li><strong>Market note:</strong> Debezium (a CDC, Change Data Capture, tool that reads PostgreSQL's change log) does the same job without polling. Either is fine; a polling relay is simpler to run, and it can also send to SQS, which Flow 3 needs.</li>
+</ul>
+</li>
+<li>
+<p><strong>The Trigger Matcher updates the trigger index in Redis</strong></p>
+<ul>
+<li><strong>a) How</strong><ul>
+<li><code>trig:t-17:form.submitted</code> gets <code>{wf-12, v1, filter form_id = f-3}</code></li>
+<li><code>wfv:wf-12:1</code> gets the frozen graph; it can never go stale because version 1 never changes</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> two Redis keys</li>
+<li><strong>Why Redis:</strong> every incoming event asks "who listens to me?". Asking PostgreSQL thousands of times a second is wasteful. Redis is only a copy: on a miss the matcher reads Workflow DB and refills.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Publishing creates an immutable version with an outbox event in one transaction. The relay pushes it to Kafka, and the Trigger Matcher refreshes a Redis index of event type → listening workflows, so matching is a cache lookup."</p>
+<h3 id="flow-2-rahul-submits-the-form-he-is-enrolled-exactly-once-api-gateway-event-ingestion-contact-db-outbox-outbox-relay-kafka-trigger-matcher-redis-run-db">Flow 2. Rahul submits the form → he is enrolled exactly once (API Gateway → Event Ingestion → Contact DB + outbox → Outbox Relay → Kafka → Trigger Matcher → Redis + Run DB)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1 ────────────────────────────────────────────────┐             ┌── STEP 1 ────────────────────────────────────────────────┐             ┌── STEP 2 ────────────────────────────────────────────────┐             ┌── STEP 2 ────────────────────────────────────────────────┐             ┌── STEP 3 ────────────────────────────────────────────────┐             ┌── STEP 3, 4 ─────────────────────────────────────────────┐             ┌── STEP 4, 5 ─────────────────────────────────────────────┐             ┌── STEP 4 ────────────────────────────────────────────────┐
+│ Rahul's browser  (Priya's website)                       │             │ API Gateway                                              │             │ Event Ingestion                                          │             │ Contact DB  (PostgreSQL)                                 │             │ Outbox Relay                                             │             │ Kafka  (topic contact.events)                            │             │ Trigger Matcher                                          │             │ Redis  (cache)                                           │
+├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Submits the contact form                         │ ──────────&gt; │ STEP 1: Checks the form key and the rate                 │ ──────────&gt; │ STEP 2: Finds or creates the contact                     │ ──────────&gt; │ STEP 2: Keeps Rahul and the &quot;form sent&quot; news             │ ──────────&gt; │ STEP 3: Copies the outbox row into Kafka                 │ ──────────&gt; │ STEP 3: Keeps each contact's events in order             │ ──────────&gt; │ STEP 4: Finds the workflows that listen                  │ ──┬───────&gt; │ STEP 4: Returns the listeners for the event              │
+│   - POST /v1/forms/f-3/submissions                       │             │   - public form key -&gt; business t-17                     │             │   - match by email inside business t-17                  │             │   - both rows commit together, or neither                │             │   - same relay as Flow 1, other table                    │             │   - key c-501 = one lane for Rahul                       │             │   - reads the trigger index, checks filters              │   │         │   - hit in well under a millisecond                      │
+│   - e.g. Rahul, rahul@example.com, &quot;yoga prices?&quot;        │             │   - e.g. a bot sending 50 forms a minute -&gt; 429          │             │   - e.g. new contact c-501 Rahul, tag &quot;lead&quot;             │             │   - e.g. contacts c-501 + outbox e-77                    │             │   - e.g. e-77 -&gt; contact.events, key c-501               │             │   - e.g. form.submitted, later email.opened              │             │   - e.g. form f-3 -&gt; wf-12 v1 matches                    │   │         │   - e.g. trig:t-17:form.submitted -&gt; [wf-12 v1]          │
+└──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             │                                                          │             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             │                                                          │             │                                                          │   │         └──────────────────────────────────────────────────────────┘
+                                                                                                                                                  │ STEP 2: Saves contact + event in one transaction         │                                                                                                                                                               │ STEP 4: Feeds each reader group on its own               │             │ STEP 5: Enrolls Rahul exactly once                       │   │
+                                                                                                                                                  │   - contacts upsert + outbox row                         │                                                                                                                                                               │   - trigger-matcher, activity-writer                     │             │   - INSERT run ON CONFLICT DO NOTHING + outbox           │   │
+                                                                                                                                                  │   - e.g. event id e-77 form.submitted                    │                                                                                                                                                               │   - e.g. each group has its own bookmark                 │             │   - e.g. run r-9001 at n2, status READY                  │   │
+                                                                                                                                                  └──────────────────────────────────────────────────────────┘                                                                                                                                                               └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘   │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     │         ┌── STEP 5 ────────────────────────────────────────────────┐
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     │         │ Run DB  (PostgreSQL)                                     │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     │         ├──────────────────────────────────────────────────────────┤
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     └───────&gt; │ STEP 5: Stores the run and the &quot;start it&quot; note           │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               │   - UNIQUE workflow + contact + enroll_key               │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               │   - e.g. a repeat of e-77 inserts nothing                │
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               └──────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ Contact DB                                                                                                   ▼ Kafka                                                    ▼ Redis                                            ▼ Run DB
+╔════════════════════════════════════════╗    ╔═══════════════════════════════════════════════════════════╗    ╔═════════════════════════════════════════════════════╗    ╔═════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════════════════╗    ╔═══════════════════════════════════════╗
+║ contacts (Contact DB) · key contact_id ║    ║ outbox (Contact DB)                                       ║    ║ Kafka message                                       ║    ║ Redis key (read)                            ║    ║ runs (Run DB) · UNIQUE workflow_id + contact_id + enroll_key ║    ║ outbox (Run DB)                       ║
+╟────────────────────────────────────────╢    ╟───────────────────────────────────────────────────────────╢    ╟─────────────────────────────────────────────────────╢    ╟─────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────────────────╢    ╟───────────────────────────────────────╢
+║ {                                      ║    ║ {                                                         ║    ║ {                                                   ║    ║ {                                           ║    ║ {                                                            ║    ║ {                                     ║
+║   &quot;contact_id&quot;: &quot;c-501&quot;,               ║    ║   &quot;id&quot;: &quot;e-77&quot;,                                           ║    ║   &quot;topic&quot;: &quot;contact.events&quot;,                        ║    ║   &quot;trig:t-17:form.submitted&quot;: [             ║    ║   &quot;run_id&quot;: &quot;r-9001&quot;,                                        ║    ║   &quot;id&quot;: &quot;ob-6001&quot;,                    ║
+║   &quot;tenant_id&quot;: &quot;t-17&quot;,                 ║    ║   &quot;destination&quot;: &quot;kafka:contact.events&quot;,                  ║    ║   &quot;key&quot;: &quot;c-501&quot;,                                   ║    ║     { &quot;workflow_id&quot;: &quot;wf-12&quot;, &quot;version&quot;: 1, ║    ║   &quot;workflow_id&quot;: &quot;wf-12&quot;,                                    ║    ║   &quot;destination&quot;: &quot;kafka:run.events&quot;,  ║
+║   &quot;name&quot;: &quot;Rahul&quot;,                     ║    ║   &quot;key&quot;: &quot;c-501&quot;,                                         ║    ║   &quot;headers&quot;: { &quot;event_id&quot;: &quot;e-77&quot; },                ║    ║       &quot;filter&quot;: { &quot;form_id&quot;: &quot;f-3&quot; } } ]    ║    ║   &quot;version&quot;: 1,                                              ║    ║   &quot;key&quot;: &quot;r-9001&quot;,                    ║
+║   &quot;email&quot;: &quot;rahul@example.com&quot;,        ║    ║   &quot;payload&quot;: { &quot;type&quot;: &quot;form.submitted&quot;,                  ║    ║   &quot;value&quot;: { &quot;type&quot;: &quot;form.submitted&quot;,              ║    ║ }                                           ║    ║   &quot;contact_id&quot;: &quot;c-501&quot;,                                     ║    ║   &quot;payload&quot;: { &quot;type&quot;: &quot;run.ready&quot; }, ║
+║   &quot;time_zone&quot;: &quot;Asia/Kolkata&quot;,         ║    ║                &quot;form_id&quot;: &quot;f-3&quot;,                          ║    ║              &quot;tenant_id&quot;: &quot;t-17&quot;, &quot;form_id&quot;: &quot;f-3&quot;, ║    ╚═════════════════════════════════════════════╝    ║   &quot;enroll_key&quot;: &quot;ONCE&quot;,                                      ║    ║   &quot;sent_at&quot;: null                     ║
+║   &quot;tags&quot;: [&quot;lead&quot;],                    ║    ║                &quot;fields&quot;: { &quot;message&quot;: &quot;yoga prices?&quot; } }, ║    ║              &quot;at&quot;: &quot;2026-11-23T10:00:00Z&quot; }         ║                                                       ║   &quot;current_node&quot;: &quot;n2&quot;,                                      ║    ║ }                                     ║
+║   &quot;assigned_rep&quot;: &quot;u-9 (Anita)&quot;,       ║    ║   &quot;sent_at&quot;: null                                         ║    ║ }                                                   ║                                                       ║   &quot;status&quot;: &quot;READY&quot;,                                         ║    ╚═══════════════════════════════════════╝
+║   &quot;email_opt_out&quot;: false,              ║    ║ }                                                         ║    ╚═════════════════════════════════════════════════════╝                                                       ║   &quot;next_run_at&quot;: null,                                       ║
+║   &quot;sms_opt_out&quot;: false                 ║    ╚═══════════════════════════════════════════════════════════╝                                                                                                                  ║   &quot;row_version&quot;: 1                                           ║
+║ }                                      ║                                                                                                                                                                                   ║ }                                                            ║
+╚════════════════════════════════════════╝                                                                                                                                                                                   ╚══════════════════════════════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>Rahul submits Priya's website form</strong></p>
+<ul>
+<li><strong>a) The request</strong><ul>
+<li><code>POST /v1/forms/f-3/submissions {email: rahul@example.com, name: Rahul, fields}</code></li>
+<li>the API Gateway turns the public form key into business <code>t-17</code> and rate-limits bots</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> none yet</li>
+<li><strong>Why rate-limit here:</strong> public forms get spammed. Each fake lead would start real SMS sends that cost Priya money.</li>
+</ul>
+</li>
+<li>
+<p><strong>Event Ingestion saves the contact and the event in one transaction</strong></p>
+<ul>
+<li><strong>a) Find or create the contact</strong><ul>
+<li>match by email inside business t-17; new, so contact <code>c-501</code></li>
+</ul>
+</li>
+<li><strong>b) Same transaction:</strong> <code>contacts</code> upsert + <code>outbox</code> row (event id <code>e-77</code>)</li>
+<li><strong>Data change:</strong> <code>contacts</code> row <code>{c-501, Rahul, tags: [lead]}</code>, <code>outbox</code> row <code>{e-77, form.submitted, key c-501}</code></li>
+<li><strong>Why:</strong> "contact saved but event lost" means Rahul never gets the welcome email. "Event sent but contact rolled back" means a run for a contact who doesn't exist. One transaction makes both happen, or neither.</li>
+<li>The website gets <code>202 Accepted</code> straight away; everything after this is background work.</li>
+</ul>
+</li>
+<li>
+<p><strong>The relay publishes to Kafka <code>contact.events</code>, key <code>c-501</code></strong></p>
+<ul>
+<li><strong>a) Why key by contact</strong><ul>
+<li>all of Rahul's events travel in one ordered lane: form sent, then email opened, then tag added</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> Kafka message <code>form.submitted e-77</code></li>
+</ul>
+</li>
+<li>
+<p><strong>The Trigger Matcher finds the listening workflows</strong></p>
+<ul>
+<li><strong>a) Lookup</strong><ul>
+<li>Redis <code>trig:t-17:form.submitted</code> → <code>[wf-12 v1, filter form_id = f-3]</code>; the filter matches</li>
+</ul>
+</li>
+<li><strong>b) Rules before enrolling</strong><ul>
+<li>is wf-12 <code>ACTIVE</code>? Does its re-entry rule allow Rahul in again?</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> none</li>
+</ul>
+</li>
+<li>
+<p><strong>Enroll once: insert the run + an outbox row in one transaction</strong></p>
+<ul>
+<li><strong>a) The insert</strong><ul>
+<li><code>INSERT INTO runs (...) VALUES (r-9001, wf-12, 1, c-501, enroll_key 'ONCE', n2, READY) ON CONFLICT DO NOTHING</code></li>
+<li>plus <code>outbox {run.ready, key r-9001}</code> in the same transaction</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>runs</code> row <code>{r-9001, current_node: n2, status: READY}</code>; <code>outbox</code> row <code>ob-6001</code></li>
+<li><strong>What enroll_key does:</strong> <code>ONCE</code> means "only one run per contact per workflow, ever". <code>EVERY_TIME</code> uses the trigger event id (<code>e-77</code>), so a second form a month later starts a second run, but a repeat delivery of the same event does not.</li>
+<li><strong>Why the UNIQUE rule and not "check first":</strong> two copies of e-77 read by two consumers at the same moment would both see "no run yet". The database's unique rule lets exactly one insert win.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Ingestion upserts the contact with an outbox event; the matcher looks up listeners in Redis and inserts the run under a unique key (workflow, contact, enroll key) together with a run.ready outbox row, so duplicate deliveries can never double-enroll."</p>
+<h3 id="flow-3-the-welcome-email-goes-out-once-then-rahul-goes-to-sleep-for-2-days-kafka-step-executor-run-db-outbox-outbox-relay-sqs-email-worker-sendgrid-run-db-outbox-kafka">Flow 3. The welcome email goes out once, then Rahul goes to sleep for 2 days (Kafka → Step Executor → Run DB + outbox → Outbox Relay → SQS → Email Worker → SendGrid → Run DB + outbox → Kafka)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">                                                                                                                                                                                                        ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+                                                                                                                                                                                                        ▼                                                                                                                                                                                                                          │
+┌── STEP 1, 6 ─────────────────────────────────────────────┐             ┌── STEP 1, 2, 7 ──────────────────────────────────────────┐             ┌── STEP 2, 4, 5, 7 ───────────────────────────────────────┐             ┌── STEP 3, 6 ─────────────────────────────────────────────┐             ┌── STEP 3, 4 ─────────────────────────────────────────────┐             ┌── STEP 4, 5 ─────────────────────────────────────────────┐             ┌── STEP 5 ────────────────────────────────────────────────┐
+│ Kafka  (topic run.events)                                │             │ Step Executor  (stateless, many copies)                  │             │ Run DB  (PostgreSQL)                                     │             │ Outbox Relay                                             │             │ SQS  (queue actions-email)                               │             │ Email Worker                                             │             │ SendGrid  (email company)                                │
+├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Delivers &quot;run r-9001 is ready&quot;                   │ ──────────&gt; │ STEP 1: Loads the run and its frozen graph               │ ──────────&gt; │ STEP 2: Saves step + &quot;send it&quot; note together             │ ──────────&gt; │ STEP 3: Sends the action to the right queue              │ ──────────&gt; │ STEP 3: Holds the email job until a worker is free       │ ──────────&gt; │ STEP 4: Checks rate limit, claims the step               │ ──────────&gt; │ STEP 5: Delivers the welcome email                       │
+│   - key r-9001 = one lane per run                        │             │   - run row from Run DB, graph from Redis                │             │   - UPDATE runs WHERE row_version = 1                    │             │   - destination sqs:actions-email                        │             │   - fair queue: each business gets its share             │             │   - Redis token bucket rl:t-17:email                     │             │   - adds an open-tracking pixel                          │
+│   - e.g. run.ready from Flow 2                           │             │   - e.g. r-9001 at n2 = send_email &quot;welcome&quot;             │             │   - e.g. two executors? only one update wins             │             │   - e.g. MessageGroupId t-17                             │             │   - e.g. a 1M-contact blast cannot block t-17            │             │   - e.g. over the limit -&gt; delay, try later              │             │   - e.g. to rahul@example.com                            │
+│                                                          │             │                                                          │             │                                                          │             │                                                          │             │                                                          │             │                                                          │             └──────────────────────────────────────────────────────────┘
+│ STEP 6: Delivers &quot;the email step is done&quot;                │             │ STEP 2: Checks, then asks for the email                  │             │ STEP 4: Lets one worker claim the step                   │             │ STEP 6: Sends &quot;step done&quot; to Kafka                       │             │ STEP 4: Hands it to one worker, retries on silence       │             │ STEP 5: Sends, then records the result                   │
+│   - same lane, so it comes after run.ready               │             │   - opt-out check, then one transaction                  │             │   - UPDATE run_steps SET SENDING WHERE PENDING           │             │   - destination kafka:run.events                         │             │   - visibility timeout, 5 tries, then DLQ                │             │   - custom_args carry run_id + node_id                   │
+│   - e.g. action.completed r-9001 n2                      │             │   - e.g. run_steps n2 PENDING + outbox to SQS            │             │   - e.g. 1 row = go; 0 rows = a repeat, skip             │             │   - e.g. action.completed, key r-9001                    │             │   - e.g. job ob-5502                                     │             │   - e.g. SendGrid 202, message id sg-AbC123              │
+└──────────────────────────────────────────────────────────┘             │                                                          │             │                                                          │             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘
+                              ▲                                          │ STEP 7: Moves to the wait and stops                      │             │ STEP 5: Saves SENT + &quot;done&quot; note together                │                                           │
+                              │                                          │   - sets n3, WAITING, next_run_at = now + 2 days         │             │   - run_steps SENT + outbox action.completed             │                                           │
+                              │                                          │   - e.g. next_run_at 2026-11-25T10:00:03Z                │             │   - e.g. provider_msg_id sg-AbC123                       │                                           │
+                              │                                          └──────────────────────────────────────────────────────────┘             │                                                          │                                           │
+                              │                                                                                                                   │ STEP 7: Holds the sleeping run                           │                                           │
+                              │                                                                                                                   │   - partial index on next_run_at                         │                                           │
+                              │                                                                                                                   │   - e.g. r-9001 WAITING until Wed 10:00                  │                                           │
+                              │                                                                                                                   └──────────────────────────────────────────────────────────┘                                           │
+                              │                                                                                                                                                                                                                          │
+                              └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ Run DB                                                                                                                                                   ▼ SQS                                                     ▼ Redis                                                 ▼ SendGrid                                              ▼ Kafka
+╔══════════════════════════════════════════╗    ╔═══════════════════════════════════════════════════╗    ╔════════════════════════════════════════════╗    ╔════════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════╗
+║ runs (Run DB) · after STEP 7             ║    ║ run_steps (Run DB) · key run_id + node_id         ║    ║ outbox (Run DB) · 2 rows                   ║    ║ SQS message (actions-email)                        ║    ║ Redis key (rate limit)                           ║    ║ SendGrid request (POST /v3/mail/send)            ║    ║ Kafka message                                    ║
+╟──────────────────────────────────────────╢    ╟───────────────────────────────────────────────────╢    ╟────────────────────────────────────────────╢    ╟────────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────╢
+║ {                                        ║    ║ {                                                 ║    ║ {                                          ║    ║ {                                                  ║    ║ {                                                ║    ║ {                                                ║    ║ {                                                ║
+║   &quot;run_id&quot;: &quot;r-9001&quot;,                    ║    ║   &quot;run_id&quot;: &quot;r-9001&quot;,                             ║    ║   &quot;id&quot;: &quot;ob-5502&quot;,                         ║    ║   &quot;MessageGroupId&quot;: &quot;t-17&quot;,                        ║    ║   &quot;rl:t-17:email&quot;: { &quot;tokens&quot;: 49,               ║    ║   &quot;to&quot;: &quot;rahul@example.com&quot;,                     ║    ║   &quot;topic&quot;: &quot;run.events&quot;,                         ║
+║   &quot;current_node&quot;: &quot;n3&quot;,                  ║    ║   &quot;node_id&quot;: &quot;n2&quot;,                                ║    ║   &quot;destination&quot;: &quot;sqs:actions-email&quot;,      ║    ║   &quot;body&quot;: { &quot;event_id&quot;: &quot;ob-5502&quot;,                 ║    ║                      &quot;refill&quot;: &quot;50 per second&quot; } ║    ║   &quot;template_id&quot;: &quot;welcome&quot;,                      ║    ║   &quot;key&quot;: &quot;r-9001&quot;,                               ║
+║   &quot;status&quot;: &quot;WAITING&quot;,                   ║    ║   &quot;status&quot;: &quot;PENDING&quot; then &quot;SENDING&quot; then &quot;SENT&quot;, ║    ║   &quot;key&quot;: &quot;r-9001&quot;                          ║    ║             &quot;run_id&quot;: &quot;r-9001&quot;, &quot;node_id&quot;: &quot;n2&quot;,   ║    ║ }                                                ║    ║   &quot;custom_args&quot;: { &quot;run_id&quot;: &quot;r-9001&quot;,           ║    ║   &quot;headers&quot;: { &quot;event_id&quot;: &quot;ob-5503&quot; },          ║
+║   &quot;next_run_at&quot;: &quot;2026-11-25T10:00:03Z&quot;, ║    ║   &quot;provider_msg_id&quot;: &quot;sg-AbC123&quot;,                 ║    ║ }                                          ║    ║             &quot;template&quot;: &quot;welcome&quot;, &quot;to&quot;: &quot;c-501&quot; } ║    ╚══════════════════════════════════════════════════╝    ║                    &quot;node_id&quot;: &quot;n2&quot; },            ║    ║   &quot;value&quot;: { &quot;type&quot;: &quot;action.completed&quot;,         ║
+║   &quot;row_version&quot;: 3                       ║    ║   &quot;attempts&quot;: 1                                   ║    ║ {                                          ║    ║ }                                                  ║                                                            ║   &quot;tracking_settings&quot;: { &quot;open_tracking&quot;: true } ║    ║              &quot;node_id&quot;: &quot;n2&quot;, &quot;status&quot;: &quot;SENT&quot; } ║
+║ }                                        ║    ║ }                                                 ║    ║   &quot;id&quot;: &quot;ob-5503&quot;,                         ║    ╚════════════════════════════════════════════════════╝                                                            ║ }                                                ║    ║ }                                                ║
+╚══════════════════════════════════════════╝    ╚═══════════════════════════════════════════════════╝    ║   &quot;destination&quot;: &quot;kafka:run.events&quot;,       ║                                                                                                                      ╚══════════════════════════════════════════════════╝    ╚══════════════════════════════════════════════════╝
+                                                                                                         ║   &quot;key&quot;: &quot;r-9001&quot;,                         ║
+                                                                                                         ║   &quot;payload&quot;: { &quot;type&quot;: &quot;action.completed&quot;, ║
+                                                                                                         ║                &quot;node_id&quot;: &quot;n2&quot; }           ║
+                                                                                                         ║ }                                          ║
+                                                                                                         ╚════════════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>The Step Executor picks up <code>run.ready r-9001</code></strong></p>
+<ul>
+<li><strong>a) Load</strong><ul>
+<li>the run row (<code>current_node n2</code>, <code>row_version 1</code>) from Run DB</li>
+<li>the frozen graph <code>wfv:wf-12:1</code> from Redis: n2 = send_email "welcome"</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> none</li>
+<li><strong>Why stateless executors:</strong> an executor holds nothing between messages. Kill one mid-way and the next one reads the same row and carries on.</li>
+</ul>
+</li>
+<li>
+<p><strong>Check, then record "send the email" in one transaction</strong></p>
+<ul>
+<li><strong>a) Checks</strong><ul>
+<li>Rahul's <code>email_opt_out</code> is false; the workflow is still <code>ACTIVE</code></li>
+</ul>
+</li>
+<li><strong>b) The transaction</strong><ul>
+<li><code>UPDATE runs SET status = WAITING_ACTION, row_version = 2 WHERE run_id = r-9001 AND row_version = 1</code></li>
+<li><code>INSERT run_steps (r-9001, n2, PENDING)</code> + <code>INSERT outbox (sqs:actions-email)</code></li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>runs.status = WAITING_ACTION</code>; <code>run_steps</code> row n2 <code>PENDING</code>; outbox <code>ob-5502</code></li>
+<li><strong>What row_version does:</strong> if two executors got the same message, only the first <code>UPDATE ... WHERE row_version = 1</code> changes a row. The second changes 0 rows and stops. This is optimistic locking: no lock is held, the loser just notices.</li>
+</ul>
+</li>
+<li>
+<p><strong>The relay drops the job into SQS <code>actions-email</code></strong></p>
+<ul>
+<li><strong>a) Fair queue</strong><ul>
+<li><code>MessageGroupId = t-17</code>; SQS fair queues spread delivery across businesses, so a big blast can't starve Priya</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> SQS message <code>{event_id ob-5502, run r-9001, node n2}</code></li>
+<li><strong>Why SQS here and Kafka elsewhere:</strong> sends need per-message retry, delay and a DLQ (Dead Letter Queue), which SQS gives for free. Kafka is better for ordered event streams with many readers.</li>
+</ul>
+</li>
+<li>
+<p><strong>The Email Worker checks the rate limit and claims the step</strong></p>
+<ul>
+<li><strong>a) Rate limit</strong><ul>
+<li>Redis token bucket <code>rl:t-17:email</code>; if empty, push the message back with a short delay</li>
+</ul>
+</li>
+<li><strong>b) Claim</strong><ul>
+<li><code>UPDATE run_steps SET status = SENDING WHERE run_id = r-9001 AND node_id = n2 AND status = PENDING</code></li>
+<li>1 row changed = this worker owns it; 0 rows = someone already did it, so just delete the SQS message</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>run_steps</code> n2 <code>PENDING → SENDING</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Send through SendGrid, then save SENT + an outbox row in one transaction</strong></p>
+<ul>
+<li><strong>a) Send</strong><ul>
+<li><code>POST /v3/mail/send</code> with <code>custom_args {run_id, node_id}</code>, so later open events can be tied back to this step</li>
+</ul>
+</li>
+<li><strong>b) Record</strong><ul>
+<li><code>run_steps</code> n2 <code>SENT, provider_msg_id sg-AbC123</code> + <code>outbox {action.completed, key r-9001}</code></li>
+</ul>
+</li>
+<li><strong>Data change:</strong> as above</li>
+<li><strong>Crash in between (the honest part):</strong> if the worker dies after SendGrid accepted the email but before the update, the row stays <code>SENDING</code>. SendGrid and Twilio have no idempotency keys, so no one can promise exactly-once at that edge. We make the gap tiny and choose per channel: a stale <code>SENDING</code> email is marked <code>UNKNOWN</code> and checked against SendGrid's activity by message id before any resend; SMS is never resent automatically (a duplicate SMS costs money and annoys people more than a missing one).</li>
+</ul>
+</li>
+<li>
+<p><strong>The relay publishes <code>action.completed</code> to Kafka <code>run.events</code></strong></p>
+<ul>
+<li><strong>a) Same lane</strong><ul>
+<li>key <code>r-9001</code>, so it always arrives after the <code>run.ready</code> that started it</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> Kafka message <code>action.completed n2</code></li>
+</ul>
+</li>
+<li>
+<p><strong>The executor moves Rahul to the wait and stops</strong></p>
+<ul>
+<li><strong>a) The update</strong><ul>
+<li>next node n3 is <code>wait P2D</code>: <code>current_node = n3, status = WAITING, next_run_at = now + 2 days</code> (in UTC)</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>runs {n3, WAITING, next_run_at: 2026-11-25T10:00:03Z, row_version: 3}</code></li>
+<li><strong>Why no outbox here:</strong> nobody needs to be told now. The row itself is the alarm clock, and the Timer Service will find it (Flow 4).</li>
+<li><strong>Why not an SQS delay or a sleeping thread:</strong> an SQS delay is at most 15 minutes and Kafka has no delayed delivery at all. A sleeping thread dies at the next deploy. A row with <code>next_run_at</code> survives everything.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "The executor records the step as PENDING plus an outbox job in one transaction with an optimistic version check. Workers claim the step with a conditional update, send, then write SENT plus an action.completed outbox event. Providers have no idempotency, so we shrink that window and pick a per-channel policy. A wait is just a next_run_at on the row."</p>
+<h3 id="flow-4-rahul-opens-the-email-on-wednesday-he-wakes-up-and-takes-the-yes-path-sendgrid-webhook-event-ingestion-kafka-activity-writer-contact-db-timer-service-run-db-outbox-outbox-relay-kafka-step-executor-contact-db-run-db">Flow 4. Rahul opens the email; on Wednesday he wakes up and takes the "Yes" path (SendGrid webhook → Event Ingestion → Kafka → Activity Writer → Contact DB; Timer Service → Run DB + outbox → Outbox Relay → Kafka → Step Executor → Contact DB, Run DB)</h3>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">┌── STEP 1 ────────────────────────────────────────────────┐             ┌── STEP 1 ────────────────────────────────────────────────┐             ┌── STEP 1, 2 ─────────────────────────────────────────────┐             ┌── STEP 2 ────────────────────────────────────────────────┐             ┌── STEP 2, 5, 6 ──────────────────────────────────────────┐
+│ SendGrid  (event webhook)                                │             │ Event Ingestion                                          │             │ Kafka  (topic contact.events)                            │             │ Activity Writer                                          │             │ Contact DB  (PostgreSQL)                                 │
+├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤
+│ STEP 1: Tells us Rahul opened the email                  │ ──────────&gt; │ STEP 1: Checks the signature, writes to Kafka            │ ──────────&gt; │ STEP 1: Keeps Rahul's events in order                    │ ──────────&gt; │ STEP 2: Saves the open, drops repeats                    │ ──────────&gt; │ STEP 2: Keeps the activity row                           │
+│   - signed POST, a batch of events                       │             │   - no row of its own, so Kafka goes first               │             │   - same lane as his form event                          │             │   - INSERT ON CONFLICT (provider_event_id)               │             │   - index contact_id + type                              │
+│   - e.g. open, custom_args r-9001 / n2                   │             │   - e.g. email.opened, key c-501                         │             │   - e.g. email.opened after form.submitted               │             │   - e.g. SendGrid sends sg-evt-77Q twice                 │             │   - e.g. c-501 email.opened n2, Mon 18:20                │
+└──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             │                                                          │
+                                                                                                                                                                                                                                                                                                    │ STEP 5: Answers &quot;did Rahul open n2?&quot;                     │
+                                                                                                                                                                                                                                                                                                    │   - one indexed lookup, real opens only                  │
+                                                                                                                                                                                                                                                                                                    │   - e.g. yes: machine_open = false                       │
+                                                                                                                                                                                                                                                                                                    │                                                          │
+                                                                                                                                                                                                                                                                                                    │ STEP 6: Adds the tag (via the tag worker)                │
+                                                                                                                                                                                                                                                                                                    │   - tags + outbox contact.tag_added                      │
+                                                                                                                                                                                                                                                                                                    │   - e.g. Rahul now has &quot;engaged&quot;                         │
+                                                                                                                                                                                                                                                                                                    └──────────────────────────────────────────────────────────┘
+                                                                                                                                                                                                                                                                                                                                                          ▲
+                                                                                                                                                                                                                                                                                                                                                          │
+                                                                                                                                                                                                                                                                                                                                                          │
+┌── STEP 3 ────────────────────────────────────────────────┐             ┌── STEP 3, 6 ─────────────────────────────────────────────┐             ┌── STEP 4 ────────────────────────────────────────────────┐             ┌── STEP 4 ────────────────────────────────────────────────┐             ┌── STEP 5, 6 ─────────────────────────────────────────────┐
+│ Timer Service                                            │             │ Run DB  (PostgreSQL)                                     │             │ Outbox Relay                                             │             │ Kafka  (topic run.events)                                │             │ Step Executor                                            │
+├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤             ├──────────────────────────────────────────────────────────┤
+│ STEP 3: Wakes runs whose wait has ended                  │ ──────────&gt; │ STEP 3: Hands out due runs to one timer only             │ ──────────&gt; │ STEP 4: Sends &quot;run is ready&quot; to Kafka                    │ ──────────&gt; │ STEP 4: Delivers the wake-up to an executor              │ ──────────&gt; │ STEP 5: Runs the condition n4                            │
+│   - every second, per Run DB shard                       │             │   - FOR UPDATE SKIP LOCKED, set READY + outbox           │             │   - destination kafka:run.events                         │             │   - one lane per run                                     │             │   - reads Contact DB, picks yes or no                    │
+│   - e.g. Wed 10:00:03 -&gt; r-9001 is due                   │             │   - e.g. r-9001 WAITING -&gt; READY                         │             │   - e.g. run.ready, key r-9001                           │             │   - e.g. run.ready r-9001 at n4                          │             │   - e.g. opened -&gt; yes -&gt; n5                             │
+└──────────────────────────────────────────────────────────┘             │                                                          │             └──────────────────────────────────────────────────────────┘             └──────────────────────────────────────────────────────────┘             │                                                          │
+                                                                         │ STEP 6: Records the branch and the next actions          │                                                                                                                                                               │ STEP 6: Walks the Yes path, one action at a time         │
+                                                                         │   - n5 PENDING + outbox sqs:actions-tag                  │                                                                                                                                                               │   - same as Flow 3 for each action                       │
+                                                                         │   - e.g. then n6: SMS to Anita                           │                                                                                                                                                               │   - e.g. n5 add tag, then n6 SMS to Anita                │
+                                                                         └──────────────────────────────────────────────────────────┘                                                                                                                                                               └──────────────────────────────────────────────────────────┘
+                                                                                                       ▲                                                                                                                                                                                                                          │
+                                                                                                       └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p><strong>Data in this flow</strong> (scroll sideways)</p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code class="language-text">▼ SendGrid                                    ▼ Kafka                                                  ▼ Contact DB                                                                                                 ▼ Run DB
+╔════════════════════════════════════════╗    ╔═══════════════════════════════════════════════════╗    ╔══════════════════════════════════════════════════════════╗    ╔═══════════════════════════════════════╗    ╔════════════════════════════════════╗    ╔═════════════════════════════════════════════════╗
+║ SendGrid event webhook (one item)      ║    ║ Kafka message                                     ║    ║ contact_activity (Contact DB) · UNIQUE provider_event_id ║    ║ contacts (Contact DB) · after the tag ║    ║ runs (Run DB)                      ║    ║ run_steps + outbox (Run DB)                     ║
+╟────────────────────────────────────────╢    ╟───────────────────────────────────────────────────╢    ╟──────────────────────────────────────────────────────────╢    ╟───────────────────────────────────────╢    ╟────────────────────────────────────╢    ╟─────────────────────────────────────────────────╢
+║ {                                      ║    ║ {                                                 ║    ║ {                                                        ║    ║ {                                     ║    ║ {                                  ║    ║ {                                               ║
+║   &quot;event&quot;: &quot;open&quot;,                     ║    ║   &quot;topic&quot;: &quot;contact.events&quot;,                      ║    ║   &quot;provider_event_id&quot;: &quot;sg-evt-77Q&quot;,                     ║    ║   &quot;contact_id&quot;: &quot;c-501&quot;,              ║    ║   &quot;run_id&quot;: &quot;r-9001&quot;,              ║    ║   &quot;run_steps&quot;: { &quot;run_id&quot;: &quot;r-9001&quot;,            ║
+║   &quot;sg_event_id&quot;: &quot;sg-evt-77Q&quot;,         ║    ║   &quot;key&quot;: &quot;c-501&quot;,                                 ║    ║   &quot;contact_id&quot;: &quot;c-501&quot;,                                 ║    ║   &quot;tags&quot;: [&quot;lead&quot;, &quot;engaged&quot;]         ║    ║   &quot;current_node&quot;: &quot;n4&quot; then &quot;n5&quot;,  ║    ║                  &quot;node_id&quot;: &quot;n5&quot;,               ║
+║   &quot;sg_message_id&quot;: &quot;sg-AbC123&quot;,        ║    ║   &quot;headers&quot;: { &quot;event_id&quot;: &quot;sg-evt-77Q&quot; },        ║    ║   &quot;type&quot;: &quot;email.opened&quot;,                                ║    ║ }                                     ║    ║   &quot;status&quot;: &quot;WAITING&quot; then &quot;READY&quot; ║    ║                  &quot;status&quot;: &quot;PENDING&quot; },         ║
+║   &quot;email&quot;: &quot;rahul@example.com&quot;,        ║    ║   &quot;value&quot;: { &quot;type&quot;: &quot;email.opened&quot;,              ║    ║   &quot;run_id&quot;: &quot;r-9001&quot;,                                    ║    ╚═══════════════════════════════════════╝    ║             then &quot;WAITING_ACTION&quot;, ║    ║   &quot;outbox&quot;: { &quot;id&quot;: &quot;ob-5520&quot;,                  ║
+║   &quot;run_id&quot;: &quot;r-9001&quot;, &quot;node_id&quot;: &quot;n2&quot;, ║    ║              &quot;run_id&quot;: &quot;r-9001&quot;, &quot;node_id&quot;: &quot;n2&quot;, ║    ║   &quot;node_id&quot;: &quot;n2&quot;,                                       ║                                                 ║   &quot;next_run_at&quot;: null,             ║    ║               &quot;destination&quot;: &quot;sqs:actions-tag&quot;, ║
+║   &quot;sg_machine_open&quot;: false,            ║    ║              &quot;machine_open&quot;: false }              ║    ║   &quot;machine_open&quot;: false,                                 ║                                                 ║   &quot;row_version&quot;: 5                 ║    ║               &quot;key&quot;: &quot;r-9001&quot; }                 ║
+║   &quot;timestamp&quot;: 1763922011              ║    ║ }                                                 ║    ║   &quot;at&quot;: &quot;2026-11-23T18:20:11Z&quot;                           ║                                                 ║ }                                  ║    ║ }                                               ║
+║ }                                      ║    ╚═══════════════════════════════════════════════════╝    ║ }                                                        ║                                                 ╚════════════════════════════════════╝    ╚═════════════════════════════════════════════════╝
+╚════════════════════════════════════════╝                                                             ╚══════════════════════════════════════════════════════════╝
+</code></pre></div>
+<ol>
+<li>
+<p><strong>SendGrid tells us Rahul opened the email (Monday evening)</strong></p>
+<ul>
+<li><strong>a) How opens work</strong><ul>
+<li>the email carries a tiny invisible image; when Rahul's mail app loads it, SendGrid records "open"</li>
+<li>SendGrid's Event Webhook POSTs a signed batch to <code>/v1/webhooks/sendgrid</code></li>
+</ul>
+</li>
+<li><strong>b) Ingestion</strong><ul>
+<li>checks the signature (otherwise anyone could fake opens), maps <code>custom_args</code> to <code>run r-9001, node n2</code></li>
+<li>writes straight to Kafka <code>contact.events</code>, key <code>c-501</code>; there is no row of its own to pair with, so Kafka goes first and acts as the outbox</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> Kafka message <code>email.opened</code>, <code>event_id sg-evt-77Q</code></li>
+<li><strong>Machine opens:</strong> Apple Mail Privacy Protection loads every image on Apple's servers, so "opened" can be true even if Rahul never looked. SendGrid flags these (<code>sg_machine_open</code>). We keep the flag and the condition ignores those opens.</li>
+</ul>
+</li>
+<li>
+<p><strong>The Activity Writer saves the open, once</strong></p>
+<ul>
+<li><strong>a) Insert</strong><ul>
+<li><code>INSERT INTO contact_activity ... ON CONFLICT (provider_event_id) DO NOTHING</code></li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>contact_activity {sg-evt-77Q, c-501, email.opened, r-9001, n2, machine_open: false}</code></li>
+<li><strong>Why:</strong> webhooks are retried by the sender, so the same open can arrive twice. The unique id turns repeats into no-ops.</li>
+</ul>
+</li>
+<li>
+<p><strong>Wednesday 10:00:03: the Timer Service wakes Rahul</strong></p>
+<ul>
+<li>
+<p><strong>a) The query (each Run DB shard, every second)</strong></p>
+<div class="pre-wrap"><div class="tools"><button class="zout" title="Smaller">−</button><button class="zin" title="Bigger">+</button><button class="fit" title="Fit width">Fit</button><button class="full" title="Expand height">↕</button></div><pre><code>BEGIN;
+SELECT run_id FROM runs
+ WHERE status = 'WAITING' AND next_run_at &lt;= now()
+ ORDER BY next_run_at LIMIT 500
+ FOR UPDATE SKIP LOCKED;
+UPDATE runs SET status = 'READY' ... ;  INSERT INTO outbox (run.ready ...);
+COMMIT;
+</code></pre></div>
+</li>
+<li>
+<p><strong>Data change:</strong> <code>runs.status WAITING → READY</code>; outbox <code>run.ready r-9001</code></p>
+</li>
+<li><strong>What SKIP LOCKED does:</strong> several timer copies run at once. Each one skips rows another copy has already locked, so no run is woken twice and no copy waits on another.</li>
+<li><strong>Why it scales:</strong> a partial index on <code>next_run_at WHERE status = 'WAITING'</code> means the query only touches rows that are due now, never the millions still sleeping.</li>
+</ul>
+</li>
+<li>
+<p><strong>The relay publishes <code>run.ready</code> to Kafka <code>run.events</code></strong></p>
+<ul>
+<li><strong>Data change:</strong> Kafka message <code>run.ready r-9001</code></li>
+</ul>
+</li>
+<li>
+<p><strong>The executor runs the condition n4: "did Rahul open n2?"</strong></p>
+<ul>
+<li><strong>a) The check</strong><ul>
+<li><code>SELECT 1 FROM contact_activity WHERE contact_id = c-501 AND type = 'email.opened' AND run_id = r-9001 AND node_id = n2 AND NOT machine_open</code></li>
+<li>one row → <strong>Yes</strong> → next node n5</li>
+</ul>
+</li>
+<li><strong>Data change:</strong> none (a read)</li>
+<li><strong>Why read at wake-up and not store a flag on the run:</strong> the open is a fact about the contact. Any workflow can ask about it, and the run row stays small.</li>
+</ul>
+</li>
+<li>
+<p><strong>The executor walks the Yes path, one action at a time</strong></p>
+<ul>
+<li><strong>a) n5 add tag "engaged"</strong><ul>
+<li>exactly the Flow 3 pattern: <code>run_steps n5 PENDING</code> + <code>outbox sqs:actions-tag</code></li>
+<li>the Tag Worker writes <code>contacts.tags += engaged</code> + <code>outbox contact.tag_added</code> in one transaction, so "tag added" can trigger <em>other</em> workflows</li>
+</ul>
+</li>
+<li><strong>b) n6 SMS to Anita</strong><ul>
+<li>after n5 completes: <code>actions-sms</code>, Twilio, to the assigned rep <code>u-9</code></li>
+</ul>
+</li>
+<li><strong>c) The No path, for comparison</strong><ul>
+<li>n7 follow-up SMS → n8 <code>next_run_at = now + 3 days</code> → n9 final email → <code>DONE</code></li>
+</ul>
+</li>
+<li><strong>Data change:</strong> <code>runs {n5, WAITING_ACTION}</code>; <code>run_steps n5 PENDING</code>; outbox <code>ob-5520</code>; later <code>contacts.tags = [lead, engaged]</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>Say in the interview:</strong> "Opens come back through signed provider webhooks into contact activity, with machine opens flagged. Waits are rows with next_run_at; a timer claims due rows with SKIP LOCKED and emits run.ready through the outbox. The condition is a read of contact activity at wake-up, then each branch action reuses the same outbox → SQS → worker pattern."</p>
+<h2 id="key-design-choices">Key design choices</h2>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Choice</th>
+<th>Why vs alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Journey state</td>
+<td>One <code>runs</code> row per contact per workflow, with <code>current_node</code> + <code>next_run_at</code></td>
+<td>vs keeping state in workers or queues: those forget on a crash. The row is the single truth.</td>
+</tr>
+<tr>
+<td>Workflow edits</td>
+<td>Immutable versions; runs pin their version</td>
+<td>vs editing in place: running contacts would point at deleted steps.</td>
+</tr>
+<tr>
+<td>Waits</td>
+<td><code>next_run_at</code> + partial index + Timer Service with <code>SKIP LOCKED</code></td>
+<td>vs SQS delay (15 min max), Kafka (no delay), Redis sorted set alone (can lose timers on failover), cron scans of the whole table (slow).</td>
+</tr>
+<tr>
+<td>Events vs jobs</td>
+<td>Kafka for events (ordered, many readers); SQS for send jobs (retry, delay, DLQ, fair queues)</td>
+<td>vs one tool for both: Kafka has no per-message retry; SQS has no replay or multiple readers.</td>
+</tr>
+<tr>
+<td>Telling other systems</td>
+<td>Outbox row in the same transaction, relay publishes; readers drop repeats by <code>event_id</code></td>
+<td>vs save then publish: a crash in between loses the event or leaves a half-done run.</td>
+</tr>
+<tr>
+<td>Duplicate sends</td>
+<td><code>UNIQUE</code> enroll key, <code>row_version</code>, conditional claim <code>PENDING → SENDING</code></td>
+<td>vs "check then act": two copies both pass the check.</td>
+</tr>
+<tr>
+<td>Provider edge</td>
+<td>Per-channel policy: email may be checked and resent, SMS never auto-resent</td>
+<td>vs pretending exactly-once: SendGrid and Twilio have no idempotency keys.</td>
+</tr>
+<tr>
+<td>Fairness</td>
+<td>SQS fair queues by business + Redis token bucket per business per channel</td>
+<td>vs one shared FIFO: one big campaign delays everyone.</td>
+</tr>
+<tr>
+<td>Conditions</td>
+<td>Read contact activity at wake-up; ignore machine opens</td>
+<td>vs trusting raw opens: Apple Mail Privacy Protection makes most iPhone opens fake.</td>
+</tr>
+<tr>
+<td>Build vs buy</td>
+<td>Interview: draw this. Production: seriously consider Temporal (see Deep Dive)</td>
+<td>Temporal gives durable timers and retries out of the box, but adds a cluster to run and strict code rules.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="deep-dive-only-what-the-flows-did-not-cover">Deep Dive (only what the flows did not cover)</h2>
+<h3 id="1-back-of-the-envelope-estimates-say-these-early">1. Back-of-the-envelope estimates (say these early)</h3>
+<p>Assume ≈100,000 businesses, ≈50 million runs open at any moment, and each run doing ≈10 steps over ≈2 weeks. That gives ≈400 step executions a second on average, and ≈10x that at peaks (Monday-morning campaigns, Black Friday). Each run row is ≈300 bytes, so 50 million runs is ≈15 GB plus indexes: small for PostgreSQL, but split into shards by <code>run_id</code> so timers and writes spread out. The key insight: <strong>almost all runs are asleep</strong>, so the design must make sleeping free (just a row) and waking cheap (an index range scan).</p>
+<h3 id="2-what-the-market-actually-uses-honest-comparison">2. What the market actually uses (honest comparison)</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What it is</th>
+<th>Good for</th>
+<th>Why not (or when)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Own engine on PostgreSQL</strong> (this doc)</td>
+<td>runs table + timer + executor + outbox</td>
+<td>Full control, cheap per run, easy to explain</td>
+<td>You build retries, versioning and monitoring yourself</td>
+</tr>
+<tr>
+<td><strong>Temporal</strong> (open source; grew out of Uber's Cadence)</td>
+<td>"Durable execution": code that can <code>sleep(2 days)</code> and survive crashes; the server saves every step and timer</td>
+<td>Exactly this problem. Publicly used by companies such as Netflix, Snap, Datadog and Coinbase. Write <strong>one generic "interpreter" workflow</strong> that walks the business's JSON graph</td>
+<td>A cluster to run (or pay Temporal Cloud per action), workflow code must be deterministic, versioning needs care, history size limits per run</td>
+</tr>
+<tr>
+<td><strong>AWS Step Functions</strong></td>
+<td>Managed state machines</td>
+<td>A few long business processes</td>
+<td>Standard: priced per state change, which gets expensive for millions of contacts times many steps; Express: max 5 minutes, so no 2-day waits</td>
+</tr>
+<tr>
+<td><strong>n8n / Zapier / Make</strong></td>
+<td>Visual automation tools</td>
+<td>One company's own glue work</td>
+<td>Built for "one workflow, a few runs", not "one run per contact, millions at once, multi-tenant"</td>
+</tr>
+<tr>
+<td><strong>Apache Airflow</strong></td>
+<td>Scheduled batch jobs (DAGs)</td>
+<td>Nightly data pipelines</td>
+<td>Wrong shape: one run per schedule, not per contact event</td>
+</tr>
+<tr>
+<td><strong>HighLevel, HubSpot, Klaviyo, Braze, Customer.io</strong></td>
+<td>Products with exactly this builder</td>
+<td>The product you are designing</td>
+<td>Their internals are mostly not public. Don't claim you know them; say "this is how I would build it"</td>
+</tr>
+</tbody>
+</table></div>
+<p>What to say: "I'd draw the PostgreSQL design to show I understand the moving parts. In production I'd prototype on Temporal, with one interpreter workflow per enrollment, because it gives durable timers, retries and history for free. I'd only build my own if cost per run or tenant isolation forced it."</p>
+<h3 id="3-timers-in-more-detail">3. Timers in more detail</h3>
+<ul>
+<li><strong>Shards:</strong> Run DB is split by <code>run_id</code> hash; each shard has its own Timer copies, so no single "due list" becomes a hot spot.</li>
+<li><strong>Precision:</strong> polling every second gives "a few seconds late at worst", which is fine for marketing.</li>
+<li><strong>Big spikes:</strong> 100,000 contacts all waiting "until Monday 9:00" wake at once. Add a small random jitter (0 to 60 seconds) when setting <code>next_run_at</code>, and let the fair queues spread the sends.</li>
+<li><strong>Time zones and quiet hours:</strong> "wait until 9 am" is worked out in the contact's zone (<code>Asia/Kolkata</code>) and stored as UTC. SMS outside 8 am to 9 pm local time is pushed to the next morning, because rules in many countries (for example TCPA, the US Telephone Consumer Protection Act) limit those hours.</li>
+<li><strong>Faster index option:</strong> a Redis sorted set (score = wake time) can sit in front for sub-second wake-ups, but it is only a copy; the row in Run DB stays the truth.</li>
+</ul>
+<h3 id="4-event-waits-wait-until-opened-or-2-days">4. Event waits ("wait until opened, or 2 days")</h3>
+<p>Store the run as <code>WAITING</code> with <code>next_run_at = +2 days</code> <strong>and</strong> a row in <code>run_waits {contact_id, event: email.opened, run_id}</code>. The Activity Writer, after saving an open, looks up <code>run_waits</code> for that contact and sets matching runs to <code>READY</code> + outbox in one transaction. Whichever comes first (the event or the timer) wins the <code>row_version</code> update; the other one changes 0 rows.</p>
+<h3 id="5-exits-and-edits">5. Exits and edits</h3>
+<ul>
+<li><strong>Unsubscribe / STOP:</strong> the opt-out flag is checked before every send (Flow 3, step 2). Twilio also blocks numbers that replied STOP.</li>
+<li><strong>Goal reached:</strong> e.g. "leave when an appointment is booked": an <code>appointment.booked</code> event sets matching runs to <code>EXITED</code>.</li>
+<li><strong>Pause workflow:</strong> the executor sees <code>PAUSED</code> and parks runs; resume puts them back to <code>READY</code>.</li>
+<li><strong>Delete a step that live runs are on:</strong> impossible by design: versions are frozen. Offer "move contacts from v1 step n3 to v2 step n3" as a deliberate bulk action.</li>
+</ul>
+<h3 id="6-failure-scenarios">6. Failure scenarios</h3>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>What breaks</th>
+<th>What happens</th>
+<th>Why it is safe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Executor crashes mid-step</td>
+<td>Kafka redelivers <code>run.ready</code></td>
+<td><code>row_version</code> check: the work is redone or skipped, never doubled</td>
+</tr>
+<tr>
+<td>Worker crashes after SendGrid accepted</td>
+<td>Row stuck <code>SENDING</code></td>
+<td>Per-channel policy (Flow 3, step 5)</td>
+</tr>
+<tr>
+<td>SendGrid down</td>
+<td>Sends fail, SQS retries with backoff</td>
+<td>After 5 tries → DLQ; run marked <code>FAILED</code> at n2, visible to Priya, replayable</td>
+</tr>
+<tr>
+<td>Relay down</td>
+<td>Outbox rows pile up</td>
+<td>Nothing lost; they go out when it returns</td>
+</tr>
+<tr>
+<td>Redis lost</td>
+<td>Cache misses</td>
+<td>Refilled from Workflow DB; rate limits briefly loose</td>
+</tr>
+<tr>
+<td>Run DB shard fails over</td>
+<td>Timers on that shard pause for seconds</td>
+<td>Replica promoted; late wake-ups, nothing lost</td>
+</tr>
+<tr>
+<td>Business's webhook URL slow</td>
+<td>Their own queue backs up</td>
+<td>Per-business fair queue plus timeouts; other businesses unaffected</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="7-why-a-boxes-in-a-line-answer-gets-rejected">7. Why a "boxes in a line" answer gets rejected</h3>
+<p>Interviewers look for: (1) <strong>where the per-contact state lives</strong> (runs row + versions), (2) <strong>how a 2-day wait survives a deploy</strong> (stored timer, not a queue delay), (3) <strong>the feedback loop</strong> (worker result → next step, and opens coming back via webhooks), (4) <strong>no duplicates</strong> (unique keys, claims, outbox), (5) <strong>fairness between tenants</strong>. A diagram of Gateway → Kafka → Orchestrator → SQS → Workers with an unlabelled Redis covers none of these.</p>
+<h3 id="8-rapid-fire-interview-qa">8. Rapid-fire interview Q&amp;A</h3>
+<ul>
+<li><strong>Why not one long-running process per contact?</strong> 50 million mostly idle processes would waste memory and die on every deploy. A row costs bytes.</li>
+<li><strong>How do you guarantee order of steps for one contact?</strong> Only one executor can move a run at a time (<code>row_version</code>), and run events are keyed by <code>run_id</code>.</li>
+<li><strong>What if a business edits a workflow while contacts are inside?</strong> New version; old runs finish on the old one.</li>
+<li><strong>How do you stop one tenant from hurting others?</strong> Fair queues by tenant, token buckets per tenant per channel, per-tenant caps on active runs.</li>
+<li><strong>Exactly-once sends?</strong> Inside our system yes (unique keys, claims, outbox). At SendGrid/Twilio, no one can promise it; we shrink the window and choose per channel.</li>
+<li><strong>How do you show "where is Rahul"?</strong> <code>runs</code> + <code>run_steps</code> already hold it; the history API reads them.</li>
+<li><strong>When would you pick Temporal?</strong> When the team accepts running it (or paying for Temporal Cloud) and wants timers, retries and history without building them.</li>
+</ul></article></main><button id="top" title="Back to top">↑</button>
+<script>
+const root=document.documentElement, nav=document.querySelector('nav'), shade=document.getElementById('shade');
+root.dataset.theme=localStorage.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+const toggleNav=o=>{nav.classList.toggle('open',o);shade.classList.toggle('open',o);};
+document.getElementById('menu').onclick=()=>toggleNav(true);
+shade.onclick=()=>toggleNav(false);
+nav.querySelectorAll('a').forEach(a=>a.onclick=()=>toggleNav(false));
+document.getElementById('theme').onclick=()=>{root.dataset.theme=localStorage.theme=root.dataset.theme==='dark'?'light':'dark';};
+let fs=+(localStorage.fs||16); const setFs=d=>{fs=Math.min(26,Math.max(11,fs+d));document.body.style.fontSize=fs+'px';localStorage.fs=fs;};
+setFs(0); document.getElementById('aminus').onclick=()=>setFs(-1); document.getElementById('aplus').onclick=()=>setFs(1);
+document.querySelectorAll('.pre-wrap').forEach(w=>{
+  const pre=w.querySelector('pre'); let s=12; const set=v=>{s=Math.min(24,Math.max(4,v));pre.style.setProperty('--pre-size',s+'px');};
+  w.querySelector('.zin').onclick=()=>set(s+1); w.querySelector('.zout').onclick=()=>set(s-1);
+  w.querySelector('.fit').onclick=()=>{set(12);const c=pre.querySelector('code');set(Math.floor(12*(pre.clientWidth-24)/c.scrollWidth));};
+  w.querySelector('.full').onclick=()=>{pre.style.maxHeight=pre.style.maxHeight?'':'none';};
+});
+const bar=document.getElementById('progress'), top=document.getElementById('top');
+addEventListener('scroll',()=>{const h=root.scrollHeight-innerHeight;bar.style.width=(h>0?scrollY/h*100:0)+'%';top.style.display=scrollY>600?'block':'none';},{passive:true});
+top.onclick=()=>scrollTo(0,0);
+</script></body></html>
